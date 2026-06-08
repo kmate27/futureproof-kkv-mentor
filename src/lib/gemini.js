@@ -204,7 +204,7 @@ Dokumentum szövege:
   } catch (error) {
     console.error('Hiba a dokumentum elemzésekor:', error);
     return {
-      summary: "Hiba történt a feldolgozás során.",
+      summary: "A KKV Mentor jelenleg túlterhelt, kérlek próbáld újra egy picit később.",
       action: "Kérjük, ellenőrizze manuálisan a dokumentumot.",
       deadline: "Ismeretlen",
       risk: "A feldolgozási hiba miatt a kockázatok nem megállapíthatók."
@@ -247,7 +247,7 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
     return result.response.text();
   } catch (error) {
     console.error('Hiba a chat során:', error);
-    return "Hiba történt a kommunikáció során. Kérem, próbálja újra később.";
+    return "A KKV Mentor jelenleg túlterhelt, kérlek próbáld újra egy picit később.";
   }
 }
 
@@ -290,8 +290,8 @@ A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json t
   } catch (error) {
     console.error('Hiba a Havi Pulzus generálásakor:', error);
     return {
-      summary: "Hiba történt az AI elemzés lekérésekor.",
-      tasks: ["Rendszerellenőrzés", "Próbálja újra később"]
+      summary: "A KKV Mentor jelenleg túlterhelt, kérlek próbáld újra egy picit később.",
+      tasks: ["Rendszerellenőrzés", "Próbálja újra később", "Ellenőrizze az internetkapcsolatot"]
     };
   }
 }

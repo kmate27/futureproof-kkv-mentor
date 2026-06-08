@@ -20,7 +20,8 @@ export default function Chat() {
   const location = useLocation();
   // Alapértelmezett mock adatok, ha nem az onboarding felől jövünk
   const companyData = location.state?.companyData || {
-    industry: 'Szolgáltatás',
+    name: 'Kovács Bt.',
+    industry: 'Kereskedelem',
     revenue: '12-25M Ft',
     taxRegime: 'KATA',
     employees: '1-2'
@@ -175,7 +176,8 @@ export default function Chat() {
               <div className="w-8 h-8 bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-white border border-[#E2E8F0] rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm">
+              <div className="bg-white border border-[#E2E8F0] rounded-2xl rounded-bl-sm px-5 py-4 shadow-sm flex items-center gap-3">
+                <span className="text-sm font-medium text-[#64748B]">KKV Mentor gondolkodik...</span>
                 <div className="flex items-center gap-1.5 h-6">
                   <span className="w-2 h-2 bg-[#94A3B8] rounded-full animate-bounce [animation-delay:-0.3s]" />
                   <span className="w-2 h-2 bg-[#94A3B8] rounded-full animate-bounce [animation-delay:-0.15s]" />

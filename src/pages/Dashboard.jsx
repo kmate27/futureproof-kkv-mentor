@@ -93,7 +93,13 @@ function CustomTooltip({ active, payload, label }) {
 
 export default function Dashboard() {
   const location = useLocation();
-  const companyData = location.state?.companyData || null;
+  const companyData = location.state?.companyData || {
+    name: 'Kovács Bt.',
+    industry: 'Kereskedelem',
+    revenue: '18M Ft',
+    taxRegime: 'KATA',
+    employees: '2'
+  };
 
   const [pulse, setPulse] = useState(null);
   const [isPulseLoading, setIsPulseLoading] = useState(false);
@@ -133,12 +139,12 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {!companyData && (
+      {!location.state?.companyData && (
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h3 className="text-sm font-semibold text-blue-800">Töltsd ki az adatokat a pontosabb score-hoz</h3>
-            <p className="text-sm text-blue-600 mt-1">Az alkalmazás jelenleg mintaadatokkal dolgozik. A személyre szabott elemzéshez adja meg cége paramétereit.</p>
+            <h3 className="text-sm font-semibold text-blue-800">Demo Üzemmód: Kovács Bt.</h3>
+            <p className="text-sm text-blue-600 mt-1">Az alkalmazás jelenleg egy minta felhasználó, a Kovács Bt. adatait mutatja. A személyre szabott elemzéshez adja meg saját cége paramétereit az Onboarding oldalon.</p>
           </div>
         </div>
       )}
