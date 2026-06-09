@@ -232,20 +232,6 @@ export default function Dashboard() {
               <p className="text-blue-50 text-sm leading-relaxed">
                 {pulse?.summary}
               </p>
-              
-              <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-blue-100 mb-3">Kiemelt Teendők</h3>
-                <ul className="space-y-3">
-                  {pulse?.tasks?.map((task, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm">
-                      <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-xs font-bold">{idx + 1}</span>
-                      </div>
-                      <span className="text-white">{task}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
 
               <Link to="/chat" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-100 hover:text-white transition-colors">
                 Részletes megbeszélés az asszisztenssel <ArrowRight className="w-4 h-4" />

@@ -19,9 +19,21 @@ import { useFinance } from '../context/FinanceContext';
 
 const REGIMES = ['KATA', 'Átalányadó', 'KIVA', 'TAO Kft.'];
 
+const getNextDate = (targetDay) => {
+  const now = new Date();
+  let next = new Date(now.getFullYear(), now.getMonth(), targetDay);
+  if (now.getTime() > next.getTime()) {
+    next.setMonth(next.getMonth() + 1);
+  }
+  const diffDays = Math.ceil((next - now) / (1000 * 60 * 60 * 24));
+  return { date: next, diffDays };
+};
+
+const formatMonthDay = (date) => date.toLocaleDateString('hu-HU', { month: 'long', day: 'numeric' });
+
 export default function Adozas() {
   const { annualRevenue } = useFinance();
-  const [revenue, setRevenue] = useState(annualRevenue || 18000000); // use annualRevenue from context as default
+  const [revenue, setRevenue] = useState(annualRevenue || 18000000); // Raw number
   const [currentRegime, setCurrentRegime] = useState('KATA');
   const [employees, setEmployees] = useState(0);
   const [isCalculated, setIsCalculated] = useState(false);
@@ -31,7 +43,7 @@ export default function Adozas() {
 
   // Calculations
   const taxes = useMemo(() => {
-    const rev = revenue * 1000000;
+    const rev = revenue;
     
     // KATA: Évi 600.000 Ft. Ha > 18M, akkor a 18M feletti részre 40% büntetőadó.
     const kata = rev > 18000000 ? 600000 + (rev - 18000000) * 0.4 : 600000;
@@ -123,26 +135,26 @@ export default function Adozas() {
             Alapadatok megadása
           </h2>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Col: Slider & Input */}
+          <div className="grid grid-cols-1 gap-8">
+            {/* Top Row: Slider & Input */}
             <div className="space-y-6">
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <label className="text-sm font-medium text-[#1E293B]">Várható éves bevétel</label>
-                  <span className="text-lg font-bold text-[#1F5FAD]">{revenue} Millió Ft</span>
+                  <span className="text-lg font-bold text-[#1F5FAD]">{new Intl.NumberFormat('hu-HU').format(revenue)} Ft</span>
                 </div>
                 <input 
                   type="range" 
-                  min="1" 
-                  max="50" 
-                  step="1"
+                  min="1000000" 
+                  max="100000000" 
+                  step="1000000"
                   value={revenue}
                   onChange={(e) => setRevenue(Number(e.target.value))}
                   className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#1F5FAD]"
                 />
                 <div className="flex justify-between text-xs text-[#64748B] mt-1">
                   <span>1M Ft</span>
-                  <span>50M Ft</span>
+                  <span>100M Ft</span>
                 </div>
               </div>
 
@@ -204,7 +216,7 @@ export default function Adozas() {
                   Adóterhek Összehasonlítása
                 </h2>
                 <div className="text-sm px-3 py-1 bg-white border rounded-full shadow-sm">
-                  Bevétel: <span className="font-bold">{revenue}M Ft</span> | Alkalmazott: <span className="font-bold">{employees} fő</span>
+                  Bevétel: <span className="font-bold">{new Intl.NumberFormat('hu-HU').format(revenue)} Ft</span> | Alkalmazott: <span className="font-bold">{employees} fő</span>
                 </div>
               </div>
 
@@ -348,8 +360,8 @@ export default function Adozas() {
                 <AlertTriangle className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-amber-900">Június 20.</p>
-                <p className="text-xs text-amber-700">ÁFA bevallás (12 nap)</p>
+                <p className="text-sm font-bold text-amber-900">{formatMonthDay(getNextDate(20).date)}</p>
+                <p className="text-xs text-amber-700">ÁFA bevallás ({getNextDate(20).diffDays} nap)</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 rounded-xl border border-[#E2E8F0] bg-slate-50">
@@ -357,8 +369,8 @@ export default function Adozas() {
                 <Info className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-[#1E293B]">Július 12.</p>
-                <p className="text-xs text-[#64748B]">KATA befizetés</p>
+                <p className="text-sm font-bold text-[#1E293B]">{formatMonthDay(getNextDate(12).date)}</p>
+                <p className="text-xs text-[#64748B]">KATA befizetés ({getNextDate(12).diffDays} nap)</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 rounded-xl border border-[#E2E8F0] bg-slate-50">
@@ -366,8 +378,8 @@ export default function Adozas() {
                 <Shield className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-[#1E293B]">Szept. 30.</p>
-                <p className="text-xs text-[#64748B]">Iparűzési adó</p>
+                <p className="text-sm font-bold text-[#1E293B]">Szeptember 15.</p>
+                <p className="text-xs text-[#64748B]">Iparűzési adó előleg</p>
               </div>
             </div>
           </div>

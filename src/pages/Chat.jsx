@@ -35,7 +35,7 @@ export default function Chat() {
     {
       id: 1,
       role: 'ai',
-      content: `Üdvözlöm! Én vagyok a KKV Mentor AI asszisztense. Látom, hogy a(z) ${activeCompanyData.industry} szektorban tevékenykedik. Miben segíthetek ma?`,
+      content: `Üdvözlöm! Én vagyok a KKV Mentor AI asszisztense. Látom, hogy a ${activeCompanyData.industry} szektorban tevékenykedik. Miben segíthetek ma?`,
       timestamp: new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' }),
     }
   ]);

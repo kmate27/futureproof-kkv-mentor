@@ -82,20 +82,6 @@ export default function AppLayout({ children }) {
             )
           })}
 
-          {/* AI Chat Promo */}
-          <div className="mt-8 p-4 rounded-xl bg-gradient-to-br from-[#1F5FAD]/5 to-[#2E75B6]/10 border border-[#1F5FAD]/10">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-[#1F5FAD]" />
-              <span className="text-sm font-semibold text-[#1F5FAD]">AI Asszisztens</span>
-            </div>
-            <p className="text-xs text-slate-500 mb-3">Kérdezzen bármit a vállalkozása pénzügyeiről</p>
-            <Link
-              to="/chat"
-              className="block w-full text-center text-xs font-semibold text-white bg-[#1F5FAD] py-2.5 rounded-lg hover:bg-[#194d8e] transition-colors"
-            >
-              Chat indítása
-            </Link>
-          </div>
         </nav>
 
         {/* User Profile */}

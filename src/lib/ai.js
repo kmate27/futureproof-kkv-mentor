@@ -266,9 +266,8 @@ Aktuális tranzakciók: Bevételek: ${companyData?.incomes?.length || 0} tétel,
 
 ${CURRENT_TAX_RULES}
 
-A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
-- "summary": Egy maximum 3 mondatos összefoglaló a cég aktuális pénzügyi helyzetéről és mire érdemes figyelni.
-- "tasks": Egy 3 elemű tömb, ami tartalmazza a top 3 legsürgősebb, legfontosabb pénzügyi/adózási teendőt erre a hónapra.`;
+A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi egyetlen kulccsal:
+- "summary": Egy maximum 4-5 mondatos folyamatos szöveg, ami összefoglalja a cég aktuális pénzügyi helyzetét és a legfontosabb teendőket (pl. adózás, költségoptimalizálás, 2026-os új szabályok). Szigorúan folyó szöveg legyen, ne használj listákat és számozásokat!`;
 
   try {
     const response = await fetch('/api/openai', {

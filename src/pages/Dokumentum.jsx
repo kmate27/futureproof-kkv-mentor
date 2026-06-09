@@ -10,7 +10,8 @@ import {
   Clock,
   CheckCircle2,
   Loader2,
-  Info
+  Info,
+  ArrowRight
 } from 'lucide-react';
 
 export default function Dokumentum() {
@@ -77,13 +78,16 @@ export default function Dokumentum() {
             className="w-full h-48 p-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1F5FAD] text-sm text-[#1E293B] resize-y transition-colors placeholder:text-slate-400"
           ></textarea>
 
-          <div className="mt-4 flex justify-between items-center">
-            <button
-              onClick={() => setDocText('Tisztelt Adózó! Tájékoztatjuk, hogy a 2025. évi adóbevallásukat felülvizsgáltuk. Az ellenőrzés során eltérést találtunk az ÁFA bevallásában. Kérjük, 30 napon belül nyújtsa be a javított bevallást. Tisztelettel, NAV')}
-              className="text-sm font-medium text-[#1F5FAD] hover:underline"
-            >
-              + Demó dokumentum betöltése
-            </button>
+          <div className="mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-slate-500 font-medium">Próbáld ki egy minta NAV-levéllel <ArrowRight className="w-4 h-4 inline-block text-slate-400" /></span>
+              <button
+                onClick={() => setDocText('Tisztelt Adózó! Tájékoztatjuk, hogy a 2026. évi adóbevallásukat felülvizsgáltuk. Az ellenőrzés során eltérést találtunk az ÁFA bevallásában. Kérjük, 30 napon belül nyújtsa be a javított bevallást. Tisztelettel, NAV')}
+                className="text-sm font-semibold text-[#1F5FAD] bg-blue-50 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+              >
+                + Demó levél betöltése
+              </button>
+            </div>
             <button
               onClick={handleAnalyze}
               disabled={!docText.trim() || isAnalyzing}
