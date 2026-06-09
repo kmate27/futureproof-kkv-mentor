@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { analyzeDocument } from '../lib/gemini';
+import { analyzeDocument } from '../lib/ai';
 import {
   FileSearch,
   ChevronLeft,

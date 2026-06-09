@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { generateMonthlyPulse } from '../lib/gemini';
+import { generateMonthlyPulse } from '../lib/ai';
 import {
   TrendingUp,
   TrendingDown,

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { sendChatMessage } from '../lib/gemini';
+import { sendChatMessage } from '../lib/ai';
 import {
   Bot,
   User,
@@ -72,7 +72,7 @@ export default function Chat() {
       parts: [{ text: msg.content }]
     }));
 
-    // A Gemini API megköveteli, hogy a history 'user' role-lal kezdődjön!
+    // Az API megköveteli, hogy a history 'user' role-lal kezdődjön!
     // Mivel a mi listánk alapból az AI üdvözlésével indul, az első 'model' üzenetet levágjuk.
     if (history.length > 0 && history[0].role === 'model') {
       history = history.slice(1);

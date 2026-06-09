@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { generateTaxAdvice } from '../lib/gemini';
+import { generateTaxAdvice } from '../lib/ai';
 import {
   Calculator,
   ChevronLeft,
@@ -301,7 +301,7 @@ export default function Adozas() {
                 {!aiAdvice && !isAiLoading ? (
                   <div>
                     <p className="text-blue-100 mb-6 max-w-2xl">
-                      Kérjen személyre szabott, szöveges értékelést a Gemini AI adószakértőnktől, aki részletesen elmagyarázza a fenti számokat és javaslatot tesz a váltásra.
+                      Kérjen személyre szabott, szöveges értékelést az AI adószakértőnktől, aki részletesen elmagyarázza a fenti számokat és javaslatot tesz a váltásra.
                     </p>
                     <button 
                       onClick={handleAiAdvice}
@@ -321,7 +321,7 @@ export default function Adozas() {
                     <p className="text-white leading-relaxed whitespace-pre-wrap">{aiAdvice}</p>
                     <div className="mt-4 flex items-center gap-2 text-sm text-blue-200">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Gemini AI által generálva</span>
+                      <span>AI által generálva</span>
                     </div>
                   </div>
                 )}

@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { parseCustomScenario } from '../lib/gemini';
+import { parseCustomScenario } from '../lib/ai';
 import {
   Wallet, TrendingUp, TrendingDown, Plus, Trash2, ChevronLeft, 
   Lightbulb, AlertTriangle, Users, UserMinus, Monitor, Sparkles, X, Loader2, Info
