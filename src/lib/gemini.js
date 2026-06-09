@@ -235,6 +235,18 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
   try {
     let responseText = "";
     
+    // Deep copy a history-ról, hogy ne mutáljuk az eredetit
+    const chatHistory = JSON.parse(JSON.stringify(history));
+    
+    // Ha van már történet, az első üzenethez hozzáadjuk az instrukciókat, hogy a modell sose felejtse el (mivel a systemInstruction paramétert ignorálhatja)
+    if (chatHistory.length > 0) {
+      chatHistory[0].parts[0].text = `[RENDSZER UTASÍTÁS: Kérlek mindenképp MAGYARUL válaszolj! ${systemInstruction}]\n\n${chatHistory[0].parts[0].text}`;
+    }
+    
+    const messageToSend = chatHistory.length === 0 
+      ? `[RENDSZER UTASÍTÁS: Kérlek mindenképp MAGYARUL válaszolj! ${systemInstruction}]\n\nKérdés: ${message}`
+      : message;
+    
     // 1. Kísérlet: gemini-3.5-flash
     try {
       const model = genAI.getGenerativeModel({ 
@@ -242,13 +254,9 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
         systemInstruction: { parts: [{ text: systemInstruction }] }
       });
       
-      const messageToSend = history.length === 0 
-        ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
-        : message;
-
       const chat = model.startChat({
-        history: history,
-        generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
+        history: chatHistory,
+        generationConfig: { temperature: 0.6 } // Kivettük a maxOutputTokens-t, hogy sose vágja el!
       });
 
       const result = await chat.sendMessage(messageToSend);
@@ -261,14 +269,10 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
         model: "gemini-2.5-flash",
         systemInstruction: { parts: [{ text: systemInstruction }] }
       });
-      
-      const messageToSend = history.length === 0 
-        ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
-        : message;
 
       const chat = fallbackModel.startChat({
-        history: history,
-        generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
+        history: chatHistory,
+        generationConfig: { temperature: 0.6 }
       });
 
       const result = await chat.sendMessage(messageToSend);
