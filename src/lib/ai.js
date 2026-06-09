@@ -97,6 +97,8 @@ A megadott bevételek és kiadások alapján (összesen ${data.length} tétel) a
   }
 }
 
+import { CURRENT_TAX_RULES } from './taxRules';
+
 /**
  * Szabad szöveges "Mi van ha" forgatókönyv elemzése és JSON formátumra hozása.
  * @param {string} text - A felhasználó elképzelése (pl. "Veszek egy autót 2 millióért")
@@ -201,6 +203,8 @@ A felhasználó vállalkozásának adatai amiket mindig figyelembe veszel és hi
 - Alkalmazottak: ${companyData?.employees || '0'} fő
 - Aktuális cashflow helyzet: Bevételek listája: ${JSON.stringify(companyData?.incomes?.map(i => i.name + ': ' + i.amount + ' Ft') || [])}. Kiadások listája: ${JSON.stringify(companyData?.expenses?.map(e => e.name + ': ' + e.amount + ' Ft') || [])}.
 
+${CURRENT_TAX_RULES}
+
 Hogyan válaszolj:
 - Mindig hivatkozz a konkrét adatokra — soha ne adj általános választ
 - Folyó szövegben írj, ne számozott listákban vagy vastag fejlécekkel
@@ -259,6 +263,8 @@ Iparág: ${companyData?.industry || 'Ismeretlen'}
 Adóforma: ${companyData?.taxRegime || 'KATA'}
 Alkalmazottak: ${companyData?.employees || '0'} fő
 Aktuális tranzakciók: Bevételek: ${companyData?.incomes?.length || 0} tétel, Kiadások: ${companyData?.expenses?.length || 0} tétel. (Részletesen: ${JSON.stringify(companyData?.incomes?.map(i => i.name + ': ' + i.amount + ' Ft') || [])}, ${JSON.stringify(companyData?.expenses?.map(e => e.name + ': ' + e.amount + ' Ft') || [])})
+
+${CURRENT_TAX_RULES}
 
 A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
 - "summary": Egy maximum 3 mondatos összefoglaló a cég aktuális pénzügyi helyzetéről és mire érdemes figyelni.

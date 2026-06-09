@@ -36,18 +36,20 @@ export default function Adozas() {
     // KATA: Évi 600.000 Ft. Ha > 18M, akkor a 18M feletti részre 40% büntetőadó.
     const kata = rev > 18000000 ? 600000 + (rev - 18000000) * 0.4 : 600000;
     
-    // Átalányadó: bevétel 40%-a az adóalap, amire 15% SZJA + 18.5% TB (33.5%)
-    const atalany = rev * 0.4 * 0.335;
+    // Átalányadó (2026): bevétel 55%-a az adóalap (45% költséghányad). Adómentes: 1.936.800 Ft jövedelem. Adó: 46.5%.
+    const jovedelem = rev * 0.55;
+    const adoalap = Math.max(0, jovedelem - 1936800);
+    const atalany = adoalap * 0.465;
     
-    // Alkalmazott becsült éves bérköltség (kb. 350e bruttó/hó = 4.2M/év)
-    const personnelCost = employees * 4200000;
+    // Alkalmazott éves bérköltség (2026 garantált bérminimum bruttó 373.200 Ft + 13% SZOCHO = kb 5.060.000 Ft/év)
+    const personnelCost = employees * 5060000;
     
-    // KIVA: 10% a személyi jellegű kiadásokra
+    // KIVA: 10% a személyi jellegű kifizetésekre
     const kiva = personnelCost * 0.10;
     
-    // TAO: 9% nyereségadó + SZOCHO (13% a bérekre)
+    // TAO: 9% nyereségadó. (A 13% szocho már benne van a bérköltségben, de a különbség miatt itt is hozzáadjuk a tao-hoz egy tiszta összehasonlításhoz)
     const profit = Math.max(0, rev - personnelCost);
-    const tao = (profit * 0.09) + (personnelCost * 0.13);
+    const tao = (profit * 0.09) + (employees * 373200 * 12 * 0.13);
 
     return {
       'KATA': kata,
