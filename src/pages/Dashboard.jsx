@@ -100,8 +100,11 @@ const DEFAULT_COMPANY = {
   employees: '2'
 };
 
+import { useFinance } from '../context/FinanceContext';
+
 export default function Dashboard() {
   const location = useLocation();
+  const { incomes, expenses, annualRevenue } = useFinance();
   const companyData = location.state?.companyData || DEFAULT_COMPANY;
 
   const [pulse, setPulse] = useState(null);
@@ -119,7 +122,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    generateMonthlyPulse(companyData).then((res) => {
+    const fullCompanyData = { ...companyData, incomes, expenses, annualRevenue };
+    generateMonthlyPulse(fullCompanyData).then((res) => {
       if (!cancelled) {
         setPulse(res);
         setIsPulseLoading(false);

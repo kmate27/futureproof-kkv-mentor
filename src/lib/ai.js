@@ -255,9 +255,10 @@ Hogyan válaszolj:
 export async function generateMonthlyPulse(companyData) {
   const prompt = `Te a KKV Mentor vagy. Generálj egy "Havi Pulzus" áttekintést a megadott cégadatok alapján:
 Iparág: ${companyData?.industry || 'Ismeretlen'}
-Bevétel: ${companyData?.revenue || 'Ismeretlen'}
+Éves Bevétel: ${companyData?.annualRevenue ? new Intl.NumberFormat('hu-HU').format(companyData.annualRevenue) + ' Ft' : companyData?.revenue || 'Ismeretlen'}
 Adóforma: ${companyData?.taxRegime || 'KATA'}
 Alkalmazottak: ${companyData?.employees || '0'} fő
+Aktuális tranzakciók: Bevételek: ${companyData?.incomes?.length || 0} tétel, Kiadások: ${companyData?.expenses?.length || 0} tétel. (Részletesen: ${JSON.stringify(companyData?.incomes?.map(i => i.name + ': ' + i.amount + ' Ft') || [])}, ${JSON.stringify(companyData?.expenses?.map(e => e.name + ': ' + e.amount + ' Ft') || [])})
 
 A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
 - "summary": Egy maximum 3 mondatos összefoglaló a cég aktuális pénzügyi helyzetéről és mire érdemes figyelni.
