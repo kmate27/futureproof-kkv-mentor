@@ -233,30 +233,52 @@ export async function sendChatMessage(history, message, companyData) {
 Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél barátságos és érthető — ne beszélj könyvelői szakzsargonban. Ha az adó vagy jog területén végleges döntésről van szó, zárd a válaszodat pontosan ezzel a mondattal: "Egyeztesd könyvelőddel."`;
 
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-3.5-flash",
-      systemInstruction: { parts: [{ text: systemInstruction }] } // megtartjuk a biztonság kedvéért
-    });
+    let responseText = "";
+    
+    // 1. Kísérlet: gemini-3.5-flash
+    try {
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-3.5-flash",
+        systemInstruction: { parts: [{ text: systemInstruction }] }
+      });
+      
+      const messageToSend = history.length === 0 
+        ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
+        : message;
 
-    // Ha a modell nem támogatja a systemInstruction paramétert (pl. régebbi vagy nem létező verzió miatt proxy-n keresztül), 
-    // akkor az első üzenethez direktben is hozzáfűzzük az utasítást.
-    const messageToSend = history.length === 0 
-      ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
-      : message;
+      const chat = model.startChat({
+        history: history,
+        generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
+      });
 
-    const chat = model.startChat({
-      history: history,
-      generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
-    });
+      const result = await chat.sendMessage(messageToSend);
+      responseText = result.response.text();
+    } catch (primaryError) {
+      console.warn("Elsődleges modell (3.5) hiba, próbálkozás a 2.5-ös verzióval...", primaryError);
+      
+      // 2. Kísérlet (Fallback): gemini-2.5-flash
+      const fallbackModel = genAI.getGenerativeModel({ 
+        model: "gemini-2.5-flash",
+        systemInstruction: { parts: [{ text: systemInstruction }] }
+      });
+      
+      const messageToSend = history.length === 0 
+        ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
+        : message;
 
-    const result = await chat.sendMessage(messageToSend);
-    return result.response.text();
+      const chat = fallbackModel.startChat({
+        history: history,
+        generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
+      });
+
+      const result = await chat.sendMessage(messageToSend);
+      responseText = result.response.text();
+    }
+    
+    return responseText;
   } catch (error) {
     console.error('Hiba a chat során:', error);
-    
-    // A felhasználó kérésére kivettük a demó választ, és egyenesen az API hibát dobjuk vissza,
-    // hogy lehessen látni, miért bukik el a kérés (pl. rossz modell név vagy API kulcs).
-    return `⚠️ API Hiba: ${error.message || 'Ismeretlen hiba'}. (Kérjük ellenőrizze a Vercel logokat és az F12 Network fület.)`;
+    return `⚠️ API Hiba: ${error.message || 'Ismeretlen hiba'}. (Mindkét modell túlterhelt, próbáld újra később!)`;
   }
 }
 
