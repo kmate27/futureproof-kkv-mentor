@@ -21,7 +21,7 @@ const INITIAL_EXPENSES = [
   { id: 1, name: 'Irodabérlet', amount: 350000, frequency: 'Havi' },
   { id: 2, name: 'Alkalmazotti bérek', amount: 1200000, frequency: 'Havi' },
   { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' },
-  { id: 4, name: 'Éves könyvelői díj', amount: 300000, frequency: 'Egyszeri', month: 'Október' }
+  { id: 4, name: 'Éves iparűzési adó befizetés', amount: 650000, frequency: 'Egyszeri', month: 'Október' }
 ];
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
