@@ -91,18 +91,20 @@ function CustomTooltip({ active, payload, label }) {
   );
 }
 
+const DEFAULT_COMPANY = {
+  name: 'Kovács Bt.',
+  industry: 'Kereskedelem',
+  revenue: '18M Ft',
+  taxRegime: 'KATA',
+  employees: '2'
+};
+
 export default function Dashboard() {
   const location = useLocation();
-  const companyData = location.state?.companyData || {
-    name: 'Kovács Bt.',
-    industry: 'Kereskedelem',
-    revenue: '18M Ft',
-    taxRegime: 'KATA',
-    employees: '2'
-  };
+  const companyData = location.state?.companyData || DEFAULT_COMPANY;
 
   const [pulse, setPulse] = useState(null);
-  const [isPulseLoading, setIsPulseLoading] = useState(false);
+  const [isPulseLoading, setIsPulseLoading] = useState(true);
 
   // Score számítás
   // Cashflow (40) + Adó (35) + Kintlévőség (25)
@@ -115,13 +117,16 @@ export default function Dashboard() {
   const totalScore = scoreData.cashflow + scoreData.ado + scoreData.kintlevoseg; // 75
 
   useEffect(() => {
-    // Csak ha van valami adat, vagy demo jelleggel mindig lehívjuk
-    setIsPulseLoading(true);
+    let cancelled = false;
     generateMonthlyPulse(companyData).then((res) => {
-      setPulse(res);
-      setIsPulseLoading(false);
+      if (!cancelled) {
+        setPulse(res);
+        setIsPulseLoading(false);
+      }
     });
-  }, [companyData]);
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const today = new Date().toLocaleDateString('hu-HU', {
     year: 'numeric', month: 'long', day: 'numeric'
