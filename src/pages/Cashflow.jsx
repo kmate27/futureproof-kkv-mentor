@@ -20,12 +20,11 @@ const INITIAL_INCOMES = [
 const INITIAL_EXPENSES = [
   { id: 1, name: 'Irodabérlet', amount: 350000, frequency: 'Havi' },
   { id: 2, name: 'Alkalmazotti bérek', amount: 1200000, frequency: 'Havi' },
-  { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' }
+  { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' },
+  { id: 4, name: 'Éves könyvelői díj', amount: 300000, frequency: 'Egyszeri', month: 'Október' }
 ];
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
-// Szórás faktorok a demóhoz (hogy ne legyen egyenes a vonal)
-const VARIANCE_FACTORS = [1.1, 0.95, 1.05, 0.85, 0.6, 1.15]; 
 
 export default function Cashflow() {
   // Szekció 1: Adatok
@@ -35,8 +34,13 @@ export default function Cashflow() {
   // Új tételekhez
   const [newIncName, setNewIncName] = useState('');
   const [newIncAmount, setNewIncAmount] = useState('');
+  const [newIncFreq, setNewIncFreq] = useState('Havi');
+  const [newIncMonth, setNewIncMonth] = useState('Június');
+  
   const [newExpName, setNewExpName] = useState('');
   const [newExpAmount, setNewExpAmount] = useState('');
+  const [newExpFreq, setNewExpFreq] = useState('Havi');
+  const [newExpMonth, setNewExpMonth] = useState('Június');
 
   // Szekció 3: Szimuláció
   const [scenario, setScenario] = useState(null); // { type, amount, frequency, name }
@@ -51,13 +55,13 @@ export default function Cashflow() {
   // --- LOGIKA: TÉTEL HOZZÁADÁS/TÖRLÉS ---
   const addIncome = () => {
     if (!newIncName || !newIncAmount) return;
-    setIncomes([...incomes, { id: Date.now(), name: newIncName, amount: Number(newIncAmount), frequency: 'Havi' }]);
+    setIncomes([...incomes, { id: Date.now(), name: newIncName, amount: Number(newIncAmount), frequency: newIncFreq, month: newIncFreq === 'Egyszeri' ? newIncMonth : null }]);
     setNewIncName(''); setNewIncAmount('');
   };
 
   const addExpense = () => {
     if (!newExpName || !newExpAmount) return;
-    setExpenses([...expenses, { id: Date.now(), name: newExpName, amount: Number(newExpAmount), frequency: 'Havi' }]);
+    setExpenses([...expenses, { id: Date.now(), name: newExpName, amount: Number(newExpAmount), frequency: newExpFreq, month: newExpFreq === 'Egyszeri' ? newExpMonth : null }]);
     setNewExpName(''); setNewExpAmount('');
   };
 
@@ -66,13 +70,23 @@ export default function Cashflow() {
 
   // --- LOGIKA: ELŐREJELZÉS SZÁMÍTÁSA ---
   const chartData = useMemo(() => {
-    const baseMonthlyIncome = incomes.reduce((sum, item) => sum + item.amount, 0);
-    const baseMonthlyExpense = expenses.reduce((sum, item) => sum + item.amount, 0);
-    const baseNet = baseMonthlyIncome - baseMonthlyExpense;
-
     return MONTHS.map((month, index) => {
-      // Demó célból hozzáadunk egy kis szórást a bevételekhez, hogy izgalmasabb legyen a chart
-      const dynamicNet = (baseMonthlyIncome * VARIANCE_FACTORS[index]) - baseMonthlyExpense;
+      const monthIncomes = incomes.filter(inc => 
+        inc.frequency === 'Havi' || 
+        (inc.frequency === 'Egyszeri' && inc.month === month) ||
+        (inc.frequency === 'Negyedéves' && index % 3 === 0)
+      );
+      
+      const monthExpenses = expenses.filter(exp => 
+        exp.frequency === 'Havi' || 
+        (exp.frequency === 'Egyszeri' && exp.month === month) ||
+        (exp.frequency === 'Negyedéves' && index % 3 === 0)
+      );
+
+      const monthlyIncomeTotal = monthIncomes.reduce((sum, item) => sum + item.amount, 0);
+      const monthlyExpenseTotal = monthExpenses.reduce((sum, item) => sum + item.amount, 0);
+      
+      const dynamicNet = monthlyIncomeTotal - monthlyExpenseTotal;
       let scenarioNet = dynamicNet;
       
       if (scenario) {
@@ -200,7 +214,7 @@ export default function Cashflow() {
                 <div key={inc.id} className="flex items-center justify-between p-3 bg-green-50/50 rounded-lg border border-green-100">
                   <div>
                     <p className="font-semibold text-sm text-[#1E293B]">{inc.name}</p>
-                    <p className="text-xs text-green-700">{inc.frequency}</p>
+                    <p className="text-xs text-green-700">{inc.frequency === 'Egyszeri' ? `${inc.frequency} (${inc.month})` : inc.frequency}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-[#1A7A4A]">+{formatMoney(inc.amount)}</span>
@@ -213,19 +227,33 @@ export default function Cashflow() {
               {incomes.length === 0 && <p className="text-sm text-slate-500 italic">Nincsenek bevételek rögzítve.</p>}
             </div>
 
-            <div className="flex gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
-              <div className="flex-1">
+            <div className="flex flex-wrap gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
+              <div className="flex-1 min-w-[120px]">
                 <input 
                   type="text" placeholder="Megnevezés" value={newIncName} onChange={e => setNewIncName(e.target.value)}
                   className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none"
                 />
               </div>
-              <div className="w-1/3">
+              <div className="w-1/4 min-w-[80px]">
                 <input 
                   type="number" placeholder="Összeg" value={newIncAmount} onChange={e => setNewIncAmount(e.target.value)}
                   className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none"
                 />
               </div>
+              <div className="w-1/4 min-w-[100px]">
+                <select value={newIncFreq} onChange={e => setNewIncFreq(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none">
+                  <option value="Havi">Havi</option>
+                  <option value="Egyszeri">Egyszeri</option>
+                  <option value="Negyedéves">Negyedéves</option>
+                </select>
+              </div>
+              {newIncFreq === 'Egyszeri' && (
+                <div className="w-1/4 min-w-[100px]">
+                  <select value={newIncMonth} onChange={e => setNewIncMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none">
+                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              )}
               <button onClick={addIncome} className="p-2 bg-[#1A7A4A] text-white rounded-lg hover:bg-green-700 transition-colors">
                 <Plus className="w-5 h-5" />
               </button>
@@ -244,7 +272,7 @@ export default function Cashflow() {
                 <div key={exp.id} className="flex items-center justify-between p-3 bg-red-50/30 rounded-lg border border-red-100">
                   <div>
                     <p className="font-semibold text-sm text-[#1E293B]">{exp.name}</p>
-                    <p className="text-xs text-red-700">{exp.frequency}</p>
+                    <p className="text-xs text-red-700">{exp.frequency === 'Egyszeri' ? `${exp.frequency} (${exp.month})` : exp.frequency}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-[#991B1B]">-{formatMoney(exp.amount)}</span>
@@ -257,19 +285,33 @@ export default function Cashflow() {
               {expenses.length === 0 && <p className="text-sm text-slate-500 italic">Nincsenek kiadások rögzítve.</p>}
             </div>
 
-            <div className="flex gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
-              <div className="flex-1">
+            <div className="flex flex-wrap gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
+              <div className="flex-1 min-w-[120px]">
                 <input 
                   type="text" placeholder="Megnevezés" value={newExpName} onChange={e => setNewExpName(e.target.value)}
                   className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none"
                 />
               </div>
-              <div className="w-1/3">
+              <div className="w-1/4 min-w-[80px]">
                 <input 
                   type="number" placeholder="Összeg" value={newExpAmount} onChange={e => setNewExpAmount(e.target.value)}
                   className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none"
                 />
               </div>
+              <div className="w-1/4 min-w-[100px]">
+                <select value={newExpFreq} onChange={e => setNewExpFreq(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none">
+                  <option value="Havi">Havi</option>
+                  <option value="Egyszeri">Egyszeri</option>
+                  <option value="Negyedéves">Negyedéves</option>
+                </select>
+              </div>
+              {newExpFreq === 'Egyszeri' && (
+                <div className="w-1/4 min-w-[100px]">
+                  <select value={newExpMonth} onChange={e => setNewExpMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none">
+                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              )}
               <button onClick={addExpense} className="p-2 bg-[#991B1B] text-white rounded-lg hover:bg-red-800 transition-colors">
                 <Plus className="w-5 h-5" />
               </button>
