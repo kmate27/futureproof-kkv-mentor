@@ -67,10 +67,16 @@ export default function Chat() {
     setInput('');
     setIsTyping(true);
 
-    const history = messages.map(msg => ({
+    let history = messages.map(msg => ({
       role: msg.role === 'ai' ? 'model' : 'user',
       parts: [{ text: msg.content }]
     }));
+
+    // A Gemini API megköveteli, hogy a history 'user' role-lal kezdődjön!
+    // Mivel a mi listánk alapból az AI üdvözlésével indul, az első 'model' üzenetet levágjuk.
+    if (history.length > 0 && history[0].role === 'model') {
+      history = history.slice(1);
+    }
 
     const responseText = await sendChatMessage(history, text.trim(), activeCompanyData);
 
