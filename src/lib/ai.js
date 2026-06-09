@@ -49,7 +49,7 @@ export async function generateTaxAdvice(data) {
 - Kiszámolt éves KIVA teher: ${data.taxes.kiva.toLocaleString('hu-HU')} Ft
 - Kiszámolt éves TAO teher: ${data.taxes.tao.toLocaleString('hu-HU')} Ft
 
-Adj konkrét, érthető tanácsot magyarul: melyik adóforma a legjobb és miért, mikor érdemes váltani, milyen lépések szükségesek. Max 200 szó. Zárd PONTOSAN ezzel a mondattal: "Az optimális döntés előtt egyeztesd könyvelőddel."`;
+Adj konkrét, érthető tanácsot magyarul: melyik adóforma a legjobb és miért, mikor érdemes váltani, milyen lépések szükségesek. Max 200 szó. SZIGORÚAN TILOS markdown formázást (pl. ** vagy *) használnod, csak sima szöveget írj! Zárd PONTOSAN ezzel a mondattal: "Az optimális döntés előtt egyeztesd könyvelőddel."`;
 
   try {
     const response = await fetch('/api/openai', {
@@ -57,7 +57,7 @@ Adj konkrét, érthető tanácsot magyarul: melyik adóforma a legjobb és miér
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: [{ role: 'user', content: prompt }],
-        systemInstruction: "Te egy professzionális magyar üzleti és pénzügyi asszisztens vagy."
+        systemInstruction: "Te egy tekintélyes, magasan képzett magyar adótanácsadó (Senior Tax Advisor) vagy. Szigorúan markdown nélkül, csak sima szövegként válaszolsz."
       })
     });
     if (!response.ok) throw new Error('API hiba');
@@ -191,13 +191,16 @@ Dokumentum szövege:
  * @returns {Promise<string>} - Az AI válasza
  */
 export async function sendChatMessage(history, message, companyData) {
-  const systemInstruction = `Te KKV Mentor, egy magyar kisvállalkozói pénzügyi asszisztens vagy. A felhasználó cégének adatai:
+  const systemInstruction = `Te a KKV Mentor vagy, egy kiemelkedően profi, lényegretörő és tekintélyes vállalati pénzügyi tanácsadó (Senior Financial Advisor). Stílusod üzleties, határozott, de támogató. A felhasználó cégének adatai:
 - Iparág: ${companyData?.industry || 'Ismeretlen'}
 - Bevétel: ${companyData?.revenue || 'Ismeretlen'}
 - Adóforma: ${companyData?.taxRegime || 'Ismeretlen'}
 - Alkalmazottak: ${companyData?.employees || '0'} fő
 
-Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél barátságos és érthető — ne beszélj könyvelői szakzsargonban. Ha az adó vagy jog területén végleges döntésről van szó, zárd a válaszodat pontosan ezzel a mondattal: "Egyeztesd könyvelőddel."`;
+Szabályok a válaszodra:
+1. Adj magas szintű, személyre szabott, stratégiai pénzügyi tanácsot magyarul.
+2. KIZÁRÓLAG sima szöveget (plain text) használj! SZIGORÚAN TILOS bármilyen markdown formázás (pl. csillagok **, dőlt betű *, hashtagek #). Tagoláshoz használj sorközöket és számozást.
+3. Ha az adó vagy jog területén végleges döntésről van szó, zárd a válaszodat pontosan ezzel a mondattal: "Egyeztesd könyvelőddel."`;
 
   try {
     const openaiMessages = history.map(msg => ({
