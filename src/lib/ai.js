@@ -112,7 +112,7 @@ Szabályok a JSON-re:
 - "frequency": "monthly" (ha havonta ismétlődik) vagy "one-time" (ha egyszeri dolog)
 - "name": egy maximum 3 szavas rövid cím (pl. "Új autó", "Havi marketing")
 
-Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markdown tageket (```json) se, mert közvetlenül parse-olnom kell!`;
+Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markdown tageket (\`\`\`json) se, mert közvetlenül parse-olnom kell!`;
 
   try {
     const response = await fetch('/api/openai', {
@@ -145,7 +145,7 @@ Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markd
  */
 export async function analyzeDocument(text) {
   const prompt = `Te egy magyar jogi és pénzügyi asszisztens vagy. A felhasználó beillesztett egy dokumentumot. Magyarázd el: (1) Mit jelent ez a dokumentum röviden, (2) Mi a teendő, (3) Van-e határidő és mikor, (4) Van-e kockázat amit figyelni kell. Válaszolj strukturáltan, magyarul, érthetően. Ha jogi döntést igényel: javasold ügyvéd vagy könyvelő bevonását.
-A válaszod kizárólag egy érvényes JSON formátum legyen (ne tegyél köré ```json taget), az alábbi kulcsokkal:
+A válaszod kizárólag egy érvényes JSON formátum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
 - "summary": A dokumentum rövid összefoglalója.
 - "action": Mi a konkrét teendő.
 - "deadline": A határidő (ha nincs, írd hogy "Nincs meghatározva").
@@ -248,7 +248,7 @@ Bevétel: ${companyData?.revenue || 'Ismeretlen'}
 Adóforma: ${companyData?.taxRegime || 'KATA'}
 Alkalmazottak: ${companyData?.employees || '0'} fő
 
-A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré ```json taget), az alábbi kulcsokkal:
+A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
 - "summary": Egy maximum 3 mondatos összefoglaló a cég aktuális pénzügyi helyzetéről és mire érdemes figyelni.
 - "tasks": Egy 3 elemű tömb, ami tartalmazza a top 3 legsürgősebb, legfontosabb pénzügyi/adózási teendőt erre a hónapra.`;
 
