@@ -56,7 +56,7 @@ export default function Cashflow() {
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   // AI Figyelmeztetés
-  const [warningText, setWarningText] = useState('');
+  const [warningData, setWarningData] = useState(null);
 
   // --- LOGIKA: TÉTEL HOZZÁADÁS/TÖRLÉS ---
   const addIncome = () => {
@@ -124,11 +124,57 @@ export default function Cashflow() {
   // --- LOGIKA: AI FIGYELMEZTETÉS ---
   useEffect(() => {
     const badMonths = chartData.filter(d => d.baseNet < 0);
-    if (badMonths.length > 0) {
-      setWarningText('⚠️ Október hónapban negatív cashflow várható az éves iparűzési adó befizetés (1 100 000 Ft) miatt. Javasolt: tegyél félre havi 92 000 Ft-ot júniustól, hogy októberben ne okozzon likviditási problémát.');
-    } else {
-      setWarningText('');
+    
+    if (badMonths.length === 0) {
+      setWarningData({ type: 'success', text: '✅ Kiváló! Minden hónap pozitív cashflow-val zár.' });
+      return;
     }
+
+    let text = '';
+    
+    // Első mondat
+    if (badMonths.length === 1) {
+      text += `⚠️ ${badMonths[0].name} hónapban negatív cashflow várható (${formatMoney(Math.abs(badMonths[0].baseNet))} hiány).`;
+    } else {
+      const monthNames = badMonths.map(m => m.name);
+      const last = monthNames.pop();
+      const joinedNames = monthNames.length > 0 ? `${monthNames.join(', ')} és ${last}` : last;
+      text += `⚠️ ${joinedNames} hónapokban negatív cashflow várható.`;
+    }
+
+    // Második mondat
+    const firstBadMonth = badMonths[0];
+    const firstBadIdx = MONTHS.indexOf(firstBadMonth.name);
+    
+    let cumulativePositive = 0;
+    for (let i = 0; i < firstBadIdx; i++) {
+      if (chartData[i].baseNet > 0) {
+        cumulativePositive += chartData[i].baseNet;
+      }
+    }
+    
+    const deficit = Math.abs(firstBadMonth.baseNet);
+
+    if (cumulativePositive >= deficit) {
+      text += ' A korábbi hónapok pozitív egyenlege fedezi a hiányt — nincs szükség extra tartalékolásra.';
+    } else {
+      const monthsBefore = firstBadIdx;
+      if (monthsBefore > 0) {
+        const amountToSave = Math.ceil(deficit / monthsBefore / 1000) * 1000;
+        
+        // Keresünk egy pozitív hónapot a rossz hónap előtt, ha nincs, marad az első hónap
+        const firstPositive = chartData.slice(0, firstBadIdx).find(d => d.baseNet > 0);
+        const startMonthName = firstPositive ? firstPositive.name : MONTHS[0];
+        
+        const suffix = ['Szeptember', 'Október', 'November', 'December', 'Január', 'Február'].includes(startMonthName) ? 'től' : 'tól';
+        
+        text += ` Javasolt: tegyél félre havi ${formatMoney(amountToSave)}-ot ${startMonthName.toLowerCase()}${suffix} kezdve a hiány fedezésére.`;
+      } else {
+        text += ' Javasolt azonnal külső finanszírozást vagy extra bevételeket bevonni.';
+      }
+    }
+
+    setWarningData({ type: 'warning', text });
   }, [incomes, expenses, chartData]);
 
   // --- LOGIKA: SZIMULÁCIÓK KEZELÉSE ---
@@ -334,14 +380,26 @@ export default function Cashflow() {
         </div>
 
         {/* AI Banner ha baj van */}
-        {warningText && (
+        {warningData && warningData.type === 'warning' && (
           <div className="bg-gradient-to-r from-red-50 to-amber-50 border-l-4 border-red-500 p-5 rounded-r-xl shadow-sm flex items-start gap-4">
             <AlertTriangle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="text-red-800 font-bold mb-1 flex items-center gap-2">
                 <Sparkles className="w-4 h-4" /> AI Likviditási Figyelmeztetés
               </h3>
-              <p className="text-red-900 text-sm">{warningText}</p>
+              <p className="text-red-900 text-sm">{warningData.text}</p>
+            </div>
+          </div>
+        )}
+
+        {warningData && warningData.type === 'success' && (
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-5 rounded-r-xl shadow-sm flex items-start gap-4">
+            <div className="w-6 h-6 shrink-0 mt-0.5 text-green-500 text-xl flex items-center justify-center">✅</div>
+            <div className="flex-1">
+              <h3 className="text-green-800 font-bold mb-1 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" /> AI Likviditási Elemzés
+              </h3>
+              <p className="text-green-900 text-sm">{warningData.text}</p>
             </div>
           </div>
         )}
