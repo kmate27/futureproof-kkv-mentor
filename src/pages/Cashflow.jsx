@@ -266,7 +266,7 @@ export default function Cashflow() {
           <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
             <div className="flex items-center gap-2 mb-4 text-[#1A7A4A]">
               <TrendingUp className="w-5 h-5" />
-              <h2 className="text-lg font-bold">Rendszeres Bevételek</h2>
+              <h2 className="text-lg font-bold">Bevételek</h2>
             </div>
             
             <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
@@ -324,7 +324,7 @@ export default function Cashflow() {
           <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
             <div className="flex items-center gap-2 mb-4 text-[#991B1B]">
               <TrendingDown className="w-5 h-5" />
-              <h2 className="text-lg font-bold">Rendszeres Kiadások</h2>
+              <h2 className="text-lg font-bold">Kiadások</h2>
             </div>
             
             <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
