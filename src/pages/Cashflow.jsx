@@ -12,30 +12,13 @@ import {
 // Segédfüggvény a formázáshoz
 const formatMoney = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
-const INITIAL_INCOMES = [
-  { id: 1, name: 'Fő kliens (Kovács Kft.)', amount: 1500000, frequency: 'Havi' },
-  { id: 2, name: 'Webáruház bevételek', amount: 800000, frequency: 'Havi' },
-  { id: 3, name: 'Őszi fellendülés', amount: 280000, frequency: 'Egyszeri', month: 'Szeptember' },
-  { id: 4, name: 'Karácsonyi szezon kezdete', amount: 130000, frequency: 'Egyszeri', month: 'November' }
-];
-
-const INITIAL_EXPENSES = [
-  { id: 1, name: 'Irodabérlet', amount: 350000, frequency: 'Havi' },
-  { id: 2, name: 'Alkalmazotti bérek', amount: 1130000, frequency: 'Havi' },
-  { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' },
-  { id: 4, name: 'Nyári lassulás', amount: 370000, frequency: 'Egyszeri', month: 'Július' },
-  { id: 5, name: 'Szabadságok miatti visszaesés', amount: 470000, frequency: 'Egyszeri', month: 'Augusztus' },
-  { id: 6, name: 'Éves iparűzési adó befizetés', amount: 1100000, frequency: 'Egyszeri', month: 'Október' },
-  { id: 7, name: 'Eszközbeszerzés / Szoftver', amount: 70000, frequency: 'Egyszeri', month: 'Október' }
-];
+import { useFinance } from '../context/FinanceContext';
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
 const getMonthIcon = (m) => ['Június', 'Július', 'Augusztus'].includes(m) ? '☀️' : '🍂';
 
 export default function Cashflow() {
-  // Szekció 1: Adatok
-  const [incomes, setIncomes] = useState(INITIAL_INCOMES);
-  const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
+  const { incomes, setIncomes, expenses, setExpenses } = useFinance();
   
   // Új tételekhez
   const [newIncName, setNewIncName] = useState('');

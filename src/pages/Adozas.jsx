@@ -15,10 +15,13 @@ import {
   TrendingDown
 } from 'lucide-react';
 
+import { useFinance } from '../context/FinanceContext';
+
 const REGIMES = ['KATA', 'Átalányadó', 'KIVA', 'TAO Kft.'];
 
 export default function Adozas() {
-  const [revenue, setRevenue] = useState(18000000); // in millions
+  const { annualRevenue } = useFinance();
+  const [revenue, setRevenue] = useState(annualRevenue || 18000000); // use annualRevenue from context as default
   const [currentRegime, setCurrentRegime] = useState('KATA');
   const [employees, setEmployees] = useState(0);
   const [isCalculated, setIsCalculated] = useState(false);

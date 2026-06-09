@@ -24,8 +24,11 @@ const companyData = {
   employees: '1-2'
 };
 
+import { useFinance } from '../context/FinanceContext';
+
 export default function Chat() {
   const location = useLocation();
+  const { incomes, expenses, annualRevenue } = useFinance();
   const activeCompanyData = location.state?.companyData || companyData;
 
   const [messages, setMessages] = useState([
@@ -78,7 +81,8 @@ export default function Chat() {
       history = history.slice(1);
     }
 
-    const responseText = await sendChatMessage(history, text.trim(), activeCompanyData);
+    const fullCompanyData = { ...activeCompanyData, incomes, expenses, annualRevenue };
+    const responseText = await sendChatMessage(history, text.trim(), fullCompanyData);
 
     const aiResponse = {
       id: Date.now() + 1,
