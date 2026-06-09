@@ -18,7 +18,7 @@ import {
 const REGIMES = ['KATA', 'Átalányadó', 'KIVA', 'TAO Kft.'];
 
 export default function Adozas() {
-  const [revenue, setRevenue] = useState(12); // in millions
+  const [revenue, setRevenue] = useState(18000000); // in millions
   const [currentRegime, setCurrentRegime] = useState('KATA');
   const [employees, setEmployees] = useState(0);
   const [isCalculated, setIsCalculated] = useState(false);
@@ -91,7 +91,7 @@ export default function Adozas() {
             className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            Vissza a főoldalra
+            Vissza a Dashboardra
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">

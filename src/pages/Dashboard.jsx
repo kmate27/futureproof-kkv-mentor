@@ -92,7 +92,7 @@ function CustomTooltip({ active, payload, label }) {
 }
 
 const DEFAULT_COMPANY = {
-  name: 'Kovács Bt.',
+  name: 'Kovács Kft.',
   industry: 'Kereskedelem',
   revenue: '18M Ft',
   taxRegime: 'KATA',
@@ -111,10 +111,10 @@ export default function Dashboard() {
   // Demo célból fixáljuk ha nincs adat, vagy variáljuk
   const scoreData = {
     cashflow: 32, // max 40
-    ado: 28,      // max 35
+    ado: 12,      // max 35 - Alacsony, mert váltás javasolt!
     kintlevoseg: 15, // max 25
   };
-  const totalScore = scoreData.cashflow + scoreData.ado + scoreData.kintlevoseg; // 75
+  const totalScore = scoreData.cashflow + scoreData.ado + scoreData.kintlevoseg; // 59
 
   useEffect(() => {
     let cancelled = false;
@@ -144,15 +144,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {!location.state?.companyData && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h3 className="text-sm font-semibold text-blue-800">Demo Üzemmód: Kovács Bt.</h3>
-            <p className="text-sm text-blue-600 mt-1">Az alkalmazás jelenleg egy minta felhasználó, a Kovács Bt. adatait mutatja. A személyre szabott elemzéshez adja meg saját cége paramétereit az Onboarding oldalon.</p>
+      {!location.state?.companyData &&          <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-sm font-semibold text-blue-800">Demo mód – Kovács Kft. mintaadatok</h3>
+              <p className="text-sm text-blue-600 mt-1">Saját adatokhoz: Onboarding →</p>
+            </div>
           </div>
-        </div>
-      )}
+      }
 
       {/* KKV Score Szekció */}
       <div className="bg-white rounded-2xl shadow-sm border border-[#E2E8F0] p-6 sm:p-8">

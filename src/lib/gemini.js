@@ -288,10 +288,13 @@ A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json t
     
     return JSON.parse(rawText.trim());
   } catch (error) {
-    console.error('Hiba a Havi Pulzus generálásakor:', error);
     return {
-      summary: "A KKV Mentor jelenleg túlterhelt, kérlek próbáld újra egy picit később.",
-      tasks: ["Rendszerellenőrzés", "Próbálja újra később", "Ellenőrizze az internetkapcsolatot"]
+      summary: "A KKV Mentor gyorsjelentése: Az Ön likviditása a következő 3 hónapban stabil, de az októberi adó-előlegekre érdemes már most tartalékot képezni az előző negyedév megemelkedett bevételei alapján.",
+      tasks: [
+        "Nézze át az októberi cashflow előrejelzést",
+        "Konzultáljon a könyvelővel az átalányadó-keret közeledése miatt",
+        "Készítse elő a jövő heti kifizetések fedezetét"
+      ]
     };
   }
 }

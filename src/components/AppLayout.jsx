@@ -14,8 +14,8 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { path: '/dashboard', label: 'Áttekintés', short: 'Főoldal', icon: LayoutDashboard },
-  { path: '/cashflow', label: 'Cash Flow', short: 'Cash Flow', icon: TrendingUp },
+  { path: '/dashboard', label: 'KKV Score', short: 'Főoldal', icon: LayoutDashboard },
+  { path: '/cashflow', label: 'Cashflow', short: 'Cashflow', icon: TrendingUp },
   { path: '/adozas', label: 'Adózás', short: 'Adózás', icon: Calculator },
   { path: '/dokumentum', label: 'Dokumentumok', short: 'Iratok', icon: FileText },
   { path: '/chat', label: 'AI Chat', short: 'AI Chat', icon: MessageSquare },

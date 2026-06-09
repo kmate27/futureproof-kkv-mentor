@@ -24,6 +24,8 @@ const INITIAL_EXPENSES = [
 ];
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
+// Szórás faktorok a demóhoz (hogy ne legyen egyenes a vonal)
+const VARIANCE_FACTORS = [1.1, 0.95, 1.05, 0.85, 0.6, 1.15]; 
 
 export default function Cashflow() {
   // Szekció 1: Adatok
@@ -69,7 +71,9 @@ export default function Cashflow() {
     const baseNet = baseMonthlyIncome - baseMonthlyExpense;
 
     return MONTHS.map((month, index) => {
-      let scenarioNet = baseNet;
+      // Demó célból hozzáadunk egy kis szórást a bevételekhez, hogy izgalmasabb legyen a chart
+      const dynamicNet = (baseMonthlyIncome * VARIANCE_FACTORS[index]) - baseMonthlyExpense;
+      let scenarioNet = dynamicNet;
       
       if (scenario) {
         // Szcenárió alkalmazása
@@ -86,7 +90,7 @@ export default function Cashflow() {
 
       return {
         name: month,
-        baseNet,
+        baseNet: dynamicNet,
         scenarioNet: scenario ? scenarioNet : null,
       };
     });
@@ -165,14 +169,14 @@ export default function Cashflow() {
       <div className="bg-gradient-to-r from-[#1F5FAD] to-[#2E75B6] text-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Vissza a főoldalra
+            <ChevronLeft className="w-4 h-4" /> Vissza a Dashboardra
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
               <Wallet className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cash Flow és Szimulátor</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cashflow és Szimulátor</h1>
               <p className="text-white/80 mt-1">Tervezze meg vállalkozása jövőjét intelligens előrejelzésekkel</p>
             </div>
           </div>
@@ -332,7 +336,7 @@ export default function Cashflow() {
                 {/* Eredeti Oszlop */}
                 <Bar 
                   dataKey="baseNet" 
-                  name="Eredeti Cash Flow" 
+                  name="Eredeti Cashflow" 
                   fill={scenario ? "#CBD5E1" : "#1F5FAD"} // Ha van szimuláció, szürkítjük az eredetit
                   radius={[4, 4, 0, 0]}
                   barSize={scenario ? 30 : 50}

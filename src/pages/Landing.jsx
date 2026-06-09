@@ -15,7 +15,7 @@ const features = [
   {
     icon: HeartPulse,
     title: 'Pénzügyi Egészségjelentés',
-    description: 'Átfogó KKV Score és cash flow előrejelzés',
+    description: 'Átfogó KKV Score és cashflow előrejelzés',
     color: '#1A7A4A',
     bg: '#ECFDF5',
   },

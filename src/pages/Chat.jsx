@@ -15,8 +15,9 @@ const quickPrompts = [
   'Optimális az adózási formám?',
 ];
 
-const DEFAULT_COMPANY = {
-  name: 'Kovács Bt.',
+// Alapértelmezett mock adatok, ha nem az onboarding felől jövünk
+const companyData = {
+  name: 'Kovács Kft.',
   industry: 'Kereskedelem',
   revenue: '12-25M Ft',
   taxRegime: 'KATA',
@@ -25,13 +26,13 @@ const DEFAULT_COMPANY = {
 
 export default function Chat() {
   const location = useLocation();
-  const companyData = location.state?.companyData || DEFAULT_COMPANY;
+  const activeCompanyData = location.state?.companyData || companyData;
 
   const [messages, setMessages] = useState([
     {
       id: 1,
       role: 'ai',
-      content: `Üdvözlöm! Én vagyok a KKV Mentor AI asszisztense. Látom, hogy a(z) ${companyData.industry} szektorban tevékenykedik. Miben segíthetek ma?`,
+      content: `Üdvözlöm! Én vagyok a KKV Mentor AI asszisztense. Látom, hogy a(z) ${activeCompanyData.industry} szektorban tevékenykedik. Miben segíthetek ma?`,
       timestamp: new Date().toLocaleTimeString('hu-HU', { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
@@ -71,7 +72,7 @@ export default function Chat() {
       parts: [{ text: msg.content }]
     }));
 
-    const responseText = await sendChatMessage(history, text.trim(), companyData);
+    const responseText = await sendChatMessage(history, text.trim(), activeCompanyData);
 
     const aiResponse = {
       id: Date.now() + 1,
@@ -129,7 +130,7 @@ export default function Chat() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1A7A4A] opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1A7A4A]"></span>
                   </span>
-                  Online – Gemini AI
+                  Online
                 </p>
               </div>
             </div>

@@ -40,7 +40,7 @@ export default function Dokumentum() {
             className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors"
           >
             <ChevronLeft className="w-4 h-4" />
-            Vissza a főoldalra
+            Vissza a Dashboardra
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
@@ -77,7 +77,13 @@ export default function Dokumentum() {
             className="w-full h-48 p-4 rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1F5FAD] text-sm text-[#1E293B] resize-y transition-colors placeholder:text-slate-400"
           ></textarea>
 
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-between items-center">
+            <button
+              onClick={() => setDocText('Tisztelt Adózó! Tájékoztatjuk, hogy a 2025. évi adóbevallásukat felülvizsgáltuk. Az ellenőrzés során eltérést találtunk az ÁFA bevallásában. Kérjük, 30 napon belül nyújtsa be a javított bevallást. Tisztelettel, NAV')}
+              className="text-sm font-medium text-[#1F5FAD] hover:underline"
+            >
+              + Demó dokumentum betöltése
+            </button>
             <button
               onClick={handleAnalyze}
               disabled={!docText.trim() || isAnalyzing}
