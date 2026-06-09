@@ -10,7 +10,8 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
-  ArrowRight
+  ArrowRight,
+  Info
 } from 'lucide-react';
 import {
   AreaChart,
