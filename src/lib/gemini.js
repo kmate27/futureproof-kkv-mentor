@@ -1,22 +1,9 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-// A kulcsot a .env fájlból olvassuk be (VITE_GEMINI_API_KEY)
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-// Inicializáljuk a Gemini klienst, ha van kulcs
-export const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-
 /**
  * Üdvözlő üzenet generálása a KKV onboarding adatai alapján.
  * @param {Object} companyData - A cég adatai az onboardingból
  * @returns {Promise<string>} - Az AI által generált szöveg
  */
 export async function generateWelcomeMessage(companyData) {
-  if (!genAI) {
-    console.warn('Nincs beállítva Gemini API kulcs (VITE_GEMINI_API_KEY). Mock választ adok vissza.');
-    return `Szia ${companyData.name}! Az adataid alapján az első megfigyelésem, hogy a(z) ${companyData.industry} iparágban nagy potenciál rejlik. (Ide jönne a valós AI válasz, ha beállítod az API kulcsot!)`;
-  }
-
   const prompt = `Te egy professzionális, segítőkész magyar pénzügyi tanácsadó vagy, aki kisvállalkozásoknak (KKV-knak) segít. 
 Egy magyar kisvállalkozás most regisztrált az appba. Adatai:
 Cégnév: ${companyData.name}
@@ -30,18 +17,17 @@ Kérlek írj neki egy rövid (maximum 2-3 mondatos), professzionális, bátorít
 Ne írj lezárást vagy üdvözlést a végére, csak ezt a bekezdést! Magyar nyelven válaszolj.`;
 
   try {
-    // Használjuk a legújabb elérhető gyors modellt a generáláshoz
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        maxOutputTokens: 150,
-        temperature: 0.7,
-      }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Te egy professzionális, segítőkész magyar pénzügyi tanácsadó vagy."
+      })
     });
-    
-    return result.response.text();
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     console.error('Hiba az AI üzenet generálásakor:', error);
     return `Szia ${companyData.name}! Üdvözlünk a KKV Mentorban. A pénzügyi elemzésed hamarosan elkészül!`;
@@ -54,11 +40,6 @@ Ne írj lezárást vagy üdvözlést a végére, csak ezt a bekezdést! Magyar n
  * @returns {Promise<string>} - Az AI által generált tanács
  */
 export async function generateTaxAdvice(data) {
-  if (!genAI) {
-    console.warn('Nincs beállítva Gemini API kulcs (VITE_GEMINI_API_KEY). Mock választ adok vissza.');
-    return "Szakértői véleményem szerint a jelenlegi adatok alapján érdemes lenne felülvizsgálni az adózási formát. Kérem, a végleges döntés előtt mindenképpen egyeztessen könyvelőjével.";
-  }
-
   const prompt = `Te egy magyar adószakértő vagy. A felhasználó adatai: 
 - Éves bevétel: ${data.revenue.toLocaleString('hu-HU')} Ft
 - Jelenlegi adóforma: ${data.currentRegime}
@@ -71,16 +52,17 @@ export async function generateTaxAdvice(data) {
 Adj konkrét, érthető tanácsot magyarul: melyik adóforma a legjobb és miért, mikor érdemes váltani, milyen lépések szükségesek. Max 200 szó. Zárd PONTOSAN ezzel a mondattal: "Az optimális döntés előtt egyeztesd könyvelőddel."`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        maxOutputTokens: 250,
-        temperature: 0.5,
-      }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Te egy professzionális magyar üzleti és pénzügyi asszisztens vagy."
+      })
     });
-    
-    return result.response.text();
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     console.error('Hiba az adótanács generálásakor:', error);
     return "Hiba történt a generálás során. Kérem próbálja újra később. Az optimális döntés előtt egyeztesd könyvelőddel.";
@@ -94,20 +76,21 @@ Adj konkrét, érthető tanácsot magyarul: melyik adóforma a legjobb és miér
  * @returns {Promise<string>} - AI tanács
  */
 export async function generateCashflowWarning(badMonths, data) {
-  if (!genAI) {
-    return "Figyelem! Likviditási probléma várható. Javasoljuk a kiadások átütemezését.";
-  }
-
   const prompt = `Te egy magyar pénzügyi tanácsadó vagy. A felhasználó cash flow előrejelzésében a következő hónapokban negatív az egyenleg: ${badMonths.join(', ')}.
 A megadott bevételek és kiadások alapján (összesen ${data.length} tétel) adj egy rövid, maximum 2-3 mondatos, gyakorlatias túlélési tippet magyarul. Kerüld a közhelyeket, legyél specifikus egy kkv számára. Ne köszönd meg, csak a tanácsot írd!`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 150, temperature: 0.6 }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Te egy precíz magyar pénzügyi elemző AI vagy."
+      })
     });
-    return result.response.text();
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
+    return data.text;
   } catch (error) {
     console.error('Hiba a cash flow figyelmeztetés generálásakor:', error);
     return "Likviditási szűkület várható ezekben a hónapokban. Kérjük, vizsgáld felül a kiadásaidat!";
@@ -120,18 +103,6 @@ A megadott bevételek és kiadások alapján (összesen ${data.length} tétel) a
  * @returns {Promise<Object>} - { type: 'income'|'expense', amount: number, frequency: 'monthly'|'one-time', name: string }
  */
 export async function parseCustomScenario(text) {
-  if (!genAI) {
-    // Fallback egyszerű regexszel, ha nincs kulcs
-    const amountMatch = text.match(/\d+/);
-    const amount = amountMatch ? parseInt(amountMatch[0]) * (text.toLowerCase().includes('millió') ? 1000000 : text.toLowerCase().includes('ezer') ? 1000 : 1) : 100000;
-    return {
-      type: text.toLowerCase().includes('veszek') || text.toLowerCase().includes('kiesik') ? 'expense' : 'income',
-      amount: amount,
-      frequency: text.toLowerCase().includes('havi') ? 'monthly' : 'one-time',
-      name: "Saját terv"
-    };
-  }
-
   const prompt = `Elemezd a következő üzleti elképzelést és fordítsd le egy egyszerű JSON objektummá.
 Szöveg: "${text}"
 
@@ -141,20 +112,24 @@ Szabályok a JSON-re:
 - "frequency": "monthly" (ha havonta ismétlődik) vagy "one-time" (ha egyszeri dolog)
 - "name": egy maximum 3 szavas rövid cím (pl. "Új autó", "Havi marketing")
 
-Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markdown tageket (\`\`\`json) se, mert közvetlenül parse-olnom kell!`;
+Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markdown tageket (```json) se, mert közvetlenül parse-olnom kell!`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.1 }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Kizárólag JSON formátumban válaszolj, markdown tagek nélkül."
+      })
     });
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
     
-    let rawText = result.response.text().trim();
-    // Eltávolítjuk a lehetséges markdown formázásokat
-    if (rawText.startsWith('\`\`\`json')) rawText = rawText.substring(7);
-    if (rawText.startsWith('\`\`\`')) rawText = rawText.substring(3);
-    if (rawText.endsWith('\`\`\`')) rawText = rawText.substring(0, rawText.length - 3);
+    let rawText = data.text.trim();
+    if (rawText.startsWith('```json')) rawText = rawText.substring(7);
+    if (rawText.startsWith('```')) rawText = rawText.substring(3);
+    if (rawText.endsWith('```')) rawText = rawText.substring(0, rawText.length - 3);
     
     return JSON.parse(rawText.trim());
   } catch (error) {
@@ -169,17 +144,8 @@ Csak és kizárólag a valid JSON-t add vissza, semmi más szöveget, még markd
  * @returns {Promise<Object>} - { summary, action, deadline, risk }
  */
 export async function analyzeDocument(text) {
-  if (!genAI) {
-    return {
-      summary: "Ez egy minta dokumentum összefoglaló, mivel az API kulcs hiányzik.",
-      action: "Kérlek, vizsgáld meg a dokumentum tartalmát.",
-      deadline: "Nincs meghatározva",
-      risk: "Nem található jelentős kockázat."
-    };
-  }
-
   const prompt = `Te egy magyar jogi és pénzügyi asszisztens vagy. A felhasználó beillesztett egy dokumentumot. Magyarázd el: (1) Mit jelent ez a dokumentum röviden, (2) Mi a teendő, (3) Van-e határidő és mikor, (4) Van-e kockázat amit figyelni kell. Válaszolj strukturáltan, magyarul, érthetően. Ha jogi döntést igényel: javasold ügyvéd vagy könyvelő bevonását.
-A válaszod kizárólag egy érvényes JSON formátum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
+A válaszod kizárólag egy érvényes JSON formátum legyen (ne tegyél köré ```json taget), az alábbi kulcsokkal:
 - "summary": A dokumentum rövid összefoglalója.
 - "action": Mi a konkrét teendő.
 - "deadline": A határidő (ha nincs, írd hogy "Nincs meghatározva").
@@ -189,16 +155,21 @@ Dokumentum szövege:
 "${text}"`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.2 }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Kizárólag JSON formátumban válaszolj, markdown tagek nélkül."
+      })
     });
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
     
-    let rawText = result.response.text().trim();
-    if (rawText.startsWith('\`\`\`json')) rawText = rawText.substring(7);
-    if (rawText.startsWith('\`\`\`')) rawText = rawText.substring(3);
-    if (rawText.endsWith('\`\`\`')) rawText = rawText.substring(0, rawText.length - 3);
+    let rawText = data.text.trim();
+    if (rawText.startsWith('```json')) rawText = rawText.substring(7);
+    if (rawText.startsWith('```')) rawText = rawText.substring(3);
+    if (rawText.endsWith('```')) rawText = rawText.substring(0, rawText.length - 3);
     
     return JSON.parse(rawText.trim());
   } catch (error) {
@@ -220,10 +191,6 @@ Dokumentum szövege:
  * @returns {Promise<string>} - Az AI válasza
  */
 export async function sendChatMessage(history, message, companyData) {
-  if (!genAI) {
-    return "Elnézést, de a funkció használatához Gemini API kulcs szükséges.";
-  }
-
   const systemInstruction = `Te KKV Mentor, egy magyar kisvállalkozói pénzügyi asszisztens vagy. A felhasználó cégének adatai:
 - Iparág: ${companyData?.industry || 'Ismeretlen'}
 - Bevétel: ${companyData?.revenue || 'Ismeretlen'}
@@ -233,18 +200,15 @@ export async function sendChatMessage(history, message, companyData) {
 Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél barátságos és érthető — ne beszélj könyvelői szakzsargonban. Ha az adó vagy jog területén végleges döntésről van szó, zárd a válaszodat pontosan ezzel a mondattal: "Egyeztesd könyvelőddel."`;
 
   try {
-    // A history átalakítása OpenAI formátumra
     const openaiMessages = history.map(msg => ({
       role: msg.role === 'model' ? 'assistant' : 'user',
       content: msg.parts[0].text
     }));
     
-    // Ha az első üzenet 'assistant', azt az OpenAI sem szereti a kezdésnél (bár jobban tolerálja, mint a Claude, azért levágjuk a biztonság kedvéért)
     if (openaiMessages.length > 0 && openaiMessages[0].role === 'assistant') {
       openaiMessages.shift();
     }
     
-    // Aktuális kérdés hozzáadása
     openaiMessages.push({
       role: 'user',
       content: message
@@ -278,34 +242,32 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
  * @returns {Promise<Object>} - { summary: string, tasks: string[] }
  */
 export async function generateMonthlyPulse(companyData) {
-  if (!genAI) {
-    return {
-      summary: "Ez egy minta Havi Pulzus összefoglaló. Adja meg az API kulcsot a valós AI elemzéshez.",
-      tasks: ["Végezze el a hó végi zárást", "Ellenőrizze az ÁFA bevallást", "Tekintse át a jövő havi likviditást"]
-    };
-  }
-
   const prompt = `Te a KKV Mentor vagy. Generálj egy "Havi Pulzus" áttekintést a megadott cégadatok alapján:
 Iparág: ${companyData?.industry || 'Ismeretlen'}
 Bevétel: ${companyData?.revenue || 'Ismeretlen'}
 Adóforma: ${companyData?.taxRegime || 'KATA'}
 Alkalmazottak: ${companyData?.employees || '0'} fő
 
-A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré \`\`\`json taget), az alábbi kulcsokkal:
+A válaszod kizárólag egy JSON objektum legyen (ne tegyél köré ```json taget), az alábbi kulcsokkal:
 - "summary": Egy maximum 3 mondatos összefoglaló a cég aktuális pénzügyi helyzetéről és mire érdemes figyelni.
 - "tasks": Egy 3 elemű tömb, ami tartalmazza a top 3 legsürgősebb, legfontosabb pénzügyi/adózási teendőt erre a hónapra.`;
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7 }
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: prompt }],
+        systemInstruction: "Kizárólag JSON formátumban válaszolj, markdown tagek nélkül."
+      })
     });
+    if (!response.ok) throw new Error('API hiba');
+    const data = await response.json();
     
-    let rawText = result.response.text().trim();
-    if (rawText.startsWith('\`\`\`json')) rawText = rawText.substring(7);
-    if (rawText.startsWith('\`\`\`')) rawText = rawText.substring(3);
-    if (rawText.endsWith('\`\`\`')) rawText = rawText.substring(0, rawText.length - 3);
+    let rawText = data.text.trim();
+    if (rawText.startsWith('```json')) rawText = rawText.substring(7);
+    if (rawText.startsWith('```')) rawText = rawText.substring(3);
+    if (rawText.endsWith('```')) rawText = rawText.substring(0, rawText.length - 3);
     
     return JSON.parse(rawText.trim());
   } catch (error) {
