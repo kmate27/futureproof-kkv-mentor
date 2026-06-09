@@ -15,21 +15,18 @@ const formatMoney = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 const INITIAL_INCOMES = [
   { id: 1, name: 'Fő kliens (Kovács Kft.)', amount: 1500000, frequency: 'Havi' },
   { id: 2, name: 'Webáruház bevételek', amount: 800000, frequency: 'Havi' },
-  { id: 3, name: 'Őszi kampány extra bevétel', amount: 350000, frequency: 'Egyszeri', month: 'Szeptember' },
-  { id: 4, name: 'Black Friday előleg', amount: 200000, frequency: 'Egyszeri', month: 'November' }
+  { id: 3, name: 'Őszi fellendülés', amount: 280000, frequency: 'Egyszeri', month: 'Szeptember' },
+  { id: 4, name: 'Karácsonyi szezon kezdete', amount: 130000, frequency: 'Egyszeri', month: 'November' }
 ];
 
 const INITIAL_EXPENSES = [
   { id: 1, name: 'Irodabérlet', amount: 350000, frequency: 'Havi' },
-  { id: 2, name: 'Alkalmazotti bérek', amount: 1100000, frequency: 'Havi' },
+  { id: 2, name: 'Alkalmazotti bérek', amount: 1130000, frequency: 'Havi' },
   { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' },
-  { id: 4, name: 'Csapatépítő', amount: 180000, frequency: 'Egyszeri', month: 'Július' },
-  { id: 5, name: 'Szezonális bevételkiesés', amount: 750000, frequency: 'Egyszeri', month: 'Július' },
-  { id: 6, name: 'Éves könyvelési díj', amount: 120000, frequency: 'Egyszeri', month: 'Augusztus' },
-  { id: 7, name: 'Nyári leállás', amount: 1300000, frequency: 'Egyszeri', month: 'Augusztus' },
-  { id: 8, name: 'Éves iparűzési adó befizetés', amount: 1100000, frequency: 'Egyszeri', month: 'Október' },
-  { id: 9, name: 'Eszközbeszerzés', amount: 400000, frequency: 'Egyszeri', month: 'Október' },
-  { id: 10, name: 'Karácsonyi kampány terhei', amount: 350000, frequency: 'Egyszeri', month: 'November' }
+  { id: 4, name: 'Nyári lassulás', amount: 370000, frequency: 'Egyszeri', month: 'Július' },
+  { id: 5, name: 'Szabadságok miatti visszaesés', amount: 470000, frequency: 'Egyszeri', month: 'Augusztus' },
+  { id: 6, name: 'Éves iparűzési adó befizetés', amount: 1100000, frequency: 'Egyszeri', month: 'Október' },
+  { id: 7, name: 'Eszközbeszerzés / Szoftver', amount: 70000, frequency: 'Egyszeri', month: 'Október' }
 ];
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
@@ -128,7 +125,7 @@ export default function Cashflow() {
   useEffect(() => {
     const badMonths = chartData.filter(d => d.baseNet < 0);
     if (badMonths.length > 0) {
-      setWarningText('⚠️ Július és augusztus hónapokban negatív cashflow várható a szezonális visszaesés miatt. Október szintén kritikus az éves iparűzési adó (1 100 000 Ft) miatt. Javasolt: a júniusi +650 000 Ft-os többletet tartsd meg tartalékként.');
+      setWarningText('⚠️ Október hónapban negatív cashflow várható az éves iparűzési adó befizetés (1 100 000 Ft) miatt. Javasolt: tegyél félre havi 92 000 Ft-ot júniustól, hogy októberben ne okozzon likviditási problémát.');
     } else {
       setWarningText('');
     }
