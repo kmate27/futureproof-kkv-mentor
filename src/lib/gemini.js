@@ -235,15 +235,21 @@ Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél baráts�
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-3.5-flash",
-      systemInstruction: { parts: [{ text: systemInstruction }] }
+      systemInstruction: { parts: [{ text: systemInstruction }] } // megtartjuk a biztonság kedvéért
     });
+
+    // Ha a modell nem támogatja a systemInstruction paramétert (pl. régebbi vagy nem létező verzió miatt proxy-n keresztül), 
+    // akkor az első üzenethez direktben is hozzáfűzzük az utasítást.
+    const messageToSend = history.length === 0 
+      ? `Kérlek, mindenképp MAGYARUL válaszolj!\n\n${systemInstruction}\n\nA kérdésem: ${message}`
+      : message;
 
     const chat = model.startChat({
       history: history,
-      generationConfig: { maxOutputTokens: 500, temperature: 0.6 }
+      generationConfig: { maxOutputTokens: 800, temperature: 0.6 }
     });
 
-    const result = await chat.sendMessage(message);
+    const result = await chat.sendMessage(messageToSend);
     return result.response.text();
   } catch (error) {
     console.error('Hiba a chat során:', error);
