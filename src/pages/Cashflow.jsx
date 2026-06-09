@@ -1,9 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { generateCashflowWarning, parseCustomScenario } from '../lib/gemini';
+import { parseCustomScenario } from '../lib/gemini';
 import {
   Wallet, TrendingUp, TrendingDown, Plus, Trash2, ChevronLeft, 
-  Lightbulb, AlertTriangle, Users, UserMinus, Monitor, Sparkles, X, Loader2
+  Lightbulb, AlertTriangle, Users, UserMinus, Monitor, Sparkles, X, Loader2, Info
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend
@@ -13,7 +13,7 @@ import {
 const formatMoney = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
 const INITIAL_INCOMES = [
-  { id: 1, name: 'Fő kliens (Kovács Kft.)', amount: 1200000, frequency: 'Havi' },
+  { id: 1, name: 'Fő kliens (Kovács Kft.)', amount: 1500000, frequency: 'Havi' },
   { id: 2, name: 'Webáruház bevételek', amount: 800000, frequency: 'Havi' }
 ];
 
@@ -21,10 +21,11 @@ const INITIAL_EXPENSES = [
   { id: 1, name: 'Irodabérlet', amount: 350000, frequency: 'Havi' },
   { id: 2, name: 'Alkalmazotti bérek', amount: 1200000, frequency: 'Havi' },
   { id: 3, name: 'Marketing & Szoftverek', amount: 200000, frequency: 'Havi' },
-  { id: 4, name: 'Éves iparűzési adó befizetés', amount: 650000, frequency: 'Egyszeri', month: 'Október' }
+  { id: 4, name: 'Éves iparűzési adó befizetés', amount: 1100000, frequency: 'Egyszeri', month: 'Október' }
 ];
 
 const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
+const getMonthIcon = (m) => ['Június', 'Július', 'Augusztus'].includes(m) ? '☀️' : '🍂';
 
 export default function Cashflow() {
   // Szekció 1: Adatok
@@ -43,25 +44,25 @@ export default function Cashflow() {
   const [newExpMonth, setNewExpMonth] = useState('Június');
 
   // Szekció 3: Szimuláció
-  const [scenario, setScenario] = useState(null); // { type, amount, frequency, name }
+  const [scenario, setScenario] = useState(null); // { type, amount, frequency, month/startMonth, name }
   const [activeModal, setActiveModal] = useState(null); // 'employee', 'client', 'asset', 'custom'
   const [modalInput, setModalInput] = useState('');
+  const [modalMonth, setModalMonth] = useState('Június');
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   // AI Figyelmeztetés
   const [warningText, setWarningText] = useState('');
-  const [isWarningLoading, setIsWarningLoading] = useState(false);
 
   // --- LOGIKA: TÉTEL HOZZÁADÁS/TÖRLÉS ---
   const addIncome = () => {
     if (!newIncName || !newIncAmount) return;
-    setIncomes([...incomes, { id: Date.now(), name: newIncName, amount: Number(newIncAmount), frequency: newIncFreq, month: newIncFreq === 'Egyszeri' ? newIncMonth : null }]);
+    setIncomes([...incomes, { id: Date.now(), name: newIncName, amount: Number(newIncAmount), frequency: newIncFreq, month: newIncFreq !== 'Havi' ? newIncMonth : null }]);
     setNewIncName(''); setNewIncAmount('');
   };
 
   const addExpense = () => {
     if (!newExpName || !newExpAmount) return;
-    setExpenses([...expenses, { id: Date.now(), name: newExpName, amount: Number(newExpAmount), frequency: newExpFreq, month: newExpFreq === 'Egyszeri' ? newExpMonth : null }]);
+    setExpenses([...expenses, { id: Date.now(), name: newExpName, amount: Number(newExpAmount), frequency: newExpFreq, month: newExpFreq !== 'Havi' ? newExpMonth : null }]);
     setNewExpName(''); setNewExpAmount('');
   };
 
@@ -71,17 +72,25 @@ export default function Cashflow() {
   // --- LOGIKA: ELŐREJELZÉS SZÁMÍTÁSA ---
   const chartData = useMemo(() => {
     return MONTHS.map((month, index) => {
-      const monthIncomes = incomes.filter(inc => 
-        inc.frequency === 'Havi' || 
-        (inc.frequency === 'Egyszeri' && inc.month === month) ||
-        (inc.frequency === 'Negyedéves' && index % 3 === 0)
-      );
+      const monthIncomes = incomes.filter(inc => {
+        if (inc.frequency === 'Havi') return true;
+        if (inc.frequency === 'Egyszeri' && inc.month === month) return true;
+        if (inc.frequency === 'Negyedéves') {
+          const startIdx = MONTHS.indexOf(inc.month);
+          return index >= startIdx && (index - startIdx) % 3 === 0;
+        }
+        return false;
+      });
       
-      const monthExpenses = expenses.filter(exp => 
-        exp.frequency === 'Havi' || 
-        (exp.frequency === 'Egyszeri' && exp.month === month) ||
-        (exp.frequency === 'Negyedéves' && index % 3 === 0)
-      );
+      const monthExpenses = expenses.filter(exp => {
+        if (exp.frequency === 'Havi') return true;
+        if (exp.frequency === 'Egyszeri' && exp.month === month) return true;
+        if (exp.frequency === 'Negyedéves') {
+          const startIdx = MONTHS.indexOf(exp.month);
+          return index >= startIdx && (index - startIdx) % 3 === 0;
+        }
+        return false;
+      });
 
       const monthlyIncomeTotal = monthIncomes.reduce((sum, item) => sum + item.amount, 0);
       const monthlyExpenseTotal = monthExpenses.reduce((sum, item) => sum + item.amount, 0);
@@ -90,15 +99,12 @@ export default function Cashflow() {
       let scenarioNet = dynamicNet;
       
       if (scenario) {
-        // Szcenárió alkalmazása
-        if (scenario.frequency === 'one-time') {
-          // Csak az első hónapban (vagy a következő hónapban)
-          if (index === 0) {
-            scenarioNet += (scenario.type === 'income' ? scenario.amount : -scenario.amount);
-          }
-        } else {
-          // Havi
-          scenarioNet += (scenario.type === 'income' ? scenario.amount : -scenario.amount);
+        const startIdx = MONTHS.indexOf(scenario.startMonth || scenario.month);
+        if (scenario.frequency === 'Havi' && index >= startIdx) {
+          if (scenario.type === 'expense') scenarioNet -= scenario.amount;
+          if (scenario.type === 'income_loss') scenarioNet -= scenario.amount;
+        } else if (scenario.frequency === 'Egyszeri' && month === scenario.month) {
+          if (scenario.type === 'expense') scenarioNet -= scenario.amount;
         }
       }
 
@@ -112,30 +118,46 @@ export default function Cashflow() {
 
   // --- LOGIKA: AI FIGYELMEZTETÉS ---
   useEffect(() => {
-    const badMonths = chartData.filter(d => d.baseNet < 0).map(d => d.name);
+    const badMonths = chartData.filter(d => d.baseNet < 0);
     if (badMonths.length > 0) {
-      const fetchWarning = async () => {
-        setIsWarningLoading(true);
-        const advice = await generateCashflowWarning(badMonths, [...incomes, ...expenses]);
-        setWarningText(advice);
-        setIsWarningLoading(false);
-      };
-      fetchWarning();
+      const firstBadMonth = badMonths[0].name;
+      const mIdx = MONTHS.indexOf(firstBadMonth);
+      
+      const applicableExpenses = expenses.filter(exp => {
+        if (exp.frequency === 'Havi') return true;
+        if (exp.frequency === 'Egyszeri' && exp.month === firstBadMonth) return true;
+        if (exp.frequency === 'Negyedéves') {
+          const startIdx = MONTHS.indexOf(exp.month);
+          return mIdx >= startIdx && (mIdx - startIdx) % 3 === 0;
+        }
+        return false;
+      });
+      
+      let biggestExp = applicableExpenses.length > 0 
+        ? [...applicableExpenses].sort((a,b)=>b.amount - a.amount)[0] 
+        : { name: 'Kiadások', amount: 0 };
+      
+      // Elosztás a hátralévő hónapokra +1 (pl. Október -> 6. hónap -> 6 felé osztjuk)
+      const amountToSave = Math.ceil(biggestExp.amount / (mIdx + 2) / 5000) * 5000;
+      
+      setWarningText(`⚠️ ${firstBadMonth} hónapban likviditási szűkület várható a(z) ${biggestExp.name.toLowerCase()} (${formatMoney(biggestExp.amount)}) miatt. Javasolt: különíts el havi ${formatMoney(amountToSave)}-ot júniustól kezdve, hogy ${firstBadMonth.toLowerCase()}ban ne okozzon gondot a befizetés.`);
     } else {
       setWarningText('');
     }
-  }, [incomes, expenses]); // Csak az alapadatok változásakor, szimulációkor nem
+  }, [incomes, expenses, chartData]);
 
   // --- LOGIKA: SZIMULÁCIÓK KEZELÉSE ---
   const applyScenario = async () => {
-    if (!modalInput) return;
+    if (!modalInput && activeModal !== 'client') return; // client-nél selectből jön az id, alapból az első elem
     
     if (activeModal === 'employee') {
-      setScenario({ type: 'expense', amount: Number(modalInput), frequency: 'monthly', name: 'Új alkalmazott' });
+      const gross = Number(modalInput);
+      setScenario({ type: 'expense', amount: gross * 1.27, frequency: 'Havi', startMonth: modalMonth, name: 'Új alkalmazottal' });
     } else if (activeModal === 'client') {
-      setScenario({ type: 'expense', amount: Number(modalInput), frequency: 'monthly', name: 'Ügyfél elvesztése' }); // Bevétel kiesés = expense jellegű hatás a netre
+      const lostIncome = incomes.find(i => i.id === Number(modalInput)) || incomes[0];
+      setScenario({ type: 'income_loss', amount: lostIncome?.amount || 0, frequency: 'Havi', startMonth: modalMonth, name: `Kiesés: ${lostIncome?.name}` });
     } else if (activeModal === 'asset') {
-      setScenario({ type: 'expense', amount: Number(modalInput), frequency: 'one-time', name: 'Eszközvásárlás' });
+      setScenario({ type: 'expense', amount: Number(modalInput), frequency: 'Egyszeri', month: modalMonth, name: 'Eszközvásárlással' });
     } else if (activeModal === 'custom') {
       setIsAiLoading(true);
       const parsed = await parseCustomScenario(modalInput);
@@ -145,6 +167,7 @@ export default function Cashflow() {
     
     setActiveModal(null);
     setModalInput('');
+    setModalMonth('Június');
   };
 
   const clearScenario = () => setScenario(null);
@@ -161,12 +184,12 @@ export default function Cashflow() {
           <p className="font-bold text-[#1E293B] mb-2">{label}</p>
           <div className="space-y-1">
             <p className="text-sm flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-slate-300"></span>
+              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].fill }}></span>
               Eredeti egyenleg: <span className="font-semibold">{formatMoney(payload[0].value)}</span>
             </p>
             {payload[1] && (
               <p className="text-sm flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#1F5FAD]"></span>
+                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[1].fill }}></span>
                 Szimulált egyenleg: <span className="font-semibold">{formatMoney(payload[1].value)}</span>
               </p>
             )}
@@ -175,6 +198,12 @@ export default function Cashflow() {
       );
     }
     return null;
+  };
+
+  // Kliens elvesztése szimulációhoz
+  const handleClientModalOpen = () => {
+    if (incomes.length > 0) setModalInput(incomes[0].id.toString());
+    setActiveModal('client');
   };
 
   return (
@@ -214,7 +243,7 @@ export default function Cashflow() {
                 <div key={inc.id} className="flex items-center justify-between p-3 bg-green-50/50 rounded-lg border border-green-100">
                   <div>
                     <p className="font-semibold text-sm text-[#1E293B]">{inc.name}</p>
-                    <p className="text-xs text-green-700">{inc.frequency === 'Egyszeri' ? `${inc.frequency} (${inc.month})` : inc.frequency}</p>
+                    <p className="text-xs text-green-700">{inc.frequency !== 'Havi' ? `${inc.frequency} · ${inc.month}` : inc.frequency}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-[#1A7A4A]">+{formatMoney(inc.amount)}</span>
@@ -247,7 +276,7 @@ export default function Cashflow() {
                   <option value="Negyedéves">Negyedéves</option>
                 </select>
               </div>
-              {newIncFreq === 'Egyszeri' && (
+              {newIncFreq !== 'Havi' && (
                 <div className="w-1/4 min-w-[100px]">
                   <select value={newIncMonth} onChange={e => setNewIncMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none">
                     {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
@@ -272,7 +301,7 @@ export default function Cashflow() {
                 <div key={exp.id} className="flex items-center justify-between p-3 bg-red-50/30 rounded-lg border border-red-100">
                   <div>
                     <p className="font-semibold text-sm text-[#1E293B]">{exp.name}</p>
-                    <p className="text-xs text-red-700">{exp.frequency === 'Egyszeri' ? `${exp.frequency} (${exp.month})` : exp.frequency}</p>
+                    <p className="text-xs text-red-700/80">{exp.frequency !== 'Havi' ? `${exp.frequency} · ${exp.month}` : exp.frequency}</p>
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="font-bold text-[#991B1B]">-{formatMoney(exp.amount)}</span>
@@ -305,7 +334,7 @@ export default function Cashflow() {
                   <option value="Negyedéves">Negyedéves</option>
                 </select>
               </div>
-              {newExpFreq === 'Egyszeri' && (
+              {newExpFreq !== 'Havi' && (
                 <div className="w-1/4 min-w-[100px]">
                   <select value={newExpMonth} onChange={e => setNewExpMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none">
                     {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
@@ -327,13 +356,7 @@ export default function Cashflow() {
               <h3 className="text-red-800 font-bold mb-1 flex items-center gap-2">
                 <Sparkles className="w-4 h-4" /> AI Likviditási Figyelmeztetés
               </h3>
-              {isWarningLoading ? (
-                <div className="flex items-center gap-2 text-red-600 text-sm">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Elemzés folyamatban...
-                </div>
-              ) : (
-                <p className="text-red-900 text-sm">{warningText}</p>
-              )}
+              <p className="text-red-900 text-sm">{warningText}</p>
             </div>
           </div>
         )}
@@ -341,9 +364,20 @@ export default function Cashflow() {
         {/* SZEKCIÓ 2: Vizuális Előrejelző */}
         <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div>
-              <h2 className="text-xl font-bold text-[#1E293B]">6 Hónapos Készpénz-előrejelzés</h2>
-              <p className="text-sm text-slate-500 mt-1">A várható havi nettó egyenlegek (Be - Ki)</p>
+            <div className="flex items-center gap-2">
+              <div>
+                <h2 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
+                  6 Hónapos Készpénz-előrejelzés
+                  <div className="group relative flex items-center">
+                    <Info className="w-4 h-4 text-slate-400 cursor-help hover:text-[#1F5FAD] transition-colors" />
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-slate-800 text-white text-xs p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center">
+                      Az előrejelzés a megadott rendszeres bevételek és kiadások alapján számítódik. Egyszeri tételek csak a megadott hónapban szerepelnek.
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-800"></div>
+                    </div>
+                  </div>
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">A várható havi nettó egyenlegek (Be - Ki)</p>
+              </div>
             </div>
             
             <div className="flex gap-4">
@@ -353,7 +387,7 @@ export default function Cashflow() {
               </div>
               <div className="w-px bg-slate-200"></div>
               <div className="text-right">
-                <p className="text-xs font-medium text-slate-500 uppercase">Legrosszabb</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">Legrosszabb hónap</p>
                 <p className={`font-bold ${worstMonth.baseNet < 0 ? 'text-[#991B1B]' : 'text-slate-700'}`}>
                   {formatMoney(worstMonth.baseNet)}
                 </p>
@@ -365,7 +399,14 @@ export default function Cashflow() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 12 }} dy={10} />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tickFormatter={(val) => `${getMonthIcon(val)} ${val}`}
+                  tick={{ fill: '#64748B', fontSize: 12 }} 
+                  dy={10} 
+                />
                 <YAxis 
                   axisLine={false} 
                   tickLine={false} 
@@ -379,15 +420,14 @@ export default function Cashflow() {
                 <Bar 
                   dataKey="baseNet" 
                   name="Eredeti Cashflow" 
-                  fill={scenario ? "#CBD5E1" : "#1F5FAD"} // Ha van szimuláció, szürkítjük az eredetit
                   radius={[4, 4, 0, 0]}
                   barSize={scenario ? 30 : 50}
                 >
-                  {!scenario && chartData.map((entry, index) => {
-                    // Dinamikus színezés csak ha nincs szimuláció, hogy egyértelmű legyen
-                    let color = '#EAB308'; // Sárga (0-500k)
-                    if (entry.baseNet > 500000) color = '#1A7A4A'; // Zöld
+                  {chartData.map((entry, index) => {
+                    let color = '#EAB308'; // Sárga (0-400k)
+                    if (entry.baseNet > 400000) color = '#1A7A4A'; // Zöld
                     if (entry.baseNet < 0) color = '#991B1B'; // Piros
+                    if (scenario) color = '#CBD5E1'; // Ha van szimuláció, elszürkítjük
                     return <Cell key={`cell-${index}`} fill={color} />;
                   })}
                 </Bar>
@@ -402,7 +442,7 @@ export default function Cashflow() {
                   >
                     {chartData.map((entry, index) => {
                       let color = '#EAB308';
-                      if (entry.scenarioNet > 500000) color = '#1A7A4A';
+                      if (entry.scenarioNet > 400000) color = '#1A7A4A';
                       if (entry.scenarioNet < 0) color = '#991B1B';
                       return <Cell key={`cell-sim-${index}`} fill={color} />;
                     })}
@@ -430,15 +470,15 @@ export default function Cashflow() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <button 
               onClick={() => setActiveModal('employee')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'employee' || scenario?.name === 'Új alkalmazott' ? 'border-[#1F5FAD] bg-blue-50 text-[#1F5FAD]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'employee' || scenario?.name === 'Új alkalmazottal' ? 'border-[#1F5FAD] bg-blue-50 text-[#1F5FAD]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
             >
               <Users className="w-8 h-8" />
               <span className="font-semibold text-sm">Új alkalmazott felvétele</span>
             </button>
             
             <button 
-              onClick={() => setActiveModal('client')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'client' || scenario?.name === 'Ügyfél elvesztése' ? 'border-[#991B1B] bg-red-50 text-[#991B1B]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
+              onClick={handleClientModalOpen}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'client' || scenario?.type === 'income_loss' ? 'border-[#991B1B] bg-red-50 text-[#991B1B]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
             >
               <UserMinus className="w-8 h-8" />
               <span className="font-semibold text-sm">Elveszítek egy ügyfelet</span>
@@ -446,7 +486,7 @@ export default function Cashflow() {
 
             <button 
               onClick={() => setActiveModal('asset')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'asset' || scenario?.name === 'Eszközvásárlás' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'asset' || scenario?.name === 'Eszközvásárlással' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
             >
               <Monitor className="w-8 h-8" />
               <span className="font-semibold text-sm">Eszközt veszek</span>
@@ -454,7 +494,7 @@ export default function Cashflow() {
 
             <button 
               onClick={() => setActiveModal('custom')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'custom' || scenario?.name === 'Saját terv' ? 'border-[#1A7A4A] bg-green-50 text-[#1A7A4A]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
+              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'custom' || scenario?.name && !['Új alkalmazottal', 'Eszközvásárlással'].includes(scenario.name) && scenario.type !== 'income_loss' ? 'border-[#1A7A4A] bg-green-50 text-[#1A7A4A]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
             >
               <Sparkles className="w-8 h-8" />
               <span className="font-semibold text-sm">Saját forgatókönyv (AI)</span>
@@ -473,14 +513,14 @@ export default function Cashflow() {
                 {activeModal === 'employee' && 'Új alkalmazott felvétele'}
                 {activeModal === 'client' && 'Ügyfél elvesztése'}
                 {activeModal === 'asset' && 'Eszközvásárlás'}
-                {activeModal === 'custom' && 'Saját forgatókönyv'}
+                {activeModal === 'custom' && 'Saját forgatókönyv (AI)'}
               </h3>
-              <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-slate-700">
+              <button onClick={() => {setActiveModal(null); setModalInput(''); setModalMonth('Június');}} className="text-slate-400 hover:text-slate-700">
                 <X className="w-6 h-6" />
               </button>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-6 space-y-4">
               {activeModal === 'custom' ? (
                 <>
                   <p className="text-sm text-slate-600 mb-3">
@@ -494,12 +534,33 @@ export default function Cashflow() {
                     className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#1F5FAD] h-32 resize-none"
                   ></textarea>
                 </>
+              ) : activeModal === 'client' ? (
+                <>
+                  <p className="text-sm text-slate-600 mb-1">Melyik bevételi forrást veszíted el?</p>
+                  <select 
+                    value={modalInput} 
+                    onChange={e => setModalInput(e.target.value)} 
+                    className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#991B1B]"
+                  >
+                    {incomes.map(inc => (
+                      <option key={inc.id} value={inc.id.toString()}>{inc.name} ({formatMoney(inc.amount)})</option>
+                    ))}
+                  </select>
+
+                  <p className="text-sm text-slate-600 mb-1 mt-4">Melyik hónaptól esik ki?</p>
+                  <select 
+                    value={modalMonth} 
+                    onChange={e => setModalMonth(e.target.value)} 
+                    className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#991B1B]"
+                  >
+                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </>
               ) : (
                 <>
-                  <p className="text-sm text-slate-600 mb-3">
-                    {activeModal === 'employee' && 'Mekkora az új munkatárs becsült havi bruttó bérköltsége?'}
-                    {activeModal === 'client' && 'Mekkora havi bevételkiesést jelent ez az ügyfél?'}
-                    {activeModal === 'asset' && 'Mekkora az egyszeri beruházás összege?'}
+                  <p className="text-sm text-slate-600 mb-1">
+                    {activeModal === 'employee' && 'Bruttó fizetés (Ft)'}
+                    {activeModal === 'asset' && 'Beruházás összege (Ft)'}
                   </p>
                   <div className="relative">
                     <input 
@@ -508,28 +569,47 @@ export default function Cashflow() {
                       placeholder="Összeg"
                       value={modalInput}
                       onChange={(e) => setModalInput(e.target.value)}
-                      className="w-full rounded-xl border border-[#E2E8F0] p-4 pr-12 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#1F5FAD]"
+                      className={`w-full rounded-xl border border-[#E2E8F0] p-4 pr-12 text-lg font-semibold focus:outline-none focus:ring-2 ${activeModal === 'employee' ? 'focus:ring-[#1F5FAD]' : 'focus:ring-amber-500'}`}
                     />
                     <span className="absolute right-4 top-4 font-bold text-slate-400">Ft</span>
                   </div>
+                  
+                  {activeModal === 'employee' && modalInput && (
+                    <div className="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm flex justify-between items-center">
+                      <span>Teljes munkáltatói teher (x1.27):</span>
+                      <span className="font-bold">{formatMoney(Number(modalInput) * 1.27)} /hó</span>
+                    </div>
+                  )}
+
+                  <p className="text-sm text-slate-600 mb-1 mt-4">
+                    {activeModal === 'employee' && 'Kezdés hónapja'}
+                    {activeModal === 'asset' && 'Vásárlás hónapja'}
+                  </p>
+                  <select 
+                    value={modalMonth} 
+                    onChange={e => setModalMonth(e.target.value)} 
+                    className={`w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 ${activeModal === 'employee' ? 'focus:ring-[#1F5FAD]' : 'focus:ring-amber-500'}`}
+                  >
+                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
                 </>
               )}
             </div>
 
             <div className="flex justify-end gap-3">
               <button 
-                onClick={() => setActiveModal(null)}
+                onClick={() => {setActiveModal(null); setModalInput(''); setModalMonth('Június');}}
                 className="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
               >
                 Mégse
               </button>
               <button 
                 onClick={applyScenario}
-                disabled={!modalInput || isAiLoading}
+                disabled={(!modalInput && activeModal !== 'client') || isAiLoading}
                 className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#1F5FAD] hover:bg-[#2E75B6] transition-colors flex items-center gap-2 disabled:opacity-50"
               >
                 {isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
-                Szimulálás
+                Szimulálás a grafikonon
               </button>
             </div>
           </div>
