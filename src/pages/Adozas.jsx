@@ -147,7 +147,7 @@ export default function Adozas() {
                   type="range" 
                   min="1000000" 
                   max="100000000" 
-                  step="1000000"
+                  step="10000"
                   value={revenue}
                   onChange={(e) => setRevenue(Number(e.target.value))}
                   className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#1F5FAD]"
