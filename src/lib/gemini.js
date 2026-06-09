@@ -233,56 +233,42 @@ export async function sendChatMessage(history, message, companyData) {
 Adj személyre szabott, konkrét pénzügyi tanácsot magyarul. Legyél barátságos és érthető — ne beszélj könyvelői szakzsargonban. Ha az adó vagy jog területén végleges döntésről van szó, zárd a válaszodat pontosan ezzel a mondattal: "Egyeztesd könyvelőddel."`;
 
   try {
-    let responseText = "";
+    // A history átalakítása OpenAI formátumra
+    const openaiMessages = history.map(msg => ({
+      role: msg.role === 'model' ? 'assistant' : 'user',
+      content: msg.parts[0].text
+    }));
     
-    // Deep copy a history-ról, hogy ne mutáljuk az eredetit
-    const chatHistory = JSON.parse(JSON.stringify(history));
-    
-    // Ha van már történet, az első üzenethez hozzáadjuk az instrukciókat, hogy a modell sose felejtse el (mivel a systemInstruction paramétert ignorálhatja)
-    if (chatHistory.length > 0) {
-      chatHistory[0].parts[0].text = `[RENDSZER UTASÍTÁS: Kérlek mindenképp MAGYARUL válaszolj! ${systemInstruction}]\n\n${chatHistory[0].parts[0].text}`;
+    // Ha az első üzenet 'assistant', azt az OpenAI sem szereti a kezdésnél (bár jobban tolerálja, mint a Claude, azért levágjuk a biztonság kedvéért)
+    if (openaiMessages.length > 0 && openaiMessages[0].role === 'assistant') {
+      openaiMessages.shift();
     }
     
-    const messageToSend = chatHistory.length === 0 
-      ? `[RENDSZER UTASÍTÁS: Kérlek mindenképp MAGYARUL válaszolj! ${systemInstruction}]\n\nKérdés: ${message}`
-      : message;
+    // Aktuális kérdés hozzáadása
+    openaiMessages.push({
+      role: 'user',
+      content: message
+    });
+
+    const response = await fetch('/api/openai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: openaiMessages,
+        systemInstruction: systemInstruction
+      })
+    });
+
+    const data = await response.json();
     
-    // 1. Kísérlet: gemini-3.5-flash
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-3.5-flash",
-        systemInstruction: { parts: [{ text: systemInstruction }] }
-      });
-      
-      const chat = model.startChat({
-        history: chatHistory,
-        generationConfig: { temperature: 0.6 } // Kivettük a maxOutputTokens-t, hogy sose vágja el!
-      });
-
-      const result = await chat.sendMessage(messageToSend);
-      responseText = result.response.text();
-    } catch (primaryError) {
-      console.warn("Elsődleges modell (3.5) hiba, próbálkozás a 2.5-ös verzióval...", primaryError);
-      
-      // 2. Kísérlet (Fallback): gemini-2.5-flash
-      const fallbackModel = genAI.getGenerativeModel({ 
-        model: "gemini-2.5-flash",
-        systemInstruction: { parts: [{ text: systemInstruction }] }
-      });
-
-      const chat = fallbackModel.startChat({
-        history: chatHistory,
-        generationConfig: { temperature: 0.6 }
-      });
-
-      const result = await chat.sendMessage(messageToSend);
-      responseText = result.response.text();
+    if (!response.ok) {
+      throw new Error(data.error || 'Ismeretlen OpenAI API hiba');
     }
-    
-    return responseText;
+
+    return data.text;
   } catch (error) {
     console.error('Hiba a chat során:', error);
-    return `⚠️ API Hiba: ${error.message || 'Ismeretlen hiba'}. (Mindkét modell túlterhelt, próbáld újra később!)`;
+    return `⚠️ API Hiba: ${error.message}. (Győződj meg róla, hogy a Vercel-en be van állítva az OPENAI_API_KEY!)`;
   }
 }
 
