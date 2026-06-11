@@ -209,7 +209,7 @@ export default function Dashboard() {
             <span>Éves Becsült Bevétel</span>
             <Calendar className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white font-display tabular-nums tracking-tight">
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-white font-display tabular-nums tracking-tight truncate" title={formatHuf(annualRevenue)}>
             {formatHuf(annualRevenue)}
           </p>
           <span className="text-[10px] text-[#00F872] font-semibold mt-1 block">Contextből dinamikusan kalkulálva</span>
@@ -220,7 +220,7 @@ export default function Dashboard() {
             <span>Havi Bevétel</span>
             <TrendingUp className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white font-display tabular-nums tracking-tight">
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-white font-display tabular-nums tracking-tight truncate" title={formatHuf(4250000)}>
             {formatHuf(4250000)}
           </p>
           <span className="text-[10px] text-[#00F872] font-semibold mt-1 block flex items-center gap-1">
@@ -233,7 +233,7 @@ export default function Dashboard() {
             <span>Havi Kiadás</span>
             <TrendingDown className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-extrabold text-white font-display tabular-nums tracking-tight">
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-white font-display tabular-nums tracking-tight truncate" title={formatHuf(3180000)}>
             {formatHuf(3180000)}
           </p>
           <span className="text-[10px] text-red-500 font-semibold mt-1 block flex items-center gap-1">
@@ -246,7 +246,7 @@ export default function Dashboard() {
             <span>Havi Eredmény</span>
             <Wallet className="w-4 h-4 text-slate-600" />
           </div>
-          <p className="text-2xl font-extrabold text-[#00F872] font-display tabular-nums tracking-tight">
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-[#00F872] font-display tabular-nums tracking-tight truncate" title={formatHuf(1070000)}>
             +{formatHuf(1070000)}
           </p>
           <span className="text-[10px] text-slate-400 font-semibold mt-1 block">

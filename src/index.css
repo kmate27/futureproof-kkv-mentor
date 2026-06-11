@@ -18,7 +18,7 @@
 
 @layer base {
   body {
-    @apply bg-[#F8FAFC] text-slate-800 antialiased;
+    @apply bg-[#101112] text-slate-200 antialiased;
     font-family: var(--font-sans);
   }
 

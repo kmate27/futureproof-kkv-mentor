@@ -105,29 +105,29 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={onClose}></div>
 
       {/* Drawer */}
-      <aside className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+      <aside className="relative w-full max-w-md bg-[#101112] border-l border-slate-800 h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] flex items-center justify-center shadow-md">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-slate-800">KKV Mentor AI Asszisztens</h3>
-              <p className="text-[10px] text-slate-500">Mindig képben a cége számaival</p>
+              <h3 className="font-bold text-sm text-white">KKV Mentor AI Asszisztens</h3>
+              <p className="text-[10px] text-slate-400">Mindig képben a cége számaival</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-300 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Messages list */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/40">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'ai' && (
-                <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] border border-blue-100 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-[#1F5FAD]/10 border border-[#1F5FAD]/20 flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-[#1F5FAD]" />
                 </div>
               )}
@@ -136,7 +136,7 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
                   className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-sm ${
                     msg.role === 'user'
                       ? 'bg-[#1F5FAD] text-white rounded-tr-none'
-                      : 'bg-white text-slate-800 border border-slate-100 rounded-tl-none'
+                      : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-tl-none'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -150,10 +150,10 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
 
           {isTyping && (
             <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 rounded-lg bg-[#EFF6FF] border border-blue-100 flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-[#1F5FAD]/10 border border-[#1F5FAD]/20 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#1F5FAD]" />
               </div>
-              <div className="bg-white border border-slate-100 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1.5">
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '-0.3s' }}></span>
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '-0.15s' }}></span>
                 <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
@@ -164,12 +164,12 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
         </div>
 
         {/* Quick prompts */}
-        <div className="px-4 py-2 bg-slate-50 border-t border-slate-100 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+        <div className="px-4 py-2 bg-slate-900 border-t border-slate-800 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
           {quickPrompts.map((p) => (
             <button
               key={p}
               onClick={() => sendMessage(p)}
-              className="bg-white hover:bg-slate-100 border border-slate-200 text-[10px] font-semibold text-slate-600 px-3 py-1.5 rounded-full shrink-0 transition-colors cursor-pointer"
+              className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-[10px] font-semibold text-slate-300 px-3 py-1.5 rounded-full shrink-0 transition-colors cursor-pointer"
             >
               {p}
             </button>
@@ -177,14 +177,14 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
         </div>
 
         {/* Input box */}
-        <form onSubmit={handleSubmit} className="p-3 border-t border-slate-100 bg-white shrink-0">
+        <form onSubmit={handleSubmit} className="p-3 border-t border-slate-800 bg-[#101112] shrink-0">
           <div className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Kérdezz a cég adózásáról, cashflow-ról..."
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs outline-none focus:ring-2 focus:ring-[#1F5FAD]/20 focus:border-[#1F5FAD] transition-all"
+              className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:ring-2 focus:ring-[#00F872]/20 focus:border-[#00F872] transition-all placeholder-slate-500"
             />
             <button
               type="submit"

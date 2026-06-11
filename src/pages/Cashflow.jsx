@@ -299,7 +299,7 @@ export default function Cashflow() {
                       <td
                         key={month}
                         onClick={() => handleCellClick('inflow', cat, month)}
-                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-[#00F872] transition-colors relative"
+                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-[#00F872] transition-colors relative whitespace-nowrap"
                       >
                         {formatHuf(val)}
                       </td>
@@ -325,7 +325,7 @@ export default function Cashflow() {
                       <td
                         key={month}
                         onClick={() => handleCellClick('outflow', cat, month)}
-                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-red-400 transition-colors relative"
+                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-red-400 transition-colors relative whitespace-nowrap"
                       >
                         {formatHuf(val)}
                       </td>
@@ -340,7 +340,7 @@ export default function Cashflow() {
                 {monthlyTotals.map(t => (
                   <td
                     key={t.name}
-                    className={`px-4 py-4 text-right tabular-nums ${
+                    className={`px-4 py-4 text-right tabular-nums whitespace-nowrap ${
                       t.netCashflow >= 0 ? 'text-[#00F872]' : 'text-red-500'
                     }`}
                   >

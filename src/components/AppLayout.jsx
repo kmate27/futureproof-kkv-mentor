@@ -58,7 +58,7 @@ export default function AppLayout({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#101112] text-slate-100">
       {/* Mobile Header (top) */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-45 bg-[#101112] text-white px-4 py-3 shadow-sm flex items-center justify-between">
         <Link to="/dashboard" className="flex items-center gap-2">

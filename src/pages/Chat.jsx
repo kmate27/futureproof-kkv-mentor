@@ -121,18 +121,18 @@ export default function Chat() {
         }
       `}</style>
 
-      <div className="chat-container flex flex-col flex-1 bg-[#F8FAFC]"
+      <div className="chat-container flex flex-col flex-1 bg-[#101112]"
            style={{ height: 'inherit' }}>
         
         {/* Chat Header */}
-        <div className="bg-white border-b border-[#E2E8F0] flex-shrink-0 z-10 shadow-sm">
+        <div className="bg-slate-900 border-b border-slate-800 flex-shrink-0 z-10 shadow-sm">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] rounded-xl flex items-center justify-center shadow-md">
                 <Bot className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-[#1E293B]">
+                <h1 className="text-base font-bold text-white">
                   AI Pénzügyi Tanácsadó
                 </h1>
                 <p className="text-xs text-[#1A7A4A] font-medium flex items-center gap-1.5">
@@ -168,7 +168,7 @@ export default function Chat() {
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-5 py-3.5 shadow-sm ${
                     msg.role === 'user'
                       ? 'bg-[#1F5FAD] text-white rounded-br-sm'
-                      : 'bg-white text-[#1E293B] border border-[#E2E8F0] rounded-bl-sm'
+                      : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-bl-sm'
                   }`}
                 >
                   <p className="text-[15px] leading-relaxed whitespace-pre-wrap">
@@ -197,8 +197,8 @@ export default function Chat() {
                 <div className="w-8 h-8 bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
-                <div className="bg-white border border-[#E2E8F0] rounded-2xl rounded-bl-sm px-5 py-3.5 shadow-sm flex items-center gap-3">
-                  <span className="text-sm font-medium text-[#64748B]">KKV Mentor gondolkodik...</span>
+                <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-bl-sm px-5 py-3.5 shadow-sm flex items-center gap-3">
+                  <span className="text-sm font-medium text-slate-400">KKV Mentor gondolkodik...</span>
                   <div className="flex items-center gap-1.5 h-5">
                     <span className="w-2 h-2 bg-[#94A3B8] rounded-full animate-bounce [animation-delay:-0.3s]" />
                     <span className="w-2 h-2 bg-[#94A3B8] rounded-full animate-bounce [animation-delay:-0.15s]" />
@@ -213,7 +213,7 @@ export default function Chat() {
         </div>
 
         {/* Input Area — mindig alul rögzítve */}
-        <div className="flex-shrink-0 bg-white border-t border-[#E2E8F0]">
+        <div className="flex-shrink-0 bg-slate-900 border-t border-slate-800">
           <div className="max-w-4xl mx-auto px-4 sm:px-6">
             
             {/* Quick Prompts */}
@@ -223,7 +223,7 @@ export default function Chat() {
                   key={index}
                   onClick={() => handleQuickPrompt(prompt)}
                   disabled={isTyping}
-                  className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-200 bg-blue-50 text-xs font-medium text-[#1F5FAD] hover:bg-[#1F5FAD] hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <MessageCircle className="w-3.5 h-3.5" />
                   {prompt}
@@ -242,7 +242,7 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Tedd fel a pénzügyi vagy adózási kérdésed..."
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-[#E2E8F0] bg-[#F8FAFC] text-[15px] text-[#1E293B] focus:outline-none focus:ring-0 focus:border-[#1F5FAD] transition-all placeholder:text-[#94A3B8] resize-none h-12 min-h-[48px] max-h-28"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-850 bg-slate-950 text-[15px] text-white focus:outline-none focus:ring-0 focus:border-[#00F872] transition-all placeholder:text-slate-500 resize-none h-12 min-h-[48px] max-h-28"
                   rows={1}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -255,7 +255,7 @@ export default function Chat() {
               <button
                 type="submit"
                 disabled={!input.trim() || isTyping}
-                className="w-12 h-12 bg-[#1F5FAD] hover:bg-[#2E75B6] disabled:bg-[#CBD5E1] text-white rounded-2xl flex items-center justify-center transition-all shadow-md disabled:shadow-none flex-shrink-0"
+                className="w-12 h-12 bg-[#1F5FAD] hover:bg-[#2E75B6] disabled:bg-slate-800 disabled:text-slate-500 text-white rounded-2xl flex items-center justify-center transition-all shadow-md disabled:shadow-none flex-shrink-0"
               >
                 <SendHorizontal className="w-5 h-5 ml-0.5" />
               </button>

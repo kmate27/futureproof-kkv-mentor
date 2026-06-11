@@ -195,7 +195,7 @@ export default function Adozas() {
                       return (
                         <th key={regime} className={`px-4 py-4 text-center ${isBest ? 'bg-[#00F872]/[0.02]' : ''}`}>
                           <div className="flex flex-col items-center">
-                            <span className={`text-base font-bold ${isBest ? 'text-[#00F872]' : 'text-white'}`}>
+                            <span className={`text-sm sm:text-base font-bold whitespace-nowrap ${isBest ? 'text-[#00F872]' : 'text-white'}`}>
                               {regime}
                             </span>
                             {isCurrent && (
@@ -217,7 +217,7 @@ export default function Adozas() {
                     {REGIMES.map((regime) => {
                       const isBest = regime === bestRegime;
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold text-base tabular-nums ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-white'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm sm:text-base tabular-nums whitespace-nowrap ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-white'}`}>
                           {formatMoney(taxes[regime])}
                         </td>
                       );
@@ -233,7 +233,7 @@ export default function Adozas() {
                       const isPositive = diff > 0;
                       
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold tabular-nums ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-slate-500' : 'text-red-500'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm tabular-nums whitespace-nowrap ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-slate-500' : 'text-red-500'}`}>
                           {diff === 0 ? (
                             <span>Alapértelmezett</span>
                           ) : (
