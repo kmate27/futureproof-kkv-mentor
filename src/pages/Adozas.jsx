@@ -113,7 +113,20 @@ export default function Adozas() {
             <div>
               <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 <span>Várható éves bevétel</span>
-                <span className="text-[#00F872] font-bold text-sm tabular-nums">{formatMoney(revenue)}</span>
+                <span className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={1000000}
+                    max={60000000}
+                    value={revenue}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      if (!isNaN(v)) setRevenue(Math.min(60000000, Math.max(1000000, v)));
+                    }}
+                    className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1 text-sm text-[#00F872] font-bold tabular-nums w-40 text-right focus:outline-none focus:border-[#00F872]"
+                  />
+                  <span className="text-[#00F872] font-bold text-sm">Ft</span>
+                </span>
               </div>
               <input 
                 type="range" 
@@ -133,7 +146,21 @@ export default function Adozas() {
             <div>
               <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                 <span>Alkalmazottak száma (fő)</span>
-                <span className="text-white font-bold text-sm">{employees} fő</span>
+                <span className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={10}
+                    step={1}
+                    value={employees}
+                    onChange={(e) => {
+                      const v = Number(e.target.value);
+                      if (!isNaN(v)) setEmployees(Math.min(10, Math.max(0, v)));
+                    }}
+                    className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1 text-sm text-white font-bold tabular-nums w-20 text-right focus:outline-none focus:border-[#00F872]"
+                  />
+                  <span className="text-white font-bold text-sm">fő</span>
+                </span>
               </div>
               <input 
                 type="range" 
