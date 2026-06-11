@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -8,7 +9,11 @@
   --color-danger: #991B1B;
   --color-warning: #B45309;
   --color-bg: #F8FAFC;
+  --color-indigo-navy: #101112;
+  --color-neon-mint: #00F872;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-display: 'Outfit', sans-serif;
 }
 
 @layer base {

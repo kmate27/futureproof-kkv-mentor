@@ -1,212 +1,181 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { parseCustomScenario } from '../lib/ai';
+import { useFinance } from '../context/FinanceContext';
 import {
-  Wallet, TrendingUp, TrendingDown, Plus, Trash2, ChevronLeft, 
-  Lightbulb, AlertTriangle, Users, UserMinus, Monitor, Sparkles, X, Loader2, Info
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  Trash2,
+  ChevronLeft,
+  Sparkles,
+  AlertTriangle,
+  Settings,
+  Info,
+  Calendar,
+  Layers,
+  ArrowRight,
+  Maximize2
 } from 'lucide-react';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend
+  ComposedChart,
+  Area,
+  Bar,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend
 } from 'recharts';
 
-// Segédfüggvény a formázáshoz
-const formatMoney = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
-
-import { useFinance } from '../context/FinanceContext';
-
-const MONTHS = ['Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November'];
-const getMonthIcon = (m) => ['Június', 'Július', 'Augusztus'].includes(m) ? '☀️' : '🍂';
+const MONTHS = ['Júl', 'Aug', 'Szept', 'Okt', 'Nov', 'Dec'];
+const categories = {
+  inflow: ['Kereskedelmi bevételek', 'Webáruház bevételek', 'Egyéb bevételek'],
+  outflow: ['Alkalmazotti bérek', 'Irodabérlet & rezsi', 'Marketing & Szoftver', 'Adók & Járulékok', 'Egyéb kiadások']
+};
 
 export default function Cashflow() {
-  const { incomes, setIncomes, expenses, setExpenses } = useFinance();
+  const { incomes, expenses, setIncomes, setExpenses } = useFinance();
+  const [selectedCell, setSelectedCell] = useState(null); // { type: 'inflow'|'outflow', category: string, month: string }
+  const [cellValue, setCellValue] = useState('');
+  const [cellGrowth, setCellGrowth] = useState('0'); // Growth %
+  const [activeScenario, setActiveScenario] = useState('baseline'); // 'baseline' or 'optimistic'
   
-  // Új tételekhez
-  const [newIncName, setNewIncName] = useState('');
-  const [newIncAmount, setNewIncAmount] = useState('');
-  const [newIncFreq, setNewIncFreq] = useState('Havi');
-  const [newIncMonth, setNewIncMonth] = useState('Június');
-  
-  const [newExpName, setNewExpName] = useState('');
-  const [newExpAmount, setNewExpAmount] = useState('');
-  const [newExpFreq, setNewExpFreq] = useState('Havi');
-  const [newExpMonth, setNewExpMonth] = useState('Június');
+  // Custom cell overrides stored in local state
+  const [ledgerOverrides, setLedgerOverrides] = useState({
+    inflow: {},
+    outflow: {}
+  });
 
-  // Szekció 3: Szimuláció
-  const [scenario, setScenario] = useState(null); // { type, amount, frequency, month/startMonth, name }
-  const [activeModal, setActiveModal] = useState(null); // 'employee', 'client', 'asset', 'custom'
-  const [modalInput, setModalInput] = useState('');
-  const [modalMonth, setModalMonth] = useState('Június');
-  const [isAiLoading, setIsAiLoading] = useState(false);
-
-  // AI Figyelmeztetés
-  const [warningData, setWarningData] = useState(null);
-
-  // --- LOGIKA: TÉTEL HOZZÁADÁS/TÖRLÉS ---
-  const addIncome = () => {
-    if (!newIncName || !newIncAmount) return;
-    setIncomes([...incomes, { id: Date.now(), name: newIncName, amount: Number(newIncAmount), frequency: newIncFreq, month: newIncFreq !== 'Havi' ? newIncMonth : null }]);
-    setNewIncName(''); setNewIncAmount('');
+  const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
+  const formatHufShort = (val) => {
+    if (Math.abs(val) >= 1_000_000) return `${(val / 1_000_000).toFixed(1)}M`;
+    if (Math.abs(val) >= 1_000) return `${(val / 1_000).toFixed(0)}e`;
+    return val.toString();
   };
 
-  const addExpense = () => {
-    if (!newExpName || !newExpAmount) return;
-    setExpenses([...expenses, { id: Date.now(), name: newExpName, amount: Number(newExpAmount), frequency: newExpFreq, month: newExpFreq !== 'Havi' ? newExpMonth : null }]);
-    setNewExpName(''); setNewExpAmount('');
+  // Helper to resolve cell values (picks defaults from context or overrides)
+  const getCellValue = (type, category, month) => {
+    if (ledgerOverrides[type][`${category}-${month}`] !== undefined) {
+      return ledgerOverrides[type][`${category}-${month}`];
+    }
+    
+    // Fallback to base averages from context
+    if (type === 'inflow') {
+      if (category === 'Kereskedelmi bevételek') return 1500000;
+      if (category === 'Webáruház bevételek') return 800000;
+      return 280000; // Egyéb bevételek
+    } else {
+      if (category === 'Alkalmazotti bérek') return 1130000;
+      if (category === 'Irodabérlet & rezsi') return 350000;
+      if (category === 'Marketing & Szoftver') return 200000;
+      if (category === 'Adók & Járulékok') return 425000;
+      return 150000; // Egyéb kiadások
+    }
   };
 
-  const deleteIncome = (id) => setIncomes(incomes.filter(i => i.id !== id));
-  const deleteExpense = (id) => setExpenses(expenses.filter(e => e.id !== id));
+  // Calculate monthly inflow, outflow totals and forecast scenarios
+  const monthlyTotals = useMemo(() => {
+    return MONTHS.map((month, idx) => {
+      let totalIn = 0;
+      let totalOut = 0;
 
-  // --- LOGIKA: ELŐREJELZÉS SZÁMÍTÁSA ---
-  const chartData = useMemo(() => {
-    return MONTHS.map((month, index) => {
-      const monthIncomes = incomes.filter(inc => {
-        if (inc.frequency === 'Havi') return true;
-        if (inc.frequency === 'Egyszeri' && inc.month === month) return true;
-        if (inc.frequency === 'Negyedéves') {
-          const startIdx = MONTHS.indexOf(inc.month);
-          return index >= startIdx && (index - startIdx) % 3 === 0;
-        }
-        return false;
-      });
-      
-      const monthExpenses = expenses.filter(exp => {
-        if (exp.frequency === 'Havi') return true;
-        if (exp.frequency === 'Egyszeri' && exp.month === month) return true;
-        if (exp.frequency === 'Negyedéves') {
-          const startIdx = MONTHS.indexOf(exp.month);
-          return index >= startIdx && (index - startIdx) % 3 === 0;
-        }
-        return false;
+      categories.inflow.forEach(cat => {
+        totalIn += getCellValue('inflow', cat, month);
       });
 
-      const monthlyIncomeTotal = monthIncomes.reduce((sum, item) => sum + item.amount, 0);
-      const monthlyExpenseTotal = monthExpenses.reduce((sum, item) => sum + item.amount, 0);
+      categories.outflow.forEach(cat => {
+        totalOut += getCellValue('outflow', cat, month);
+      });
+
+      const baselineNet = totalIn - totalOut;
       
-      const dynamicNet = monthlyIncomeTotal - monthlyExpenseTotal;
-      let scenarioNet = dynamicNet;
+      // Optimistic scenario adds 15% revenue growth compound and 5% lower expenses
+      const optIn = totalIn * Math.pow(1.05, idx);
+      const optOut = totalOut * 0.95;
+      const optimisticNet = optIn - optOut;
+
+      return {
+        name: month,
+        bevétel: totalIn,
+        kiadás: totalOut,
+        netCashflow: baselineNet,
+        optimisticNet: Math.round(optimisticNet)
+      };
+    });
+  }, [ledgerOverrides]);
+
+  const handleCellClick = (type, category, month) => {
+    setSelectedCell({ type, category, month });
+    setCellValue(getCellValue(type, category, month).toString());
+    setCellGrowth('0');
+  };
+
+  const handleSaveCell = () => {
+    if (!selectedCell) return;
+    const value = parseFloat(cellValue) || 0;
+    const key = `${selectedCell.category}-${selectedCell.month}`;
+    
+    setLedgerOverrides(prev => {
+      const nextOverrides = { ...prev[selectedCell.type] };
+      nextOverrides[key] = value;
       
-      if (scenario) {
-        const startIdx = MONTHS.indexOf(scenario.startMonth || scenario.month);
-        if (scenario.frequency === 'Havi' && index >= startIdx) {
-          if (scenario.type === 'expense') scenarioNet -= scenario.amount;
-          if (scenario.type === 'income_loss') scenarioNet -= scenario.amount;
-        } else if (scenario.frequency === 'Egyszeri' && month === scenario.month) {
-          if (scenario.type === 'expense') scenarioNet -= scenario.amount;
+      // Apply growth forward if selected
+      const growthPct = parseFloat(cellGrowth) / 100;
+      if (growthPct !== 0) {
+        const startIdx = MONTHS.indexOf(selectedCell.month);
+        let currentVal = value;
+        for (let i = startIdx + 1; i < MONTHS.length; i++) {
+          currentVal = Math.round(currentVal * (1 + growthPct));
+          nextOverrides[`${selectedCell.category}-${MONTHS[i]}`] = currentVal;
         }
       }
 
       return {
-        name: month,
-        baseNet: dynamicNet,
-        scenarioNet: scenario ? scenarioNet : null,
+        ...prev,
+        [selectedCell.type]: nextOverrides
       };
     });
-  }, [incomes, expenses, scenario]);
 
-  // --- LOGIKA: AI FIGYELMEZTETÉS ---
-  useEffect(() => {
-    const badMonths = chartData.filter(d => d.baseNet < 0);
-    
-    if (badMonths.length === 0) {
-      setWarningData({ type: 'success', text: '✅ Kiváló! Minden hónap pozitív cashflow-val zár.' });
-      return;
-    }
-
-    let text = '';
-    
-    // Első mondat
-    if (badMonths.length === 1) {
-      text += `⚠️ ${badMonths[0].name} hónapban negatív cashflow várható (${formatMoney(Math.abs(badMonths[0].baseNet))} hiány).`;
-    } else {
-      const monthNames = badMonths.map(m => m.name);
-      const last = monthNames.pop();
-      const joinedNames = monthNames.length > 0 ? `${monthNames.join(', ')} és ${last}` : last;
-      text += `⚠️ ${joinedNames} hónapokban negatív cashflow várható.`;
-    }
-
-    // Második mondat
-    const firstBadMonth = badMonths[0];
-    const firstBadIdx = MONTHS.indexOf(firstBadMonth.name);
-    
-    let cumulativePositive = 0;
-    for (let i = 0; i < firstBadIdx; i++) {
-      if (chartData[i].baseNet > 0) {
-        cumulativePositive += chartData[i].baseNet;
-      }
-    }
-    
-    const deficit = Math.abs(firstBadMonth.baseNet);
-
-    if (cumulativePositive >= deficit) {
-      text += ' A korábbi hónapok pozitív egyenlege fedezi a hiányt — nincs szükség extra tartalékolásra.';
-    } else {
-      const monthsBefore = firstBadIdx;
-      if (monthsBefore > 0) {
-        const amountToSave = Math.ceil(deficit / monthsBefore / 1000) * 1000;
-        
-        // Keresünk egy pozitív hónapot a rossz hónap előtt, ha nincs, marad az első hónap
-        const firstPositive = chartData.slice(0, firstBadIdx).find(d => d.baseNet > 0);
-        const startMonthName = firstPositive ? firstPositive.name : MONTHS[0];
-        
-        const suffix = ['Szeptember', 'Október', 'November', 'December', 'Január', 'Február'].includes(startMonthName) ? 'től' : 'tól';
-        
-        text += ` Javasolt: tegyél félre havi ${formatMoney(amountToSave)}-ot ${startMonthName.toLowerCase()}${suffix} kezdve a hiány fedezésére.`;
-      } else {
-        text += ' Javasolt azonnal külső finanszírozást vagy extra bevételeket bevonni.';
-      }
-    }
-
-    setWarningData({ type: 'warning', text });
-  }, [incomes, expenses, chartData]);
-
-  // --- LOGIKA: SZIMULÁCIÓK KEZELÉSE ---
-  const applyScenario = async () => {
-    if (!modalInput && activeModal !== 'client') return; // client-nél selectből jön az id, alapból az első elem
-    
-    if (activeModal === 'employee') {
-      const gross = Number(modalInput);
-      setScenario({ type: 'expense', amount: gross * 1.27, frequency: 'Havi', startMonth: modalMonth, name: 'Új alkalmazottal' });
-    } else if (activeModal === 'client') {
-      const lostIncome = incomes.find(i => i.id === Number(modalInput)) || incomes[0];
-      setScenario({ type: 'income_loss', amount: lostIncome?.amount || 0, frequency: 'Havi', startMonth: modalMonth, name: `Kiesés: ${lostIncome?.name}` });
-    } else if (activeModal === 'asset') {
-      setScenario({ type: 'expense', amount: Number(modalInput), frequency: 'Egyszeri', month: modalMonth, name: 'Eszközvásárlással' });
-    } else if (activeModal === 'custom') {
-      setIsAiLoading(true);
-      const parsed = await parseCustomScenario(modalInput);
-      setScenario(parsed);
-      setIsAiLoading(false);
-    }
-    
-    setActiveModal(null);
-    setModalInput('');
-    setModalMonth('Június');
+    setSelectedCell(null);
   };
 
-  const clearScenario = () => setScenario(null);
+  const triggerAiHelp = () => {
+    const minNet = Math.min(...monthlyTotals.map(t => t.netCashflow));
+    const openChat = (prompt) => {
+      const event = new CustomEvent('open-ai-chat', { detail: { prompt } });
+      window.dispatchEvent(event);
+    };
+    openChat(`A cashflow táblázatomat vizsgálva az optimális forgatókönyv alapján a legkisebb havi nettó eredményem ${formatHuf(minNet)}. Milyen költségcsökkentési vagy bevételnövelési javaslataid vannak a KKV Mentorunkként?`);
+  };
 
-  // Kiemelések számítása
-  const bestMonth = [...chartData].sort((a, b) => b.baseNet - a.baseNet)[0];
-  const worstMonth = [...chartData].sort((a, b) => a.baseNet - b.baseNet)[0];
-
-  // Egyéni Tooltip
+  // Recharts composed tooltip
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white rounded-lg shadow-lg p-4 border border-[#E2E8F0]">
-          <p className="font-bold text-[#1E293B] mb-2">{label}</p>
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-2xl text-xs space-y-2">
+          <p className="font-bold text-white mb-1">{label} Hónap</p>
           <div className="space-y-1">
-            <p className="text-sm flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].fill }}></span>
-              Eredeti egyenleg: <span className="font-semibold">{formatMoney(payload[0].value)}</span>
+            <p className="flex justify-between gap-6 text-slate-400">
+              <span>Alap Bevétel:</span>
+              <span className="font-bold text-white">{formatHuf(payload[0].payload.bevétel)}</span>
             </p>
-            {payload[1] && (
-              <p className="text-sm flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[1].fill }}></span>
-                Szimulált egyenleg: <span className="font-semibold">{formatMoney(payload[1].value)}</span>
-              </p>
-            )}
+            <p className="flex justify-between gap-6 text-slate-400">
+              <span>Alap Kiadás:</span>
+              <span className="font-bold text-red-500">-{formatHuf(payload[0].payload.kiadás)}</span>
+            </p>
+            <p className="flex justify-between gap-6 text-slate-400 border-t border-slate-800 pt-1.5 mt-1">
+              <span>Baseline Nettó:</span>
+              <span className={`font-bold ${payload[0].payload.netCashflow >= 0 ? 'text-[#00F872]' : 'text-red-500'}`}>
+                {formatHuf(payload[0].payload.netCashflow)}
+              </span>
+            </p>
+            <p className="flex justify-between gap-6 text-slate-400">
+              <span>Optimistic Nettó:</span>
+              <span className="font-bold text-blue-400">{formatHuf(payload[0].payload.optimisticNet)}</span>
+            </p>
           </div>
         </div>
       );
@@ -214,434 +183,236 @@ export default function Cashflow() {
     return null;
   };
 
-  // Kliens elvesztése szimulációhoz
-  const handleClientModalOpen = () => {
-    if (incomes.length > 0) setModalInput(incomes[0].id.toString());
-    setActiveModal('client');
-  };
-
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-['Inter',sans-serif] pb-24">
+    <div className="space-y-6 pb-12 animate-fade-in text-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#1F5FAD] to-[#2E75B6] text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Vissza a Dashboardra
-          </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Wallet className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Cashflow és Szimulátor</h1>
-              <p className="text-white/80 mt-1">Tervezze meg vállalkozása jövőjét intelligens előrejelzésekkel</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-8">
-        
-        {/* SZEKCIÓ 1: Adatbevitel (Két oszlopos grid) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          
-          {/* Bevételek */}
-          <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
-            <div className="flex items-center gap-2 mb-4 text-[#1A7A4A]">
-              <TrendingUp className="w-5 h-5" />
-              <h2 className="text-lg font-bold">Bevételek</h2>
-            </div>
-            
-            <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
-              {incomes.map(inc => (
-                <div key={inc.id} className="flex items-center justify-between p-3 bg-green-50/50 rounded-lg border border-green-100">
-                  <div>
-                    <p className="font-semibold text-sm text-[#1E293B]">{inc.name}</p>
-                    <p className="text-xs text-green-700">{inc.frequency !== 'Havi' ? `${inc.frequency} · ${inc.month}` : inc.frequency}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="font-bold text-[#1A7A4A]">+{formatMoney(inc.amount)}</span>
-                    <button onClick={() => deleteIncome(inc.id)} className="text-slate-400 hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {incomes.length === 0 && <p className="text-sm text-slate-500 italic">Nincsenek bevételek rögzítve.</p>}
-            </div>
-
-            <div className="flex flex-wrap gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
-              <div className="flex-1 min-w-[120px]">
-                <input 
-                  type="text" placeholder="Megnevezés" value={newIncName} onChange={e => setNewIncName(e.target.value)}
-                  className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none"
-                />
-              </div>
-              <div className="w-1/4 min-w-[80px]">
-                <input 
-                  type="number" placeholder="Összeg" value={newIncAmount} onChange={e => setNewIncAmount(e.target.value)}
-                  className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none"
-                />
-              </div>
-              <div className="w-1/4 min-w-[100px]">
-                <select value={newIncFreq} onChange={e => setNewIncFreq(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none">
-                  <option value="Havi">Havi</option>
-                  <option value="Egyszeri">Egyszeri</option>
-                  <option value="Negyedéves">Negyedéves</option>
-                </select>
-              </div>
-              {newIncFreq !== 'Havi' && (
-                <div className="w-1/4 min-w-[100px]">
-                  <select value={newIncMonth} onChange={e => setNewIncMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#1A7A4A] outline-none">
-                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
-              )}
-              <button onClick={addIncome} className="p-2 bg-[#1A7A4A] text-white rounded-lg hover:bg-green-700 transition-colors">
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Kiadások */}
-          <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
-            <div className="flex items-center gap-2 mb-4 text-[#991B1B]">
-              <TrendingDown className="w-5 h-5" />
-              <h2 className="text-lg font-bold">Kiadások</h2>
-            </div>
-            
-            <div className="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2">
-              {expenses.map(exp => (
-                <div key={exp.id} className="flex items-center justify-between p-3 bg-red-50/30 rounded-lg border border-red-100">
-                  <div>
-                    <p className="font-semibold text-sm text-[#1E293B]">{exp.name}</p>
-                    <p className="text-xs text-red-700/80">{exp.frequency !== 'Havi' ? `${exp.frequency} · ${exp.month}` : exp.frequency}</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="font-bold text-[#991B1B]">-{formatMoney(exp.amount)}</span>
-                    <button onClick={() => deleteExpense(exp.id)} className="text-slate-400 hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-              {expenses.length === 0 && <p className="text-sm text-slate-500 italic">Nincsenek kiadások rögzítve.</p>}
-            </div>
-
-            <div className="flex flex-wrap gap-2 items-end bg-slate-50 p-3 rounded-lg border border-[#E2E8F0]">
-              <div className="flex-1 min-w-[120px]">
-                <input 
-                  type="text" placeholder="Megnevezés" value={newExpName} onChange={e => setNewExpName(e.target.value)}
-                  className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none"
-                />
-              </div>
-              <div className="w-1/4 min-w-[80px]">
-                <input 
-                  type="number" placeholder="Összeg" value={newExpAmount} onChange={e => setNewExpAmount(e.target.value)}
-                  className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none"
-                />
-              </div>
-              <div className="w-1/4 min-w-[100px]">
-                <select value={newExpFreq} onChange={e => setNewExpFreq(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none">
-                  <option value="Havi">Havi</option>
-                  <option value="Egyszeri">Egyszeri</option>
-                  <option value="Negyedéves">Negyedéves</option>
-                </select>
-              </div>
-              {newExpFreq !== 'Havi' && (
-                <div className="w-1/4 min-w-[100px]">
-                  <select value={newExpMonth} onChange={e => setNewExpMonth(e.target.value)} className="w-full text-sm p-2 bg-transparent border-b border-slate-300 focus:border-[#991B1B] outline-none">
-                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </div>
-              )}
-              <button onClick={addExpense} className="p-2 bg-[#991B1B] text-white rounded-lg hover:bg-red-800 transition-colors">
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* AI Banner ha baj van */}
-        {warningData && warningData.type === 'warning' && (
-          <div className="bg-gradient-to-r from-red-50 to-amber-50 border-l-4 border-red-500 p-5 rounded-r-xl shadow-sm flex items-start gap-4">
-            <AlertTriangle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="text-red-800 font-bold mb-1 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" /> AI Likviditási Figyelmeztetés
-              </h3>
-              <p className="text-red-900 text-sm">{warningData.text}</p>
-            </div>
-          </div>
-        )}
-
-        {warningData && warningData.type === 'success' && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-5 rounded-r-xl shadow-sm flex items-start gap-4">
-            <div className="w-6 h-6 shrink-0 mt-0.5 text-green-500 text-xl flex items-center justify-center">✅</div>
-            <div className="flex-1">
-              <h3 className="text-green-800 font-bold mb-1 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" /> AI Likviditási Elemzés
-              </h3>
-              <p className="text-green-900 text-sm">{warningData.text}</p>
-            </div>
-          </div>
-        )}
-
-        {/* SZEKCIÓ 2: Vizuális Előrejelző */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <div className="flex items-center gap-2">
-              <div>
-                <h2 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
-                  6 Hónapos Készpénz-előrejelzés
-                  <div className="group relative flex items-center">
-                    <Info className="w-4 h-4 text-slate-400 cursor-help hover:text-[#1F5FAD] transition-colors" />
-                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 bg-slate-800 text-white text-xs p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center">
-                      Az előrejelzés a megadott rendszeres bevételek és kiadások alapján számítódik. Egyszeri tételek csak a megadott hónapban szerepelnek.
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-slate-800"></div>
-                    </div>
-                  </div>
-                </h2>
-                <p className="text-sm text-slate-500 mt-1">A várható havi nettó egyenlegek (Be - Ki)</p>
-              </div>
-            </div>
-            
-            <div className="flex gap-4">
-              <div className="text-right">
-                <p className="text-xs font-medium text-slate-500 uppercase">Legjobb hónap</p>
-                <p className="font-bold text-[#1A7A4A]">{formatMoney(bestMonth.baseNet)}</p>
-              </div>
-              <div className="w-px bg-slate-200"></div>
-              <div className="text-right">
-                <p className="text-xs font-medium text-slate-500 uppercase">Legrosszabb hónap</p>
-                <p className={`font-bold ${worstMonth.baseNet < 0 ? 'text-[#991B1B]' : 'text-slate-700'}`}>
-                  {formatMoney(worstMonth.baseNet)}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
-                <XAxis 
-                  dataKey="name" 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tickFormatter={(val) => `${getMonthIcon(val)} ${val}`}
-                  tick={{ fill: '#64748B', fontSize: 12 }} 
-                  dy={10} 
-                />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fill: '#64748B', fontSize: 12 }}
-                  tickFormatter={(val) => `${(val / 1000).toFixed(0)}k`}
-                />
-                <Tooltip cursor={{ fill: 'transparent' }} content={<CustomTooltip />} />
-                {scenario && <Legend verticalAlign="top" height={36}/>}
-                
-                {/* Eredeti Oszlop */}
-                <Bar 
-                  dataKey="baseNet" 
-                  name="Eredeti Cashflow" 
-                  radius={[4, 4, 0, 0]}
-                  barSize={scenario ? 30 : 50}
-                >
-                  {chartData.map((entry, index) => {
-                    let color = '#EAB308'; // Sárga (0-400k)
-                    if (entry.baseNet > 400000) color = '#1A7A4A'; // Zöld
-                    if (entry.baseNet < 0) color = '#991B1B'; // Piros
-                    if (scenario) color = '#CBD5E1'; // Ha van szimuláció, elszürkítjük
-                    return <Cell key={`cell-${index}`} fill={color} />;
-                  })}
-                </Bar>
-
-                {/* Szimulált Oszlop (Csak ha van) */}
-                {scenario && (
-                  <Bar 
-                    dataKey="scenarioNet" 
-                    name={scenario.name}
-                    radius={[4, 4, 0, 0]}
-                    barSize={30}
-                  >
-                    {chartData.map((entry, index) => {
-                      let color = '#EAB308';
-                      if (entry.scenarioNet > 400000) color = '#1A7A4A';
-                      if (entry.scenarioNet < 0) color = '#991B1B';
-                      return <Cell key={`cell-sim-${index}`} fill={color} />;
-                    })}
-                  </Bar>
-                )}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* SZEKCIÓ 3: Mi van ha Szimulátor */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-850 pb-5">
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-amber-500" />
-              "Mi van ha?" Szimulátor
-            </h2>
-            {scenario && (
-              <button onClick={clearScenario} className="text-sm font-semibold text-slate-500 hover:text-red-500 flex items-center gap-1">
-                <X className="w-4 h-4"/> Szimuláció törlése
-              </button>
-            )}
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <button 
-              onClick={() => setActiveModal('employee')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'employee' || scenario?.name === 'Új alkalmazottal' ? 'border-[#1F5FAD] bg-blue-50 text-[#1F5FAD]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
-            >
-              <Users className="w-8 h-8" />
-              <span className="font-semibold text-sm">Új alkalmazott felvétele</span>
-            </button>
-            
-            <button 
-              onClick={handleClientModalOpen}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'client' || scenario?.type === 'income_loss' ? 'border-[#991B1B] bg-red-50 text-[#991B1B]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
-            >
-              <UserMinus className="w-8 h-8" />
-              <span className="font-semibold text-sm">Elveszítek egy ügyfelet</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveModal('asset')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'asset' || scenario?.name === 'Eszközvásárlással' ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
-            >
-              <Monitor className="w-8 h-8" />
-              <span className="font-semibold text-sm">Eszközt veszek</span>
-            </button>
-
-            <button 
-              onClick={() => setActiveModal('custom')}
-              className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center justify-center text-center gap-3 ${activeModal === 'custom' || scenario?.name && !['Új alkalmazottal', 'Eszközvásárlással'].includes(scenario.name) && scenario.type !== 'income_loss' ? 'border-[#1A7A4A] bg-green-50 text-[#1A7A4A]' : 'border-[#E2E8F0] hover:border-[#CBD5E1] bg-white text-slate-700 hover:shadow-md'}`}
-            >
-              <Sparkles className="w-8 h-8" />
-              <span className="font-semibold text-sm">Saját forgatókönyv (AI)</span>
-            </button>
-          </div>
+          <Link to="/" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-white transition-colors mb-2">
+            <ChevronLeft className="w-3.5 h-3.5" /> Vissza a Dashboardra
+          </Link>
+          <h1 className="text-3xl font-extrabold font-display tracking-tight flex items-center gap-2">
+            Pénzügyi Ledger & Szimulátor
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">Interaktív cashflow táblázat Agicap és Runway stílusú forgatókönyv-modellezéssel</p>
         </div>
 
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveScenario('baseline')}
+            className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+              activeScenario === 'baseline'
+                ? 'bg-[#1F5FAD] border-[#1F5FAD] text-white shadow-md'
+                : 'border-slate-850 bg-slate-900/40 text-slate-400 hover:text-white'
+            }`}
+          >
+            Baseline Forgatókönyv
+          </button>
+          <button
+            onClick={() => setActiveScenario('optimistic')}
+            className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${
+              activeScenario === 'optimistic'
+                ? 'bg-[#00F872] border-[#00F872] text-[#101112] font-bold shadow-md shadow-[#00F872]/5'
+                : 'border-slate-850 bg-slate-900/40 text-slate-400 hover:text-white'
+            }`}
+          >
+            Optimistic (+15% Bevétel)
+          </button>
+        </div>
       </div>
 
-      {/* Modals */}
-      {activeModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-[#1E293B]">
-                {activeModal === 'employee' && 'Új alkalmazott felvétele'}
-                {activeModal === 'client' && 'Ügyfél elvesztése'}
-                {activeModal === 'asset' && 'Eszközvásárlás'}
-                {activeModal === 'custom' && 'Saját forgatókönyv (AI)'}
-              </h3>
-              <button onClick={() => {setActiveModal(null); setModalInput(''); setModalMonth('Június');}} className="text-slate-400 hover:text-slate-700">
-                <X className="w-6 h-6" />
-              </button>
+      {/* Composed Chart Section */}
+      <div className="bg-slate-900/30 rounded-2xl border border-slate-850 p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <Layers className="w-4 h-4 text-[#00F872]" /> Scenario Elemző Grafikon
+          </h3>
+          <button
+            onClick={triggerAiHelp}
+            className="text-xs bg-slate-950/60 border border-slate-850 hover:border-slate-700 hover:bg-slate-950 text-[#00F872] font-semibold px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5" /> AI Költségoptimalizálás
+          </button>
+        </div>
+
+        <div className="h-[260px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={monthlyTotals} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1E293B" />
+              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748B', fontSize: 11 }} tickFormatter={formatHufShort} />
+              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} content={<CustomTooltip />} />
+              <Legend verticalAlign="top" height={36} />
+              
+              <Bar dataKey="bevétel" name="Bevétel (Baseline)" fill="#00F872" opacity={0.15} radius={[4, 4, 0, 0]} barSize={35} />
+              <Bar dataKey="kiadás" name="Kiadás (Baseline)" fill="#ef4444" opacity={0.12} radius={[4, 4, 0, 0]} barSize={35} />
+              
+              <Line
+                type="monotone"
+                dataKey={activeScenario === 'baseline' ? 'netCashflow' : 'optimisticNet'}
+                name={activeScenario === 'baseline' ? 'Baseline Nettó Cashflow' : 'Optimistic Nettó Cashflow'}
+                stroke={activeScenario === 'baseline' ? '#00F872' : '#3b82f6'}
+                strokeWidth={3}
+                dot={{ r: 4, strokeWidth: 2 }}
+                activeDot={{ r: 6 }}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Unified Ledger Grid Matrix */}
+      <div className="bg-slate-900/30 rounded-2xl border border-slate-850 overflow-hidden">
+        <div className="p-5 border-b border-slate-850 bg-slate-950/40 flex justify-between items-center">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+            <Wallet className="w-4 h-4 text-blue-400" /> Cash Ledger Mátrix
+          </span>
+          <span className="text-[10px] text-slate-500 italic">Kattints bármelyik cellára a közvetlen érték vagy havi növekedési arány szerkesztéséhez!</span>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-slate-950/25 border-b border-slate-850 text-slate-400 text-xs font-semibold">
+                <th className="px-6 py-4 min-w-[200px]">Pénzügyi Kategóriák</th>
+                {MONTHS.map(m => (
+                  <th key={m} className="px-4 py-4 text-right">{m}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-850/60 text-sm">
+              
+              {/* --- INFLOWS --- */}
+              <tr className="bg-[#00F872]/[0.02] font-semibold text-slate-300">
+                <td className="px-6 py-3 text-xs uppercase tracking-wider text-[#00F872]/85">Bejövő tranzakciók (Inflow)</td>
+                {MONTHS.map(m => (
+                  <td key={m} className="px-4 py-3 text-right"></td>
+                ))}
+              </tr>
+
+              {categories.inflow.map(cat => (
+                <tr key={cat} className="hover:bg-slate-800/30 transition-colors group">
+                  <td className="px-6 py-3.5 text-slate-400 font-medium">{cat}</td>
+                  {MONTHS.map(month => {
+                    const val = getCellValue('inflow', cat, month);
+                    return (
+                      <td
+                        key={month}
+                        onClick={() => handleCellClick('inflow', cat, month)}
+                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-[#00F872] transition-colors relative"
+                      >
+                        {formatHuf(val)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+
+              {/* --- OUTFLOWS --- */}
+              <tr className="bg-red-500/[0.01] font-semibold text-slate-300">
+                <td className="px-6 py-3 text-xs uppercase tracking-wider text-red-400/85">Kimenő tranzakciók (Outflow)</td>
+                {MONTHS.map(m => (
+                  <td key={m} className="px-4 py-3 text-right"></td>
+                ))}
+              </tr>
+
+              {categories.outflow.map(cat => (
+                <tr key={cat} className="hover:bg-slate-800/30 transition-colors group">
+                  <td className="px-6 py-3.5 text-slate-400 font-medium">{cat}</td>
+                  {MONTHS.map(month => {
+                    const val = getCellValue('outflow', cat, month);
+                    return (
+                      <td
+                        key={month}
+                        onClick={() => handleCellClick('outflow', cat, month)}
+                        className="px-4 py-3.5 text-right font-medium tabular-nums cursor-pointer hover:bg-slate-950/50 hover:text-red-400 transition-colors relative"
+                      >
+                        {formatHuf(val)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+
+              {/* --- SUMMARY NET --- */}
+              <tr className="bg-slate-950/60 border-t-2 border-slate-800 font-bold text-white text-base">
+                <td className="px-6 py-4">Nettó Havi Egyenleg (Cashflow)</td>
+                {monthlyTotals.map(t => (
+                  <td
+                    key={t.name}
+                    className={`px-4 py-4 text-right tabular-nums ${
+                      t.netCashflow >= 0 ? 'text-[#00F872]' : 'text-red-500'
+                    }`}
+                  >
+                    {t.netCashflow >= 0 ? '+' : ''}{formatHuf(t.netCashflow)}
+                  </td>
+                ))}
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Popover Editor Modal (Clean inline simulator modal) */}
+      {selectedCell && (
+        <div className="fixed inset-0 bg-slate-950/65 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-slate-900 border border-slate-850 rounded-2xl p-6 max-w-sm w-full space-y-4 shadow-2xl relative">
+            <div>
+              <h3 className="font-bold text-white text-base">Cella Szerkesztése</h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Kategória: {selectedCell.category} ({selectedCell.month})
+              </p>
             </div>
 
-            <div className="mb-6 space-y-4">
-              {activeModal === 'custom' ? (
-                <>
-                  <p className="text-sm text-slate-600 mb-3">
-                    Írd le a tervedet saját szavaiddal! Az AI megérti és lefordítja pénzügyi szimulációvá.
-                  </p>
-                  <textarea 
-                    autoFocus
-                    placeholder="Pl.: Novemberben szeretnék felvenni egy asszisztenst havi 300 ezerért, és venni neki egy laptopot 400 ezerért."
-                    value={modalInput}
-                    onChange={(e) => setModalInput(e.target.value)}
-                    className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#1F5FAD] h-32 resize-none"
-                  ></textarea>
-                </>
-              ) : activeModal === 'client' ? (
-                <>
-                  <p className="text-sm text-slate-600 mb-1">Melyik bevételi forrást veszíted el?</p>
-                  <select 
-                    value={modalInput} 
-                    onChange={e => setModalInput(e.target.value)} 
-                    className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#991B1B]"
-                  >
-                    {incomes.map(inc => (
-                      <option key={inc.id} value={inc.id.toString()}>{inc.name} ({formatMoney(inc.amount)})</option>
-                    ))}
-                  </select>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Új összeg (Ft)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    value={cellValue}
+                    onChange={(e) => setCellValue(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00F872]"
+                  />
+                  <span className="absolute right-4 top-3.5 text-xs text-slate-500 font-bold">Ft</span>
+                </div>
+              </div>
 
-                  <p className="text-sm text-slate-600 mb-1 mt-4">Melyik hónaptól esik ki?</p>
-                  <select 
-                    value={modalMonth} 
-                    onChange={e => setModalMonth(e.target.value)} 
-                    className="w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#991B1B]"
-                  >
-                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </>
-              ) : (
-                <>
-                  <p className="text-sm text-slate-600 mb-1">
-                    {activeModal === 'employee' && 'Bruttó fizetés (Ft)'}
-                    {activeModal === 'asset' && 'Beruházás összege (Ft)'}
-                  </p>
-                  <div className="relative">
-                    <input 
-                      autoFocus
-                      type="number" 
-                      placeholder="Összeg"
-                      value={modalInput}
-                      onChange={(e) => setModalInput(e.target.value)}
-                      className={`w-full rounded-xl border border-[#E2E8F0] p-4 pr-12 text-lg font-semibold focus:outline-none focus:ring-2 ${activeModal === 'employee' ? 'focus:ring-[#1F5FAD]' : 'focus:ring-amber-500'}`}
-                    />
-                    <span className="absolute right-4 top-4 font-bold text-slate-400">Ft</span>
-                  </div>
-                  
-                  {activeModal === 'employee' && modalInput && (
-                    <div className="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm flex justify-between items-center">
-                      <span>Teljes munkáltatói teher (x1.27):</span>
-                      <span className="font-bold">{formatMoney(Number(modalInput) * 1.27)} /hó</span>
-                    </div>
-                  )}
-
-                  <p className="text-sm text-slate-600 mb-1 mt-4">
-                    {activeModal === 'employee' && 'Kezdés hónapja'}
-                    {activeModal === 'asset' && 'Vásárlás hónapja'}
-                  </p>
-                  <select 
-                    value={modalMonth} 
-                    onChange={e => setModalMonth(e.target.value)} 
-                    className={`w-full rounded-xl border border-[#E2E8F0] p-4 text-sm focus:outline-none focus:ring-2 ${activeModal === 'employee' ? 'focus:ring-[#1F5FAD]' : 'focus:ring-amber-500'}`}
-                  >
-                    {MONTHS.map(m => <option key={m} value={m}>{m}</option>)}
-                  </select>
-                </>
-              )}
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1.5">Automatikus növekedési ráta / hó</label>
+                <select
+                  value={cellGrowth}
+                  onChange={(e) => setCellGrowth(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00F872]"
+                >
+                  <option value="0">Stagnál (0% változás)</option>
+                  <option value="2">+2% növekedés havonta</option>
+                  <option value="5">+5% növekedés havonta</option>
+                  <option value="10">+10% növekedés havonta</option>
+                  <option value="-5">-5% visszaesés havonta</option>
+                  <option value="-10">-10% visszaesés havonta</option>
+                </select>
+              </div>
             </div>
 
-            <div className="flex justify-end gap-3">
-              <button 
-                onClick={() => {setActiveModal(null); setModalInput(''); setModalMonth('Június');}}
-                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+            <div className="flex justify-end gap-2.5 pt-2">
+              <button
+                onClick={() => setSelectedCell(null)}
+                className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
               >
                 Mégse
               </button>
-              <button 
-                onClick={applyScenario}
-                disabled={(!modalInput && activeModal !== 'client') || isAiLoading}
-                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#1F5FAD] hover:bg-[#2E75B6] transition-colors flex items-center gap-2 disabled:opacity-50"
+              <button
+                onClick={handleSaveCell}
+                className="px-4.5 py-2 text-xs font-bold text-[#101112] bg-[#00F872] hover:bg-[#00d762] rounded-xl transition-all cursor-pointer"
               >
-                {isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrendingUp className="w-4 h-4" />}
-                Szimulálás a grafikonon
+                Mentés & Frissítés
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

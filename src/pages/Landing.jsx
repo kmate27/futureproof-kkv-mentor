@@ -1,3 +1,4 @@
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   HeartPulse,
@@ -8,305 +9,330 @@ import {
   Shield,
   TrendingUp,
   Clock,
+  Sparkles,
   ChevronRight,
+  Database,
+  Building,
+  ArrowUpRight
 } from 'lucide-react';
 
-const features = [
-  {
-    icon: HeartPulse,
-    title: 'Pénzügyi Egészségjelentés',
-    description: 'Átfogó KKV Score és cashflow előrejelzés',
-    color: '#1A7A4A',
-    bg: '#ECFDF5',
-  },
-  {
-    icon: Calculator,
-    title: 'Adózási Tanácsadó',
-    description: 'KATA, átalányadó, társasági adó összehasonlítás',
-    color: '#1F5FAD',
-    bg: '#EFF6FF',
-  },
-  {
-    icon: FileText,
-    title: 'Dokumentum Értelmező',
-    description: 'NAV levelek és számlák azonnali elemzése',
-    color: '#9333EA',
-    bg: '#F5F3FF',
-  },
-  {
-    icon: MessageSquare,
-    title: 'AI Pénzügyi Chat',
-    description: 'Kérdezz bármit a vállalkozásodról',
-    color: '#EA580C',
-    bg: '#FFF7ED',
-  },
-];
-
-const stats = [
-  { icon: TrendingUp, value: '10,000+', label: 'KKV' },
-  { icon: Shield, value: '95%', label: 'pontosság' },
-  { icon: Clock, value: '24/7', label: 'elérhetőség' },
-];
-
-const steps = [
-  { number: '1', title: 'Regisztráció', description: 'Hozd létre fiókodat pár kattintással' },
-  { number: '2', title: 'Adatok megadása', description: 'Add meg vállalkozásod alapadatait' },
-  { number: '3', title: 'Azonnali elemzés', description: 'Kapj személyre szabott tanácsokat' },
-];
-
 export default function Landing() {
+  const [revenue, setRevenue] = useState(2500000);
+  const [expense, setExpense] = useState(1800000);
+
+  const runwayMonths = useMemo(() => {
+    const net = revenue - expense;
+    if (net >= 0) return '∞';
+    return ((5000000) / Math.abs(net)).toFixed(1);
+  }, [revenue, expense]);
+
+  const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-[Inter]">
-      {/* ───────── Navbar ───────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-[#E2E8F0]">
+    <div className="min-h-screen bg-[#101112] text-white font-sans overflow-x-hidden selection:bg-[#00F872]/30 selection:text-white">
+      {/* ───────── Fixed Navbar ───────── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#101112]/85 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-[#1F5FAD] flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] flex items-center justify-center shadow-lg shadow-blue-500/20">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-[#1E293B]">KKV Mentor</span>
+            <span className="text-xl font-bold text-white font-display tracking-tight">KKV Mentor</span>
           </Link>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <Link
               to="/dashboard"
-              className="hidden sm:inline-flex text-sm font-medium text-[#64748B] hover:text-[#1E293B] transition-colors px-3 py-2"
+              className="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-3 py-2 cursor-pointer"
             >
               Belépés
             </Link>
             <Link
               to="/onboarding"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-white bg-[#1F5FAD] hover:bg-[#2E75B6] px-4 py-2 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#101112] bg-[#00F872] hover:bg-[#00d762] px-4 py-2 rounded-lg transition-all shadow-md shadow-[#00F872]/10 cursor-pointer"
             >
-              Regisztráció
+              Indítás ingyen
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ───────── Hero ───────── */}
-      <section className="relative overflow-hidden pt-16">
-        {/* Gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6]" />
+      {/* ───────── Hero Section with Interactive Sandbox ───────── */}
+      <section className="relative pt-32 pb-20 sm:pb-28">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/10 via-[#101112]/0 to-[#101112]/0 pointer-events-none"></div>
 
-        {/* Floating shapes */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute w-72 h-72 rounded-full opacity-10 bg-white"
-            style={{
-              top: '10%',
-              right: '-5%',
-              animation: 'float 8s ease-in-out infinite',
-            }}
-          />
-          <div
-            className="absolute w-48 h-48 rounded-full opacity-10 bg-white"
-            style={{
-              bottom: '15%',
-              left: '-3%',
-              animation: 'float 6s ease-in-out infinite 1s',
-            }}
-          />
-          <div
-            className="absolute w-32 h-32 rounded-full opacity-[0.07] bg-white"
-            style={{
-              top: '40%',
-              left: '30%',
-              animation: 'float 10s ease-in-out infinite 2s',
-            }}
-          />
-          <div
-            className="absolute w-20 h-20 rounded-full opacity-10 bg-white"
-            style={{
-              top: '20%',
-              left: '60%',
-              animation: 'float 7s ease-in-out infinite 0.5s',
-            }}
-          />
-          <div
-            className="absolute w-56 h-56 rounded-full opacity-[0.06] bg-white"
-            style={{
-              bottom: '5%',
-              right: '20%',
-              animation: 'float 9s ease-in-out infinite 3s',
-            }}
-          />
+        {/* Decorative Animated Shapes */}
+        <div className="absolute top-24 left-10 w-96 h-96 bg-[#1F5FAD] opacity-[0.02] rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#00F872] opacity-[0.02] rounded-full blur-3xl animate-pulse-slow"></div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Hero Left: Headlines */}
+            <div className="lg:col-span-6 space-y-6 text-left">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00F872] bg-[#00F872]/10 border border-[#00F872]/20 px-3.5 py-1.5 rounded-full uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 animate-pulse" /> 2026-os Magyar Adó- és Pénzügyi Szabályozásokkal
+              </span>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-[1.1] tracking-tight">
+                A KKV-d pénzügyi <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F872] to-blue-400">
+                  irányítópultja.
+                </span>
+              </h1>
+              <p className="text-lg text-slate-400 max-w-lg leading-relaxed">
+                Tervezz Runway-t, hasonlítsd össze az adónemeket (KATA, átalányadó, KIVA, TAO) és fordítsd le a NAV leveleket másodpercek alatt az AI KKV Mentoroddal.
+              </p>
+              
+              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+                <Link
+                  to="/onboarding"
+                  className="inline-flex items-center justify-center gap-2 bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-[#00F872]/10 hover:-translate-y-0.5 cursor-pointer text-base"
+                >
+                  Regisztráció Onboardingal
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center justify-center gap-2 border border-slate-800 bg-slate-900/40 text-white font-semibold px-8 py-4 rounded-xl hover:bg-slate-900 transition-all cursor-pointer text-base"
+                >
+                  Demo Fiók Megnyitása
+                  <ArrowUpRight className="w-5 h-5 text-slate-400" />
+                </Link>
+              </div>
+            </div>
+
+            {/* Hero Right: Interactive Sandbox Mockup */}
+            <div className="lg:col-span-6">
+              <div className="bg-slate-900/80 rounded-2xl border border-slate-850 p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00F872]/20 to-transparent"></div>
+                
+                <div className="flex justify-between items-center mb-6">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3.5 h-3.5 rounded-full bg-red-500"></div>
+                    <div className="w-3.5 h-3.5 rounded-full bg-yellow-500"></div>
+                    <div className="w-3.5 h-3.5 rounded-full bg-green-500"></div>
+                  </div>
+                  <span className="text-[10px] text-slate-500 uppercase font-semibold tracking-wider bg-slate-950 border border-slate-850 px-2.5 py-1 rounded-md">
+                    Interaktív Homokozó
+                  </span>
+                </div>
+
+                <h3 className="text-base font-bold text-white mb-6">Pénzügyi Kifutó (Cash Runway) szimulátor</h3>
+
+                <div className="space-y-5">
+                  <div>
+                    <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
+                      <span>Tervezett havi bevétel</span>
+                      <span className="text-[#00F872] font-semibold">{formatHuf(revenue)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="500000"
+                      max="10000000"
+                      step="100000"
+                      value={revenue}
+                      onChange={(e) => setRevenue(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
+                      <span>Tervezett havi kiadás</span>
+                      <span className="text-red-500 font-semibold">{formatHuf(expense)}</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="500000"
+                      max="10000000"
+                      step="100000"
+                      value={expense}
+                      onChange={(e) => setExpense(Number(e.target.value))}
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 bg-slate-950/70 p-4 rounded-xl border border-slate-900/60 mt-6">
+                    <div>
+                      <span className="text-[10px] text-slate-500 uppercase block">Havi Egyenleg</span>
+                      <span className={`text-base font-bold block mt-1 ${revenue >= expense ? 'text-[#00F872]' : 'text-red-500'}`}>
+                        {revenue >= expense ? '+' : ''}{formatHuf(revenue - expense)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 uppercase block">Kifutási Idő</span>
+                      <span className="text-base font-bold text-white block mt-1">
+                        {runwayMonths === '∞' ? 'Végtelen (Biztonságos)' : `${runwayMonths} hónap`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* SVG graphic forecast based on state */}
+                  <div className="pt-4">
+                    <span className="text-[10px] text-slate-500 uppercase block mb-3">6 hónapos készpénzállomány-becslés (5M kezdővel)</span>
+                    <div className="h-20 flex items-end justify-between gap-2 px-1">
+                      {Array.from({ length: 6 }).map((_, idx) => {
+                        const balance = 5000000 + (revenue - expense) * (idx + 1);
+                        const percent = Math.max(10, Math.min(100, (balance / 12000000) * 100));
+                        const isNeg = balance < 0;
+                        return (
+                          <div key={idx} className="flex-1 flex flex-col gap-1 items-center">
+                            <div className="w-full bg-slate-800 rounded-sm relative h-12 overflow-hidden flex items-end">
+                              <div
+                                className={`w-full transition-all duration-300 ${isNeg ? 'bg-red-500' : 'bg-gradient-to-t from-[#00F872]/80 to-[#00F872]'}`}
+                                style={{ height: `${percent}%` }}
+                              />
+                            </div>
+                            <span className="text-[8px] text-slate-600 font-semibold">{idx + 1}H</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
         </div>
+      </section>
 
-        {/* Content */}
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-36 lg:py-44 flex flex-col items-center text-center">
-          {/* Glass card */}
-          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 sm:p-12 max-w-2xl w-full shadow-2xl">
-            <span className="inline-block text-sm font-medium text-white/80 bg-white/15 rounded-full px-4 py-1.5 mb-6">
-              🇭🇺 Magyar kisvállalkozásoknak
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-4">
-              KKV Mentor
-            </h1>
-            <p className="text-lg sm:text-xl text-white/85 mb-8 leading-relaxed">
-              AI-alapú pénzügyi tanácsadó magyar kisvállalkozásoknak
+      {/* ───────── Trust Marquee Szekció ───────── */}
+      <section className="py-8 bg-slate-950/60 border-y border-slate-900">
+        <div className="max-w-7xl mx-auto px-4 overflow-hidden">
+          <p className="text-center text-xs font-semibold text-slate-500 uppercase tracking-widest mb-6">Integrált rendszerek és bankok</p>
+          <div className="flex items-center justify-center gap-12 sm:gap-20 flex-wrap opacity-50 grayscale hover:opacity-85 transition-opacity duration-300">
+            <span className="font-display font-bold text-sm tracking-widest text-slate-400">🏛️ NAV API</span>
+            <span className="font-display font-bold text-sm tracking-widest text-slate-400">🧾 SZÁMLÁZZ.HU</span>
+            <span className="font-display font-bold text-sm tracking-widest text-slate-400">🚀 BILINGO</span>
+            <span className="font-display font-bold text-sm tracking-widest text-slate-400">💳 OTP BANK</span>
+            <span className="font-display font-bold text-sm tracking-widest text-slate-400">✨ ERSTE CONNECT</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── Bento Grid Features Section ───────── */}
+      <section className="py-24 sm:py-32">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <h2 className="text-3xl sm:text-4xl font-bold font-display tracking-tight">
+              Mindent lát a cég pénzügyeiben.
+            </h2>
+            <p className="text-slate-400 text-lg">
+              Az intelligens modulok közvetlenül összekapcsolódnak az állami és banki adatbázisokkal.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/onboarding"
-                className="inline-flex items-center justify-center gap-2 bg-white text-[#1F5FAD] font-semibold px-8 py-3.5 rounded-xl hover:bg-slate-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-              >
-                Ingyenes regisztráció
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center justify-center gap-2 border-2 border-white/40 text-white font-semibold px-8 py-3.5 rounded-xl hover:bg-white/10 transition-all"
-              >
-                Belépés
-                <ChevronRight className="w-5 h-5" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Card 1: Score & Cashflow (Large Column) */}
+            <div className="md:col-span-2 bg-slate-900/40 rounded-2xl border border-slate-850 p-8 flex flex-col justify-between gap-6 hover:border-slate-700 transition-colors">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-[#00F872]/10 flex items-center justify-center border border-[#00F872]/20">
+                  <HeartPulse className="w-6 h-6 text-[#00F872]" />
+                </div>
+                <h3 className="text-xl font-bold">Pénzügyi Egészségjelentés & KKV Score</h3>
+                <p className="text-sm text-slate-400 leading-relaxed max-w-md">
+                  Rendszeres elemzés a cashflow stabilitásáról, a kintlévőségekről és a tőkehelyzetről. Az AI folyamatosan figyeli a cég állapotát és KKV Score indexet számít, hogy lásd hol állsz a versenytársaidhoz képest.
+                </p>
+              </div>
+              <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-900/60 flex items-center justify-between text-sm">
+                <span className="text-slate-400 flex items-center gap-2"><Database className="w-4 h-4 text-blue-400" /> Banki szinkronizáció</span>
+                <span className="text-[#00F872] font-semibold">Aktív és automatikus</span>
+              </div>
+            </div>
+
+            {/* Card 2: Tax Advice */}
+            <div className="bg-slate-900/40 rounded-2xl border border-slate-850 p-8 flex flex-col justify-between gap-6 hover:border-slate-700 transition-colors">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                  <Calculator className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold">Adózási Tanácsadó</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Automatizált összehasonlítás a KATA, átalányadó és a KIVA/TAO között. Az aktuális cashflow adatok alapján azonnal jelzi, ha adómegtakarítási lehetőség nyílik.
+                </p>
+              </div>
+              <Link to="/onboarding" className="text-xs font-semibold text-[#00F872] hover:underline flex items-center gap-1">
+                Kalkuláció indítása <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-          </div>
-        </div>
 
-        {/* Bottom wave */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
-            <path
-              d="M0 40C240 80 480 0 720 40C960 80 1200 0 1440 40V80H0V40Z"
-              fill="#F8FAFC"
-            />
-          </svg>
-        </div>
-      </section>
-
-      {/* ───────── Features ───────── */}
-      <section className="py-20 sm:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1E293B] mb-4">
-              Minden, amire szükséged van
-            </h2>
-            <p className="text-[#64748B] text-lg max-w-2xl mx-auto">
-              Komplex pénzügyi döntések egyszerűen, AI segítségével
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((f) => {
-              const Icon = f.icon;
-              return (
-                <div
-                  key={f.title}
-                  className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6 group"
-                >
-                  <div
-                    className="w-14 h-14 rounded-full flex items-center justify-center mb-5 transition-transform duration-300 group-hover:scale-110"
-                    style={{ backgroundColor: f.bg }}
-                  >
-                    <Icon className="w-7 h-7" style={{ color: f.color }} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-[#1E293B] mb-2">{f.title}</h3>
-                  <p className="text-[#64748B] text-sm leading-relaxed">{f.description}</p>
+            {/* Card 3: Document Analyzer */}
+            <div className="bg-slate-900/40 rounded-2xl border border-slate-850 p-8 flex flex-col justify-between gap-6 hover:border-slate-700 transition-colors">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
+                  <FileText className="w-6 h-6 text-purple-400" />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── Stats ───────── */}
-      <section className="py-16 bg-white border-y border-[#E2E8F0]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-            {stats.map((s) => {
-              const Icon = s.icon;
-              return (
-                <div key={s.label} className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[#EFF6FF] flex items-center justify-center mb-3">
-                    <Icon className="w-6 h-6 text-[#1F5FAD]" />
-                  </div>
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[#1E293B]">{s.value}</span>
-                  <span className="text-[#64748B] text-sm mt-1">{s.label}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ───────── How It Works ───────── */}
-      <section className="py-20 sm:py-28">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#1E293B] mb-4">Hogyan működik?</h2>
-            <p className="text-[#64748B] text-lg">Három egyszerű lépés a jobb pénzügyi döntésekhez</p>
-          </div>
-          <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-10 sm:gap-0">
-            {/* Connecting line – desktop only */}
-            <div className="hidden sm:block absolute top-8 left-[16.666%] right-[16.666%] h-0.5 bg-[#E2E8F0]" />
-
-            {steps.map((step, i) => (
-              <div key={step.number} className="flex flex-col items-center text-center flex-1 relative z-10">
-                <div className="w-16 h-16 rounded-full bg-[#1F5FAD] text-white flex items-center justify-center text-2xl font-bold mb-4 shadow-lg shadow-[#1F5FAD]/25">
-                  {step.number}
-                </div>
-                <h3 className="text-lg font-semibold text-[#1E293B] mb-1">{step.title}</h3>
-                <p className="text-sm text-[#64748B] max-w-[200px]">{step.description}</p>
-
-                {/* Arrow between steps on mobile */}
-                {i < steps.length - 1 && (
-                  <ArrowRight className="w-5 h-5 text-[#E2E8F0] mt-4 sm:hidden rotate-90" />
-                )}
+                <h3 className="text-xl font-bold">NAV Dokumentum Értelmező</h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  Másold be vagy húzd be a hivatalos NAV leveleket. Az AI lefordítja száraz jogi nyelvről pontos teendőkre és a naptárba helyezi a határidőket.
+                </p>
               </div>
-            ))}
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-semibold">point-and-click ocr</span>
+            </div>
+
+            {/* Card 4: AI Financial Chat (Large Column) */}
+            <div className="md:col-span-2 bg-slate-900/40 rounded-2xl border border-slate-850 p-8 flex flex-col justify-between gap-6 hover:border-slate-700 transition-colors">
+              <div className="space-y-3">
+                <div className="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20">
+                  <MessageSquare className="w-6 h-6 text-orange-400" />
+                </div>
+                <h3 className="text-xl font-bold">Nem-általános AI chat, ami ismeri a céged</h3>
+                <p className="text-sm text-slate-400 leading-relaxed max-w-md">
+                  Vége a listázó, HR stílusú AI válaszoknak. Az asszisztens beépül a cégadatokba, ismeri a cégnevet, a 2026-os legfrissebb adótörvényeket, és pontos forint összegekkel válaszol a konkrét kérdéseidre.
+                </p>
+              </div>
+              <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-900/60 flex items-center justify-between text-sm">
+                <span className="text-slate-400 flex items-center gap-2"><Building className="w-4 h-4 text-amber-500" /> Vállalkozói személyiség</span>
+                <span className="text-white font-medium">„KKV Mentor” magyar hangvétel</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* ───────── CTA ───────── */}
-      <section className="py-20 bg-[#1E293B]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            Kezdd el most – ingyenes!
-          </h2>
-          <p className="text-slate-400 text-lg mb-8">
-            Nincs rejtett költség. Próbáld ki a KKV Mentor-t, és hozz jobb pénzügyi döntéseket még ma.
+      {/* ───────── CTA Section ───────── */}
+      <section className="py-24 bg-gradient-to-t from-slate-950 via-[#101112] to-[#101112] border-t border-slate-900">
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-bold font-display tracking-tight">Kezdd el ma a digitális pénzügyi tervezést</h2>
+          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+            Vedd kezedbe a cég cashflow irányítását. Az onboarding mindössze 3 percet vesz igénybe.
           </p>
-          <Link
-            to="/onboarding"
-            className="inline-flex items-center gap-2 bg-[#1F5FAD] hover:bg-[#2E75B6] text-white font-semibold px-10 py-4 rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 text-lg"
-          >
-            Regisztrálok ingyen
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="pt-4">
+            <Link
+              to="/onboarding"
+              className="inline-flex items-center gap-2 bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold px-10 py-4.5 rounded-xl transition-all shadow-lg shadow-[#00F872]/10 hover:-translate-y-0.5 text-lg"
+            >
+              Regisztrálok ingyenesen
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
         </div>
       </section>
 
       {/* ───────── Footer ───────── */}
-      <footer className="bg-white border-t border-[#E2E8F0] py-10">
+      <footer className="bg-slate-950 border-t border-slate-900 py-12 text-slate-500 text-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#1F5FAD] flex items-center justify-center">
-                <TrendingUp className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold text-[#1E293B]">KKV Mentor</span>
+              <span className="font-bold text-white font-display">KKV Mentor</span>
             </div>
-            <div className="flex items-center gap-6 text-sm text-[#64748B]">
-              <Link to="/" className="hover:text-[#1E293B] transition-colors">Főoldal</Link>
-              <Link to="/onboarding" className="hover:text-[#1E293B] transition-colors">Regisztráció</Link>
-              <Link to="/dashboard" className="hover:text-[#1E293B] transition-colors">Dashboard</Link>
+            
+            <div className="flex items-center gap-6">
+              <Link to="/onboarding" className="hover:text-white transition-colors">Regisztráció</Link>
+              <Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+              <Link to="/cashflow" className="hover:text-white transition-colors">Cashflow</Link>
             </div>
-            <p className="text-sm text-[#64748B]">
-              © {new Date().getFullYear()} KKV Mentor. Minden jog fenntartva.
-            </p>
+            
+            <p>© {new Date().getFullYear()} KKV Mentor. Minden jog fenntartva.</p>
           </div>
         </div>
       </footer>
-
-      {/* Floating animation keyframes */}
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-      `}</style>
     </div>
   );
 }

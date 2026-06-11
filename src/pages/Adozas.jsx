@@ -1,17 +1,17 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { generateTaxAdvice } from '../lib/ai';
+import TaxCalendarWidget from '../components/TaxCalendarWidget';
 import {
   Calculator,
   ChevronLeft,
   Sparkles,
-  CalendarDays,
   AlertTriangle,
   Info,
   Shield,
   Loader2,
   CheckCircle2,
-  ArrowRight,
+  ArrowUpRight,
   TrendingDown
 } from 'lucide-react';
 
@@ -19,29 +19,17 @@ import { useFinance } from '../context/FinanceContext';
 
 const REGIMES = ['KATA', 'Átalányadó', 'KIVA', 'TAO Kft.'];
 
-const getNextDate = (targetDay) => {
-  const now = new Date();
-  let next = new Date(now.getFullYear(), now.getMonth(), targetDay);
-  if (now.getTime() > next.getTime()) {
-    next.setMonth(next.getMonth() + 1);
-  }
-  const diffDays = Math.ceil((next - now) / (1000 * 60 * 60 * 24));
-  return { date: next, diffDays };
-};
-
-const formatMonthDay = (date) => date.toLocaleDateString('hu-HU', { month: 'long', day: 'numeric' });
-
 export default function Adozas() {
   const { annualRevenue } = useFinance();
   const [revenue, setRevenue] = useState(annualRevenue || 18000000); // Raw number
   const [currentRegime, setCurrentRegime] = useState('KATA');
   const [employees, setEmployees] = useState(0);
-  const [isCalculated, setIsCalculated] = useState(false);
+  const [isCalculated, setIsCalculated] = useState(true); // Default to true so it shows results instantly
   
   const [aiAdvice, setAiAdvice] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // Calculations
+  // Calculations based on 2026 Hungarian tax rules
   const taxes = useMemo(() => {
     const rev = revenue;
     
@@ -74,15 +62,10 @@ export default function Adozas() {
   const bestRegime = Object.keys(taxes).reduce((a, b) => taxes[a] < taxes[b] ? a : b);
   const currentTax = taxes[currentRegime];
 
-  const handleCalculate = () => {
-    setIsCalculated(true);
-    setAiAdvice(''); // Reset AI on new calculation
-  };
-
   const handleAiAdvice = async () => {
     setIsAiLoading(true);
     const result = await generateTaxAdvice({
-      revenue: revenue * 1000000,
+      revenue,
       currentRegime,
       employees,
       taxes: {
@@ -96,296 +79,239 @@ export default function Adozas() {
     setIsAiLoading(false);
   };
 
-  const formatMoney = (val) => val.toLocaleString('hu-HU') + ' Ft';
+  const openAiChat = (prompt) => {
+    const event = new CustomEvent('open-ai-chat', { detail: { prompt } });
+    window.dispatchEvent(event);
+  };
+
+  const formatMoney = (val) => val.toLocaleString('hu-HU').replace(/\s/g, '.') + ' Ft';
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] font-['Inter',sans-serif] pb-12">
+    <div className="space-y-6 pb-12 animate-fade-in text-white">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#1F5FAD] to-[#2E75B6] text-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm mb-4 transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Vissza a Dashboardra
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-850 pb-5">
+        <div>
+          <Link to="/" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-white transition-colors mb-2">
+            <ChevronLeft className="w-3.5 h-3.5" /> Vissza a Dashboardra
           </Link>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <Calculator className="w-6 h-6" />
-            </div>
+          <h1 className="text-3xl font-extrabold font-display tracking-tight flex items-center gap-2">
+            Adózási Tanácsadó
+          </h1>
+          <p className="text-slate-400 text-sm mt-1">Hasonlítsa össze adóterheit és ellenőrizze határidőit a legújabb 2026-os magyar törvények alapján</p>
+        </div>
+      </div>
+
+      {/* SECTION 1: Gyors diagnosztika */}
+      <div className="bg-slate-900/30 rounded-2xl border border-slate-850 p-6 sm:p-8">
+        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+          <Calculator className="w-4 h-4 text-blue-500" /> Vállalkozási paraméterek beállítása
+        </h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Sliders Left */}
+          <div className="lg:col-span-7 space-y-6 w-full">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-                Adózási Tanácsadó
-              </h1>
-              <p className="text-white/80 text-sm sm:text-base mt-1">
-                Kalkuláljon és találja meg az optimális adózási formát
-              </p>
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <span>Várható éves bevétel</span>
+                <span className="text-[#00F872] font-bold text-sm tabular-nums">{formatMoney(revenue)}</span>
+              </div>
+              <input 
+                type="range" 
+                min="1000000" 
+                max="60000000" 
+                step="10000"
+                value={revenue}
+                onChange={(e) => setRevenue(Number(e.target.value))}
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+              />
+              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>1M Ft</span>
+                <span>60M Ft</span>
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                <span>Alkalmazottak száma (fő)</span>
+                <span className="text-white font-bold text-sm">{employees} fő</span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
+                step="1"
+                value={employees}
+                onChange={(e) => setEmployees(Number(e.target.value))}
+                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              />
+              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                <span>0 fő (Egyéni vállalkozó)</span>
+                <span>10 fő</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Radios Right */}
+          <div className="lg:col-span-5 w-full space-y-3">
+            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Jelenlegi adózási forma</label>
+            <div className="grid grid-cols-2 gap-3">
+              {REGIMES.map((regime) => (
+                <button
+                  key={regime}
+                  onClick={() => setCurrentRegime(regime)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                    currentRegime === regime
+                      ? 'border-blue-500 bg-blue-500/5 text-blue-400 font-bold'
+                      : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
+                  }`}
+                >
+                  <span className="text-sm block">{regime}</span>
+                </button>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        
-        {/* SECTION 1: Gyors diagnosztika */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 lg:p-8">
-          <h2 className="text-lg font-semibold text-[#1E293B] mb-6 flex items-center gap-2">
-            <Calculator className="w-5 h-5 text-[#1F5FAD]" />
-            Alapadatok megadása
-          </h2>
-          
-          <div className="grid grid-cols-1 gap-8">
-            {/* Top Row: Slider & Input */}
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium text-[#1E293B]">Várható éves bevétel</label>
-                  <span className="text-lg font-bold text-[#1F5FAD]">{new Intl.NumberFormat('hu-HU').format(revenue)} Ft</span>
-                </div>
-                <input 
-                  type="range" 
-                  min="1000000" 
-                  max="100000000" 
-                  step="10000"
-                  value={revenue}
-                  onChange={(e) => setRevenue(Number(e.target.value))}
-                  className="w-full h-2 bg-[#E2E8F0] rounded-lg appearance-none cursor-pointer accent-[#1F5FAD]"
-                />
-                <div className="flex justify-between text-xs text-[#64748B] mt-1">
-                  <span>1M Ft</span>
-                  <span>100M Ft</span>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#1E293B] mb-2">Alkalmazottak száma (fő)</label>
-                <input 
-                  type="number" 
-                  min="0"
-                  value={employees}
-                  onChange={(e) => setEmployees(Number(e.target.value))}
-                  className="w-full sm:w-1/2 rounded-lg border border-[#E2E8F0] p-3 focus:outline-none focus:ring-2 focus:ring-[#1F5FAD] transition"
-                />
-              </div>
+      {/* SECTION 2: Comparison Grid */}
+      {isCalculated && (
+        <div className="space-y-6">
+          {/* Comparison Table */}
+          <div className="bg-slate-900/30 rounded-2xl border border-slate-850 overflow-hidden shadow-2xl">
+            <div className="p-5 border-b border-slate-850 bg-slate-950/40 flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <TrendingDown className="w-4 h-4 text-[#00F872]" /> Adóterhek Összehasonlító Mátrixa (2026)
+              </span>
             </div>
 
-            {/* Right Col: Radio buttons */}
-            <div>
-              <label className="block text-sm font-medium text-[#1E293B] mb-3">Jelenlegi adózási forma</label>
-              <div className="grid grid-cols-2 gap-3">
-                {REGIMES.map((regime) => (
-                  <button
-                    key={regime}
-                    onClick={() => setCurrentRegime(regime)}
-                    className={`p-3 rounded-lg border-2 text-sm font-medium transition-all text-left flex items-center gap-2 ${
-                      currentRegime === regime
-                        ? 'border-[#1F5FAD] bg-[#EFF6FF] text-[#1F5FAD]'
-                        : 'border-[#E2E8F0] hover:border-[#CBD5E1] text-[#1E293B]'
-                    }`}
-                  >
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${currentRegime === regime ? 'border-[#1F5FAD]' : 'border-gray-300'}`}>
-                      {currentRegime === regime && <div className="w-2 h-2 rounded-full bg-[#1F5FAD]"></div>}
-                    </div>
-                    {regime}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-8 flex justify-center">
-            <button 
-              onClick={handleCalculate}
-              className="bg-[#1A7A4A] hover:bg-[#15643D] text-white font-semibold py-3 px-8 rounded-xl shadow-md transition-all hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              Kiszámolom a legjobb opciót
-            </button>
-          </div>
-        </div>
-
-        {/* SECTION 2 & 3: Táblázat és AI (Csak ha már számoltunk) */}
-        {isCalculated && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6">
-            
-            {/* Összehasonlító Táblázat */}
-            <div className="bg-white rounded-xl shadow-lg border border-[#E2E8F0] overflow-hidden">
-              <div className="p-6 border-b border-[#E2E8F0] bg-slate-50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <h2 className="text-xl font-bold text-[#1E293B] flex items-center gap-2">
-                  <TrendingDown className="w-6 h-6 text-[#1A7A4A]" />
-                  Adóterhek Összehasonlítása
-                </h2>
-                <div className="text-sm px-3 py-1 bg-white border rounded-full shadow-sm">
-                  Bevétel: <span className="font-bold">{new Intl.NumberFormat('hu-HU').format(revenue)} Ft</span> | Alkalmazott: <span className="font-bold">{employees} fő</span>
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-white">
-                      <th className="text-left px-6 py-4 text-sm font-medium text-[#64748B] border-b border-r"></th>
-                      {REGIMES.map((regime) => {
-                        const isBest = regime === bestRegime;
-                        const isCurrent = regime === currentRegime;
-                        return (
-                          <th key={regime} className={`px-4 py-4 border-b relative ${isBest ? 'bg-green-50' : ''}`}>
-                            {isBest && (
-                              <div className="absolute top-0 left-0 right-0 h-1 bg-[#1A7A4A]"></div>
-                            )}
-                            <div className="flex flex-col items-center">
-                              <span className={`text-lg font-bold ${isBest ? 'text-[#1A7A4A]' : 'text-[#1E293B]'}`}>
-                                {regime}
-                              </span>
-                              {isCurrent && (
-                                <span className="mt-1 text-[10px] uppercase font-bold text-[#1F5FAD] bg-blue-100 px-2 py-0.5 rounded-full">Jelenlegi</span>
-                              )}
-                              {isBest && (
-                                <span className="mt-1 text-[10px] uppercase font-bold text-white bg-[#1A7A4A] px-2 py-0.5 rounded-full">Legjobb választás</span>
-                              )}
-                            </div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Éves adóteher */}
-                    <tr>
-                      <td className="px-6 py-5 text-sm font-semibold text-[#1E293B] border-r border-b">Éves adóteher (becsült)</td>
-                      {REGIMES.map((regime) => {
-                        const isBest = regime === bestRegime;
-                        return (
-                          <td key={regime} className={`px-4 py-5 text-center border-b ${isBest ? 'bg-green-50/50' : ''}`}>
-                            <span className={`text-lg font-bold ${isBest ? 'text-[#1A7A4A]' : 'text-[#1E293B]'}`}>
-                              {formatMoney(taxes[regime])}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-950/25 border-b border-slate-850 text-slate-400 text-xs font-semibold">
+                    <th className="px-6 py-4 min-w-[220px]">Adózási Mutatók</th>
+                    {REGIMES.map((regime) => {
+                      const isBest = regime === bestRegime;
+                      const isCurrent = regime === currentRegime;
+                      return (
+                        <th key={regime} className={`px-4 py-4 text-center ${isBest ? 'bg-[#00F872]/[0.02]' : ''}`}>
+                          <div className="flex flex-col items-center">
+                            <span className={`text-base font-bold ${isBest ? 'text-[#00F872]' : 'text-white'}`}>
+                              {regime}
                             </span>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                    
-                    {/* Megtakarítás */}
-                    <tr>
-                      <td className="px-6 py-5 text-sm font-semibold text-[#1E293B] border-r border-b">
-                        Megtakarítás a jelenlegihez képest
-                      </td>
-                      {REGIMES.map((regime) => {
-                        const isBest = regime === bestRegime;
-                        const diff = currentTax - taxes[regime];
-                        const isPositive = diff > 0;
-                        const isNegative = diff < 0;
-                        
-                        return (
-                          <td key={regime} className={`px-4 py-5 text-center border-b ${isBest ? 'bg-green-50/50' : ''}`}>
-                            {diff === 0 ? (
-                              <span className="text-[#64748B] font-medium">-</span>
-                            ) : (
-                              <span className={`font-bold ${isPositive ? 'text-[#1A7A4A]' : 'text-[#991B1B]'}`}>
-                                {isPositive ? '+' : ''}{formatMoney(diff)}
-                              </span>
+                            {isCurrent && (
+                              <span className="mt-1 text-[9px] uppercase font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Jelenlegi</span>
                             )}
-                          </td>
-                        );
-                      })}
-                    </tr>
+                            {isBest && (
+                              <span className="mt-1 text-[9px] uppercase font-bold text-[#101112] bg-[#00F872] px-2 py-0.5 rounded-full">Legjobb</span>
+                            )}
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-850/60 text-sm">
+                  {/* Éves adóteher */}
+                  <tr className="hover:bg-slate-800/20">
+                    <td className="px-6 py-4 text-slate-400 font-medium">Éves adóteher (becsült)</td>
+                    {REGIMES.map((regime) => {
+                      const isBest = regime === bestRegime;
+                      return (
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-base tabular-nums ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-white'}`}>
+                          {formatMoney(taxes[regime])}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                  
+                  {/* Megtakarítás */}
+                  <tr className="hover:bg-slate-800/20">
+                    <td className="px-6 py-4 text-slate-400 font-medium">Megtakarítás a jelenlegihez képest</td>
+                    {REGIMES.map((regime) => {
+                      const isBest = regime === bestRegime;
+                      const diff = currentTax - taxes[regime];
+                      const isPositive = diff > 0;
+                      
+                      return (
+                        <td key={regime} className={`px-4 py-4 text-center font-bold tabular-nums ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-slate-500' : 'text-red-500'}`}>
+                          {diff === 0 ? (
+                            <span>Alapértelmezett</span>
+                          ) : (
+                            <span>{isPositive ? '+' : ''}{formatMoney(diff)}</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
 
-                    {/* Adminisztráció */}
-                    <tr>
-                      <td className="px-6 py-4 text-sm font-semibold text-[#1E293B] border-r">Adminisztrációs teher</td>
-                      <td className={`px-4 py-4 text-center text-sm font-medium ${bestRegime === 'KATA' ? 'bg-green-50/50' : ''} text-[#1A7A4A]`}>Alacsony</td>
-                      <td className={`px-4 py-4 text-center text-sm font-medium ${bestRegime === 'Átalányadó' ? 'bg-green-50/50' : ''} text-amber-600`}>Közepes</td>
-                      <td className={`px-4 py-4 text-center text-sm font-medium ${bestRegime === 'KIVA' ? 'bg-green-50/50' : ''} text-[#991B1B]`}>Magas</td>
-                      <td className={`px-4 py-4 text-center text-sm font-medium ${bestRegime === 'TAO Kft.' ? 'bg-green-50/50' : ''} text-[#991B1B]`}>Magas</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                  {/* Adminisztráció */}
+                  <tr className="hover:bg-slate-800/20">
+                    <td className="px-6 py-4 text-slate-400 font-medium">Adminisztrációs teher</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-[#00F872] ${bestRegime === 'KATA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Alacsony</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-500 ${bestRegime === 'Átalányadó' ? 'bg-[#00F872]/[0.02]' : ''}`}>Közepes</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'KIVA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Magas</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'TAO Kft.' ? 'bg-[#00F872]/[0.02]' : ''}`}>Magas</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
+          </div>
 
-            {/* AI Tanácsadó Szekció */}
-            <div className="bg-gradient-to-r from-[#1F5FAD] to-[#2E75B6] rounded-xl shadow-lg p-6 lg:p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
-              
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
-                    <Sparkles className="w-5 h-5 text-white" />
-                  </div>
-                  <h2 className="text-xl font-bold">AI Szakértői Elemzés</h2>
+          {/* AI Advisor Panel */}
+          <div className="bg-gradient-to-r from-blue-950/20 to-slate-900/50 rounded-2xl border border-slate-850 p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-[#00F872] opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div className="relative z-10 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
+                  <Sparkles className="w-5 h-5 text-[#00F872]" />
                 </div>
-                
-                {!aiAdvice && !isAiLoading ? (
-                  <div>
-                    <p className="text-blue-100 mb-6 max-w-2xl">
-                      Kérjen személyre szabott, szöveges értékelést az AI adószakértőnktől, aki részletesen elmagyarázza a fenti számokat és javaslatot tesz a váltásra.
-                    </p>
-                    <button 
-                      onClick={handleAiAdvice}
-                      className="bg-white text-[#1F5FAD] hover:bg-blue-50 font-semibold py-2.5 px-6 rounded-lg shadow transition-colors flex items-center gap-2"
+                <div>
+                  <h3 className="font-bold text-base text-white">AI Szakértői Vélemény</h3>
+                  <p className="text-xs text-slate-400">Magyar adójogszabályok szerinti elemzés</p>
+                </div>
+              </div>
+              
+              {!aiAdvice && !isAiLoading ? (
+                <div className="space-y-4">
+                  <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
+                    Kérj az AI adótanácsadótól egy részletes, szöveges elemzést, amely bemutatja az átmenetet a jelenlegi adónemedből a legoptimálisabba, a buktatókat és az adminisztrációs teendőket.
+                  </p>
+                  <button 
+                    onClick={handleAiAdvice}
+                    className="bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold py-2.5 px-6 rounded-xl transition-all shadow-md shadow-[#00F872]/5 flex items-center gap-2 cursor-pointer text-xs"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Adóbevallás-elemzés generálása
+                  </button>
+                </div>
+              ) : isAiLoading ? (
+                <div className="flex items-center gap-3 text-slate-400 py-4 text-xs font-semibold uppercase tracking-wider">
+                  <Loader2 className="w-5 h-5 text-[#00F872] animate-spin" />
+                  <span>Szakértői vélemény kiszámítása...</span>
+                </div>
+              ) : (
+                <div className="bg-slate-950/60 rounded-xl border border-slate-850 p-5 mt-2 space-y-4">
+                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{aiAdvice}</p>
+                  
+                  <div className="pt-2 flex justify-between items-center text-xs">
+                    <span className="text-slate-500 font-medium">Kalkulált értékhatárok: 2026. évi adótörvények</span>
+                    <button
+                      onClick={() => openAiChat(`A(z) ${annualRevenue.toLocaleString()} Ft éves bevételi szintemen részletesen beszéld át velem az AI adótanácsadást, amit generáltál. Megéri KATA-ról váltani?`)}
+                      className="text-[#00F872] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                     >
-                      <Sparkles className="w-4 h-4" />
-                      Részletes AI elemzés kérése
+                      AI Megbeszélés indítása <ArrowUpRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                ) : isAiLoading ? (
-                  <div className="flex items-center gap-3 text-blue-50">
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Szakértői elemzés generálása folyamatban...</span>
-                  </div>
-                ) : (
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl border border-white/20 p-5 mt-2">
-                    <p className="text-white leading-relaxed whitespace-pre-wrap">{aiAdvice}</p>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-blue-200">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>AI által generálva</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* Naptár (Mindig látszik alul) */}
-        <div className="bg-white rounded-xl shadow-sm border border-[#E2E8F0] p-6 mt-6">
-          <h2 className="text-lg font-semibold text-[#1E293B] flex items-center gap-2 mb-4">
-            <CalendarDays className="w-5 h-5 text-[#1F5FAD]" />
-            Adónaptár – Közelgő határidők
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50">
-              <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-amber-900">{formatMonthDay(getNextDate(20).date)}</p>
-                <p className="text-xs text-amber-700">ÁFA bevallás ({getNextDate(20).diffDays} nap)</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-[#E2E8F0] bg-slate-50">
-              <div className="w-10 h-10 rounded-full bg-blue-100 text-[#1F5FAD] flex items-center justify-center shrink-0">
-                <Info className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[#1E293B]">{formatMonthDay(getNextDate(12).date)}</p>
-                <p className="text-xs text-[#64748B]">KATA befizetés ({getNextDate(12).diffDays} nap)</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-xl border border-[#E2E8F0] bg-slate-50">
-              <div className="w-10 h-10 rounded-full bg-blue-100 text-[#1F5FAD] flex items-center justify-center shrink-0">
-                <Shield className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-[#1E293B]">Szeptember 15.</p>
-                <p className="text-xs text-[#64748B]">Iparűzési adó előleg</p>
-              </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Tax Calendar Widget */}
+          <TaxCalendarWidget activeRegime={currentRegime} />
         </div>
-
-      </div>
+      )}
     </div>
   );
 }
