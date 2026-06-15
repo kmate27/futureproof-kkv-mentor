@@ -6,13 +6,9 @@ import {
   Calculator,
   ChevronLeft,
   Sparkles,
-  AlertTriangle,
-  Info,
-  Shield,
   Loader2,
-  CheckCircle2,
-  ArrowUpRight,
-  TrendingDown
+  TrendingDown,
+  ArrowUpRight
 } from 'lucide-react';
 
 import { useFinance } from '../context/FinanceContext';
@@ -87,23 +83,23 @@ export default function Adozas() {
   const formatMoney = (val) => Math.round(val).toLocaleString('hu-HU').replace(/\s/g, '.') + ' Ft';
 
   return (
-    <div className="space-y-6 pb-12 animate-fade-in text-white">
+    <div className="space-y-6 pb-12 animate-fade-in text-text-main">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-slate-850 pb-5">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-card-border pb-5">
         <div>
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-white transition-colors mb-2">
+          <Link to="/" className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-bright transition-colors mb-2">
             <ChevronLeft className="w-3.5 h-3.5" /> Vissza a Dashboardra
           </Link>
-          <h1 className="text-3xl font-extrabold font-display tracking-tight flex items-center gap-2">
+          <h1 className="text-3xl font-extrabold font-display tracking-tight flex items-center gap-2 text-text-bright">
             Adózási Tanácsadó
           </h1>
-          <p className="text-slate-400 text-sm mt-1">Hasonlítsa össze adóterheit és ellenőrizze határidőit a legújabb 2026-os magyar törvények alapján</p>
+          <p className="text-text-muted text-sm mt-1">Hasonlítsa össze adóterheit és ellenőrizze határidőit a legújabb 2026-os magyar törvények alapján</p>
         </div>
       </div>
 
       {/* SECTION 1: Gyors diagnosztika */}
-      <div className="bg-slate-900/30 rounded-2xl border border-slate-850 p-6 sm:p-8">
-        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
+      <div className="bg-card-bg/70 rounded-2xl border border-card-border p-6 sm:p-8 transition-colors duration-200">
+        <h2 className="text-sm font-bold text-text-muted uppercase tracking-widest mb-6 flex items-center gap-2">
           <Calculator className="w-4 h-4 text-blue-500" /> Vállalkozási paraméterek beállítása
         </h2>
         
@@ -111,7 +107,7 @@ export default function Adozas() {
           {/* Sliders Left */}
           <div className="lg:col-span-7 space-y-6 w-full">
             <div>
-              <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                 <span>Várható éves bevétel</span>
                 <span className="flex items-center gap-1">
                   <input
@@ -123,7 +119,7 @@ export default function Adozas() {
                       const v = Number(e.target.value);
                       if (!isNaN(v)) setRevenue(Math.min(60000000, Math.max(1000000, v)));
                     }}
-                    className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1 text-sm text-[#00F872] font-bold tabular-nums w-40 text-right focus:outline-none focus:border-[#00F872]"
+                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-[#00F872] font-bold tabular-nums w-40 text-right focus:outline-none focus:border-[#00F872]"
                   />
                   <span className="text-[#00F872] font-bold text-sm">Ft</span>
                 </span>
@@ -135,16 +131,16 @@ export default function Adozas() {
                 step="10000"
                 value={revenue}
                 onChange={(e) => setRevenue(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+              <div className="flex justify-between text-[10px] text-text-muted mt-1">
                 <span>1M Ft</span>
                 <span>60M Ft</span>
               </div>
             </div>
 
             <div>
-              <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+              <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                 <span>Alkalmazottak száma (fő)</span>
                 <span className="flex items-center gap-1">
                   <input
@@ -157,9 +153,9 @@ export default function Adozas() {
                       const v = Number(e.target.value);
                       if (!isNaN(v)) setEmployees(Math.min(10, Math.max(0, v)));
                     }}
-                    className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1 text-sm text-white font-bold tabular-nums w-20 text-right focus:outline-none focus:border-[#00F872]"
+                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-text-bright font-bold tabular-nums w-20 text-right focus:outline-none focus:border-[#00F872]"
                   />
-                  <span className="text-white font-bold text-sm">fő</span>
+                  <span className="text-text-bright font-bold text-sm">fő</span>
                 </span>
               </div>
               <input 
@@ -169,9 +165,9 @@ export default function Adozas() {
                 step="1"
                 value={employees}
                 onChange={(e) => setEmployees(Number(e.target.value))}
-                className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-blue-500"
               />
-              <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+              <div className="flex justify-between text-[10px] text-text-muted mt-1">
                 <span>0 fő (Egyéni vállalkozó)</span>
                 <span>10 fő</span>
               </div>
@@ -180,16 +176,16 @@ export default function Adozas() {
 
           {/* Radios Right */}
           <div className="lg:col-span-5 w-full space-y-3">
-            <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Jelenlegi adózási forma</label>
+            <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">Jelenlegi adózási forma</label>
             <div className="grid grid-cols-2 gap-3">
               {REGIMES.map((regime) => (
                 <button
                   key={regime}
                   onClick={() => setCurrentRegime(regime)}
-                  className={`p-4 rounded-xl border-2 text-left transition-all ${
+                  className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
                     currentRegime === regime
                       ? 'border-blue-500 bg-blue-500/5 text-blue-400 font-bold'
-                      : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
+                      : 'border-card-border bg-input-bg/40 text-text-muted hover:border-primary/30'
                   }`}
                 >
                   <span className="text-sm block">{regime}</span>
@@ -204,9 +200,9 @@ export default function Adozas() {
       {isCalculated && (
         <div className="space-y-6">
           {/* Comparison Table */}
-          <div className="bg-slate-900/30 rounded-2xl border border-slate-850 overflow-hidden shadow-2xl">
-            <div className="p-5 border-b border-slate-850 bg-slate-950/40 flex justify-between items-center">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+          <div className="bg-card-bg border border-card-border rounded-2xl overflow-hidden shadow-2xl transition-colors duration-200">
+            <div className="p-5 border-b border-card-border bg-input-bg/20 flex justify-between items-center">
+              <span className="text-xs font-bold text-text-muted uppercase tracking-widest flex items-center gap-2">
                 <TrendingDown className="w-4 h-4 text-[#00F872]" /> Adóterhek Összehasonlító Mátrixa (2026)
               </span>
             </div>
@@ -214,7 +210,7 @@ export default function Adozas() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-950/25 border-b border-slate-850 text-slate-400 text-xs font-semibold">
+                  <tr className="bg-input-bg/40 border-b border-card-border text-text-muted text-xs font-semibold">
                     <th className="px-6 py-4 min-w-[220px]">Adózási Mutatók</th>
                     {REGIMES.map((regime) => {
                       const isBest = regime === bestRegime;
@@ -222,7 +218,7 @@ export default function Adozas() {
                       return (
                         <th key={regime} className={`px-4 py-4 text-center ${isBest ? 'bg-[#00F872]/[0.02]' : ''}`}>
                           <div className="flex flex-col items-center">
-                            <span className={`text-sm sm:text-base font-bold whitespace-nowrap ${isBest ? 'text-[#00F872]' : 'text-white'}`}>
+                            <span className={`text-sm sm:text-base font-bold whitespace-nowrap ${isBest ? 'text-[#00F872]' : 'text-text-bright'}`}>
                               {regime}
                             </span>
                             {isCurrent && (
@@ -237,14 +233,14 @@ export default function Adozas() {
                     })}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-850/60 text-sm">
+                <tbody className="divide-y divide-card-border/60 text-sm">
                   {/* Éves adóteher */}
-                  <tr className="hover:bg-slate-800/20">
-                    <td className="px-6 py-4 text-slate-400 font-medium">Éves adóteher (becsült)</td>
+                  <tr className="hover:bg-card-bg/30">
+                    <td className="px-6 py-4 text-text-muted font-medium">Éves adóteher (becsült)</td>
                     {REGIMES.map((regime) => {
                       const isBest = regime === bestRegime;
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm sm:text-base tabular-nums whitespace-nowrap ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-white'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm sm:text-base tabular-nums whitespace-nowrap ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-text-bright'}`}>
                           {formatMoney(taxes[regime])}
                         </td>
                       );
@@ -252,15 +248,15 @@ export default function Adozas() {
                   </tr>
                   
                   {/* Megtakarítás */}
-                  <tr className="hover:bg-slate-800/20">
-                    <td className="px-6 py-4 text-slate-400 font-medium">Megtakarítás a jelenlegihez képest</td>
+                  <tr className="hover:bg-card-bg/30">
+                    <td className="px-6 py-4 text-text-muted font-medium">Megtakarítás a jelenlegihez képest</td>
                     {REGIMES.map((regime) => {
                       const isBest = regime === bestRegime;
                       const diff = currentTax - taxes[regime];
                       const isPositive = diff > 0;
                       
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm tabular-nums whitespace-nowrap ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-slate-500' : 'text-red-500'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm tabular-nums whitespace-nowrap ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-text-muted' : 'text-red-500'}`}>
                           {diff === 0 ? (
                             <span>Alapértelmezett</span>
                           ) : (
@@ -272,8 +268,8 @@ export default function Adozas() {
                   </tr>
 
                   {/* Adminisztráció */}
-                  <tr className="hover:bg-slate-800/20">
-                    <td className="px-6 py-4 text-slate-400 font-medium">Adminisztrációs teher</td>
+                  <tr className="hover:bg-card-bg/30">
+                    <td className="px-6 py-4 text-text-muted font-medium">Adminisztrációs teher</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-[#00F872] ${bestRegime === 'KATA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Alacsony</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-500 ${bestRegime === 'Átalányadó' ? 'bg-[#00F872]/[0.02]' : ''}`}>Közepes</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'KIVA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Magas</td>
@@ -285,7 +281,7 @@ export default function Adozas() {
           </div>
 
           {/* AI Advisor Panel */}
-          <div className="bg-gradient-to-r from-blue-950/20 to-slate-900/50 rounded-2xl border border-slate-850 p-6 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-950/10 to-card-bg rounded-2xl border border-card-border p-6 relative overflow-hidden transition-colors duration-200">
             <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-[#00F872] opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="relative z-10 space-y-4">
@@ -294,14 +290,14 @@ export default function Adozas() {
                   <Sparkles className="w-5 h-5 text-[#00F872]" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-white">AI Szakértői Vélemény</h3>
-                  <p className="text-xs text-slate-400">Magyar adójogszabályok szerinti elemzés</p>
+                  <h3 className="font-bold text-base text-text-bright">AI Szakértői Vélemény</h3>
+                  <p className="text-xs text-text-muted">Magyar adójogszabályok szerinti elemzés</p>
                 </div>
               </div>
               
               {!aiAdvice && !isAiLoading ? (
                 <div className="space-y-4">
-                  <p className="text-slate-300 text-sm leading-relaxed max-w-2xl">
+                  <p className="text-text-main text-sm leading-relaxed max-w-2xl">
                     Kérj az AI adótanácsadótól egy részletes, szöveges elemzést, amely bemutatja az átmenetet a jelenlegi adónemedből a legoptimálisabba, a buktatókat és az adminisztrációs teendőket.
                   </p>
                   <button 
@@ -313,16 +309,16 @@ export default function Adozas() {
                   </button>
                 </div>
               ) : isAiLoading ? (
-                <div className="flex items-center gap-3 text-slate-400 py-4 text-xs font-semibold uppercase tracking-wider">
+                <div className="flex items-center gap-3 text-text-muted py-4 text-xs font-semibold uppercase tracking-wider">
                   <Loader2 className="w-5 h-5 text-[#00F872] animate-spin" />
                   <span>Szakértői vélemény kiszámítása...</span>
                 </div>
               ) : (
-                <div className="bg-slate-950/60 rounded-xl border border-slate-850 p-5 mt-2 space-y-4">
-                  <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">{aiAdvice}</p>
+                <div className="bg-input-bg border border-card-border rounded-xl p-5 mt-2 space-y-4">
+                  <p className="text-text-main text-sm leading-relaxed whitespace-pre-wrap">{aiAdvice}</p>
                   
                   <div className="pt-2 flex justify-between items-center text-xs">
-                    <span className="text-slate-500 font-medium">Kalkulált értékhatárok: 2026. évi adótörvények</span>
+                    <span className="text-text-muted font-medium">Kalkulált értékhatárok: 2026. évi adótörvények</span>
                     <button
                       onClick={() => openAiChat(`A(z) ${annualRevenue.toLocaleString()} Ft éves bevételi szintemen részletesen beszéld át velem az AI adótanácsadást, amit generáltál. Megéri KATA-ról váltani?`)}
                       className="text-[#00F872] font-semibold hover:underline flex items-center gap-1 cursor-pointer"

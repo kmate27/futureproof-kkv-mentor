@@ -115,17 +115,17 @@ export default function Cashflow() {
     if (!active || !payload?.length) return null;
     const d = payload[0].payload;
     return (
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-2xl text-xs space-y-1.5">
-        <p className="font-bold text-white mb-1">{label}</p>
-        <p className="flex justify-between gap-6 text-slate-400">
+      <div className="bg-card-bg border border-card-border rounded-xl p-4 shadow-2xl text-xs space-y-1.5 backdrop-blur-md">
+        <p className="font-bold text-text-bright mb-1">{label}</p>
+        <p className="flex justify-between gap-6 text-text-muted">
           <span>Bevétel:</span>
           <span className="font-bold text-[#00F872]">{formatHuf(d.bevétel)}</span>
         </p>
-        <p className="flex justify-between gap-6 text-slate-400">
+        <p className="flex justify-between gap-6 text-text-muted">
           <span>Kiadás:</span>
           <span className="font-bold text-red-400">{formatHuf(d.kiadás)}</span>
         </p>
-        <p className="flex justify-between gap-6 text-slate-400 border-t border-slate-800 pt-1.5">
+        <p className="flex justify-between gap-6 text-text-muted border-t border-card-border pt-1.5">
           <span>Nettó:</span>
           <span className={`font-bold ${d.nettó >= 0 ? 'text-[#00F872]' : 'text-red-400'}`}>
             {formatHuf(d.nettó)}
@@ -137,17 +137,17 @@ export default function Cashflow() {
 
   /* ── Render ──────────────────────────────────────────── */
   return (
-    <div className="space-y-6 pb-12 animate-fade-in text-white">
+    <div className="space-y-6 pb-12 animate-fade-in text-text-main">
 
       {/* ─── 1. Header ─────────────────────────────────── */}
-      <div className="border-b border-slate-850 pb-5">
+      <div className="border-b border-card-border pb-5">
         <Link
           to="/"
-          className="inline-flex items-center gap-1 text-xs text-slate-500 hover:text-white transition-colors mb-2"
+          className="inline-flex items-center gap-1 text-xs text-text-muted hover:text-text-bright transition-colors mb-2"
         >
           <ChevronLeft className="w-3.5 h-3.5" /> Vissza a Dashboardra
         </Link>
-        <h1 className="text-3xl font-extrabold font-display tracking-tight">
+        <h1 className="text-3xl font-extrabold font-display tracking-tight text-text-bright">
           Cash Flow Kezelő
         </h1>
       </div>
@@ -155,12 +155,12 @@ export default function Cashflow() {
       {/* ─── 2. KPI Cards ──────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Havi Bevétel */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 flex items-center gap-4">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex items-center gap-4 transition-colors duration-200">
           <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
             <TrendingUp className="w-5 h-5 text-[#00F872]" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Havi Bevétel</p>
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Havi Bevétel</p>
             <p className="text-xl font-extrabold text-[#00F872] tabular-nums whitespace-nowrap">
               {formatHuf(monthlyIncome)}
             </p>
@@ -168,12 +168,12 @@ export default function Cashflow() {
         </div>
 
         {/* Havi Kiadás */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 flex items-center gap-4">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex items-center gap-4 transition-colors duration-200">
           <div className="w-11 h-11 rounded-xl bg-red-500/10 flex items-center justify-center shrink-0">
             <TrendingDown className="w-5 h-5 text-red-400" />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Havi Kiadás</p>
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Havi Kiadás</p>
             <p className="text-xl font-extrabold text-red-400 tabular-nums whitespace-nowrap">
               {formatHuf(monthlyExpense)}
             </p>
@@ -181,14 +181,14 @@ export default function Cashflow() {
         </div>
 
         {/* Havi Egyenleg */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 flex items-center gap-4">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex items-center gap-4 transition-colors duration-200">
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
             monthlyBalance >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
           }`}>
             <Scale className={`w-5 h-5 ${monthlyBalance >= 0 ? 'text-[#00F872]' : 'text-red-400'}`} />
           </div>
           <div>
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Havi Egyenleg</p>
+            <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Havi Egyenleg</p>
             <p className={`text-xl font-extrabold tabular-nums whitespace-nowrap ${
               monthlyBalance >= 0 ? 'text-[#00F872]' : 'text-red-400'
             }`}>
@@ -199,8 +199,8 @@ export default function Cashflow() {
       </div>
 
       {/* ─── 3. 6-Month Area Chart ─────────────────────── */}
-      <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5">
-        <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-5">
+      <div className="bg-card-bg border border-card-border rounded-2xl p-5 transition-colors duration-200">
+        <h2 className="text-sm font-bold text-text-muted uppercase tracking-widest mb-5">
           6 Hónapos Cash Flow Előrejelzés
         </h2>
         <div className="h-[280px] w-full">
@@ -216,17 +216,17 @@ export default function Cashflow() {
                   <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1E293B" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748B', fontSize: 11 }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: '#64748B', fontSize: 11 }}
+                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
                 tickFormatter={(v) => {
                   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
                   if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}e`;
@@ -267,7 +267,7 @@ export default function Cashflow() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
         {/* ── Bevételek ──────────────────────────────────── */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 flex flex-col">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex flex-col transition-colors duration-200">
           <h2 className="text-sm font-bold text-[#00F872] uppercase tracking-widest mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4" /> Bevételek
           </h2>
@@ -277,10 +277,10 @@ export default function Cashflow() {
             {incomes.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-3 bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-3 group"
+                className="flex items-center justify-between gap-3 bg-input-bg/40 border border-card-border rounded-xl px-4 py-3 group"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-text-bright truncate">{item.name}</p>
                   <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
                       ? 'text-emerald-400'
@@ -294,7 +294,7 @@ export default function Cashflow() {
                 </span>
                 <button
                   onClick={() => deleteIncome(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 transition-all cursor-pointer p-1"
+                  className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-400 transition-all cursor-pointer p-1"
                   aria-label="Törlés"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -302,30 +302,30 @@ export default function Cashflow() {
               </div>
             ))}
             {incomes.length === 0 && (
-              <p className="text-xs text-slate-500 text-center py-6">Nincs bevétel hozzáadva.</p>
+              <p className="text-xs text-text-muted text-center py-6">Nincs bevétel hozzáadva.</p>
             )}
           </div>
 
           {/* Add form */}
-          <div className="flex flex-wrap items-end gap-2 border-t border-slate-800/60 pt-4">
+          <div className="flex flex-wrap items-end gap-2 border-t border-card-border pt-4">
             <input
               type="text"
               placeholder="Megnevezés"
               value={newIncome.name}
               onChange={(e) => setNewIncome(p => ({ ...p, name: e.target.value }))}
-              className="flex-1 min-w-[120px] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-[#00F872]/50"
+              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-[#00F872]/50"
             />
             <input
               type="number"
               placeholder="Összeg"
               value={newIncome.amount}
               onChange={(e) => setNewIncome(p => ({ ...p, amount: e.target.value }))}
-              className="w-28 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-[#00F872]/50"
+              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-[#00F872]/50"
             />
             <select
               value={newIncome.frequency}
               onChange={(e) => setNewIncome(p => ({ ...p, frequency: e.target.value }))}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00F872]/50"
+              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-[#00F872]/50"
             >
               <option value="Havi">Havi</option>
               <option value="Egyszeri">Egyszeri</option>
@@ -334,7 +334,7 @@ export default function Cashflow() {
               <select
                 value={newIncome.month}
                 onChange={(e) => setNewIncome(p => ({ ...p, month: e.target.value }))}
-                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00F872]/50"
+                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-[#00F872]/50"
               >
                 {MONTHS.map(m => (
                   <option key={m.full} value={m.full}>{m.short}</option>
@@ -352,7 +352,7 @@ export default function Cashflow() {
         </div>
 
         {/* ── Kiadások ──────────────────────────────────── */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 flex flex-col">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex flex-col transition-colors duration-200">
           <h2 className="text-sm font-bold text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
             <TrendingDown className="w-4 h-4" /> Kiadások
           </h2>
@@ -362,10 +362,10 @@ export default function Cashflow() {
             {expenses.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between gap-3 bg-slate-950/50 border border-slate-800/60 rounded-xl px-4 py-3 group"
+                className="flex items-center justify-between gap-3 bg-input-bg/40 border border-card-border rounded-xl px-4 py-3 group"
               >
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                  <p className="text-sm font-medium text-text-bright truncate">{item.name}</p>
                   <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
                       ? 'text-emerald-400'
@@ -379,7 +379,7 @@ export default function Cashflow() {
                 </span>
                 <button
                   onClick={() => deleteExpense(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 transition-all cursor-pointer p-1"
+                  className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-400 transition-all cursor-pointer p-1"
                   aria-label="Törlés"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -387,30 +387,30 @@ export default function Cashflow() {
               </div>
             ))}
             {expenses.length === 0 && (
-              <p className="text-xs text-slate-500 text-center py-6">Nincs kiadás hozzáadva.</p>
+              <p className="text-xs text-text-muted text-center py-6">Nincs kiadás hozzáadva.</p>
             )}
           </div>
 
           {/* Add form */}
-          <div className="flex flex-wrap items-end gap-2 border-t border-slate-800/60 pt-4">
+          <div className="flex flex-wrap items-end gap-2 border-t border-card-border pt-4">
             <input
               type="text"
               placeholder="Megnevezés"
               value={newExpense.name}
               onChange={(e) => setNewExpense(p => ({ ...p, name: e.target.value }))}
-              className="flex-1 min-w-[120px] bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400/50"
+              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50"
             />
             <input
               type="number"
               placeholder="Összeg"
               value={newExpense.amount}
               onChange={(e) => setNewExpense(p => ({ ...p, amount: e.target.value }))}
-              className="w-28 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400/50"
+              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50"
             />
             <select
               value={newExpense.frequency}
               onChange={(e) => setNewExpense(p => ({ ...p, frequency: e.target.value }))}
-              className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-400/50"
+              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50"
             >
               <option value="Havi">Havi</option>
               <option value="Egyszeri">Egyszeri</option>
@@ -419,7 +419,7 @@ export default function Cashflow() {
               <select
                 value={newExpense.month}
                 onChange={(e) => setNewExpense(p => ({ ...p, month: e.target.value }))}
-                className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-red-400/50"
+                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50"
               >
                 {MONTHS.map(m => (
                   <option key={m.full} value={m.full}>{m.short}</option>
@@ -445,7 +445,7 @@ export default function Cashflow() {
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-amber-300 mb-1">AI Figyelmeztetés – Negatív Cashflow</h3>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-sm text-text-muted leading-relaxed">
               {negativeMonths.length === 1
                 ? `A(z) ${negativeMonths[0].name} hónapban negatív az egyenleged: `
                 : `${negativeMonths.map(m => m.name).join(', ')} hónapokban negatív az egyenleged: `}

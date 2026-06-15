@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { sendChatMessage } from '../lib/ai';
 import { useFinance } from '../context/FinanceContext';
-import { Bot, User, SendHorizontal, Sparkles, X, Loader2 } from 'lucide-react';
+import { Bot, User, SendHorizontal, Sparkles, X } from 'lucide-react';
 
 const quickPrompts = [
   'Megéri-e alkalmazottat felvennem?',
@@ -102,28 +102,28 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose}></div>
 
       {/* Drawer */}
-      <aside className="relative w-full max-w-md bg-[#101112] border-l border-slate-800 h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+      <aside className="relative w-full max-w-md bg-sidebar-bg border-l border-sidebar-border h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
         {/* Drawer Header */}
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between bg-card-bg">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] flex items-center justify-center shadow-md">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-sm text-white">KKV Mentor AI Asszisztens</h3>
-              <p className="text-[10px] text-slate-400">Mindig képben a cége számaival</p>
+              <h3 className="font-bold text-sm text-text-bright">KKV Mentor AI Asszisztens</h3>
+              <p className="text-[10px] text-text-muted">Mindig képben a cége számaival</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-slate-800 rounded-lg text-slate-500 hover:text-slate-300 transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-card-bg rounded-lg text-text-muted hover:text-text-bright transition-colors cursor-pointer border border-transparent hover:border-card-border">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Messages list */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-950/40">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-input-bg/40">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'ai' && (
@@ -136,12 +136,12 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
                   className={`rounded-2xl px-4 py-2.5 text-xs leading-relaxed shadow-sm ${
                     msg.role === 'user'
                       ? 'bg-[#1F5FAD] text-white rounded-tr-none'
-                      : 'bg-slate-900 text-slate-100 border border-slate-800 rounded-tl-none'
+                      : 'bg-card-bg text-text-main border border-card-border rounded-tl-none'
                   }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
-                <span className={`text-[9px] text-slate-400 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                <span className={`text-[9px] text-text-muted ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                   {msg.timestamp}
                 </span>
               </div>
@@ -153,10 +153,10 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
               <div className="w-8 h-8 rounded-lg bg-[#1F5FAD]/10 border border-[#1F5FAD]/20 flex items-center justify-center shrink-0">
                 <Bot className="w-4 h-4 text-[#1F5FAD]" />
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '-0.3s' }}></span>
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '-0.15s' }}></span>
-                <span className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span>
+              <div className="bg-card-bg border border-card-border rounded-2xl rounded-tl-none px-4 py-3 shadow-sm flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 bg-text-muted rounded-full animate-bounce" style={{ animationDelay: '-0.3s' }}></span>
+                <span className="w-1.5 h-1.5 bg-text-muted rounded-full animate-bounce" style={{ animationDelay: '-0.15s' }}></span>
+                <span className="w-1.5 h-1.5 bg-text-muted rounded-full animate-bounce"></span>
               </div>
             </div>
           )}
@@ -164,12 +164,12 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
         </div>
 
         {/* Quick prompts */}
-        <div className="px-4 py-2 bg-slate-900 border-t border-slate-800 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+        <div className="px-4 py-2 bg-card-bg border-t border-card-border flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
           {quickPrompts.map((p) => (
             <button
               key={p}
               onClick={() => sendMessage(p)}
-              className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-[10px] font-semibold text-slate-300 px-3 py-1.5 rounded-full shrink-0 transition-colors cursor-pointer"
+              className="bg-input-bg hover:bg-card-bg border border-card-border text-[10px] font-semibold text-text-main hover:text-text-bright px-3 py-1.5 rounded-full shrink-0 transition-colors cursor-pointer"
             >
               {p}
             </button>
@@ -177,14 +177,14 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
         </div>
 
         {/* Input box */}
-        <form onSubmit={handleSubmit} className="p-3 border-t border-slate-800 bg-[#101112] shrink-0">
+        <form onSubmit={handleSubmit} className="p-3 border-t border-card-border bg-sidebar-bg shrink-0">
           <div className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Kérdezz a cég adózásáról, cashflow-ról..."
-              className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white outline-none focus:ring-2 focus:ring-[#00F872]/20 focus:border-[#00F872] transition-all placeholder-slate-500"
+              className="flex-1 bg-input-bg border border-input-border rounded-xl px-4 py-2.5 text-xs text-text-bright outline-none focus:ring-2 focus:ring-[#00F872]/20 focus:border-[#00F872] transition-all placeholder-text-muted/60"
             />
             <button
               type="submit"

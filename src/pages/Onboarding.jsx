@@ -14,8 +14,7 @@ import {
   Sparkles,
   Link2,
   Check,
-  AlertCircle,
-  HelpCircle
+  AlertCircle
 } from 'lucide-react';
 
 const STEP_META = [
@@ -212,24 +211,24 @@ export default function Onboarding() {
   const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
   return (
-    <div className="min-h-screen bg-[#101112] text-white flex flex-col font-sans selection:bg-[#00F872]/30 selection:text-white">
+    <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans selection:bg-[#00F872]/30 selection:text-text-bright transition-colors duration-200">
       {/* ── Top Header ── */}
-      <div className="bg-[#101112] border-b border-slate-800/80 sticky top-0 z-40 backdrop-blur-md">
+      <div className="bg-sidebar-bg border-b border-sidebar-border sticky top-0 z-40 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1F5FAD] to-[#2E75B6] flex items-center justify-center shadow-md">
               <Sparkles className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold font-display tracking-tight text-white">KKV Mentor</span>
+            <span className="text-lg font-bold font-display tracking-tight text-text-bright">KKV Mentor</span>
           </Link>
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest bg-slate-900/60 border border-slate-800 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-widest bg-input-bg/60 border border-card-border px-3 py-1 rounded-full">
             {currentStep + 1} / {STEP_META.length} lépés
           </span>
         </div>
       </div>
 
       {/* ── Progress Indicators ── */}
-      <div className="bg-slate-950/20 py-4 border-b border-slate-900">
+      <div className="bg-input-bg/20 py-4 border-b border-card-border">
         <div className="max-w-4xl mx-auto px-4">
           <div className="flex gap-2">
             {STEP_META.map((step, i) => {
@@ -238,17 +237,17 @@ export default function Onboarding() {
               const isActive = i === currentStep;
               return (
                 <div key={step.label} className="flex-1 flex flex-col items-center gap-2">
-                  <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+                  <div className="w-full h-1 bg-card-border rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-500 ${
-                        isPast ? 'bg-[#00F872]' : isActive ? 'bg-[#1F5FAD]' : 'bg-slate-800'
+                        isPast ? 'bg-[#00F872]' : isActive ? 'bg-[#1F5FAD]' : 'bg-card-border'
                       }`}
                       style={{ width: isPast || isActive ? '100%' : '0%' }}
                     />
                   </div>
                   <div className="hidden md:flex items-center gap-1.5 mt-1 text-[11px] font-medium tracking-tight">
-                    <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00F872]' : isPast ? 'text-slate-400' : 'text-slate-600'}`} />
-                    <span className={isActive ? 'text-white font-semibold' : 'text-slate-500'}>
+                    <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00F872]' : isPast ? 'text-text-muted' : 'text-text-muted/60'}`} />
+                    <span className={isActive ? 'text-text-bright font-semibold' : 'text-text-muted'}>
                       {step.label}
                     </span>
                   </div>
@@ -261,69 +260,69 @@ export default function Onboarding() {
 
       {/* ── Step Body ── */}
       <div className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col justify-start md:justify-center">
-        <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-800/80 p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
+        <div className="bg-card-bg/60 backdrop-blur-xl rounded-2xl border border-card-border p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-48 h-48 bg-[#1F5FAD] opacity-[0.03] rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Step 0: Profile & Intent */}
           {currentStep === 0 && (
             <div className="space-y-6 animate-fade-in">
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">Üdvözlünk a KKV Mentorban!</h2>
-                <p className="text-sm text-slate-400">Kérlek add meg a személyes elérhetőségeidet a fiókod létrehozásához.</p>
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Üdvözlünk a KKV Mentorban!</h2>
+                <p className="text-sm text-text-muted">Kérlek add meg a személyes elérhetőségeidet a fiókod létrehozásához.</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Teljes Név</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Teljes Név</label>
                   <input
                     type="text"
                     value={formData.fullName}
                     onChange={e => setFormData({ ...formData, fullName: e.target.value })}
                     placeholder="Minta János"
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                    className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                   />
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">E-mail Cím</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">E-mail Cím</label>
                     <input
                       type="email"
                       value={formData.email}
                       onChange={e => setFormData({ ...formData, email: e.target.value })}
                       placeholder="janos@cegnev.hu"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Telefonszám (opcionális)</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Telefonszám (opcionális)</label>
                     <input
                       type="tel"
                       value={formData.phone}
                       onChange={e => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="+36 30 123 4567"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="pt-2">
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Mi a legfőbb célod az alkalmazással?</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Mi a legfőbb célod az alkalmazással?</label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {INTENTS.map(intent => (
                       <button
                         key={intent.id}
                         onClick={() => setFormData({ ...formData, intent: intent.id })}
-                        className={`p-4 rounded-xl border-2 text-left transition-all ${
+                        className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
                           formData.intent === intent.id
                             ? 'border-[#00F872] bg-[#00F872]/5'
-                            : 'border-slate-800 bg-slate-950/50 hover:border-slate-700'
+                            : 'border-card-border bg-input-bg/50 hover:border-[#1F5FAD]/40'
                         }`}
                       >
-                        <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-[#00F872]' : 'text-white'}`}>
+                        <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-[#00F872]' : 'text-text-bright'}`}>
                           {intent.label}
                         </span>
-                        <span className="block text-xs text-slate-500 mt-1">{intent.desc}</span>
+                        <span className="block text-xs text-text-muted mt-1">{intent.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -336,39 +335,39 @@ export default function Onboarding() {
           {currentStep === 1 && (
             <div className="space-y-6 animate-fade-in">
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">Vállalkozásod adatai</h2>
-                <p className="text-sm text-slate-400">Ezek alapján fogjuk kiszámítani a rád vonatkozó adószabályokat és lehetőségeket.</p>
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Vállalkozásod adatai</h2>
+                <p className="text-sm text-text-muted">Eze alapján fogjuk kiszámítani a rád vonatkozó adószabályokat és lehetőségeket.</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Cégnév</label>
+                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Cégnév</label>
                   <input
                     type="text"
                     value={formData.companyName}
                     onChange={e => setFormData({ ...formData, companyName: e.target.value })}
                     placeholder="Példa Kft."
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                    className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Vállalkozási forma</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Vállalkozási forma</label>
                     <select
                       value={formData.companyType}
                       onChange={e => setFormData({ ...formData, companyType: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
+                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
                     >
                       {COMPANY_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Iparág</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Iparág</label>
                     <select
                       value={formData.industry}
                       onChange={e => setFormData({ ...formData, industry: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
+                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
                     >
                       {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
                     </select>
@@ -382,8 +381,8 @@ export default function Onboarding() {
           {currentStep === 2 && (
             <div className="space-y-6 animate-fade-in">
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">Adatkapcsolatok (Integrációk)</h2>
-                <p className="text-sm text-slate-400">Kapcsold be a kívánt adatforrásokat, hogy az AI automatikusan elemezhesse a számláid és bankszámla kivonatod.</p>
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Adatkapcsolatok (Integrációk)</h2>
+                <p className="text-sm text-text-muted">Kapcsold be a kívánt adatforrásokat, hogy az AI automatikusan elemezhesse a számláid és bankszámla kivonatod.</p>
               </div>
 
               <div className="space-y-4">
@@ -395,14 +394,14 @@ export default function Onboarding() {
                       className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all ${
                         isConnected
                           ? 'border-[#00F872]/40 bg-[#00F872]/5'
-                          : 'border-slate-800 bg-slate-950/40'
+                          : 'border-card-border bg-input-bg/40'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl p-2 bg-slate-900 rounded-lg border border-slate-850">{item.icon}</span>
+                        <span className="text-2xl p-2 bg-bg-main rounded-lg border border-card-border">{item.icon}</span>
                         <div>
-                          <h4 className="font-bold text-sm text-white">{item.name}</h4>
-                          <p className="text-xs text-slate-500 mt-0.5">{item.desc}</p>
+                          <h4 className="font-bold text-sm text-text-bright">{item.name}</h4>
+                          <p className="text-xs text-text-muted mt-0.5">{item.desc}</p>
                         </div>
                       </div>
                       
@@ -424,7 +423,7 @@ export default function Onboarding() {
                   );
                 })}
 
-                <div className="bg-slate-950/60 rounded-xl border border-slate-850 p-4 text-xs text-slate-500 flex items-start gap-2.5">
+                <div className="bg-input-bg/60 rounded-xl border border-card-border p-4 text-xs text-text-muted flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-[#00F872] shrink-0 mt-0.5" />
                   <p>
                     <strong>Tipp a zsűrinek:</strong> Kattints a Kapcsolódás gombokra a csodás összeköttetési animáció megtekintéséhez! Az integrációk teljesen szimulálva vannak.
@@ -438,16 +437,16 @@ export default function Onboarding() {
           {currentStep === 3 && (
             <div className="space-y-6 animate-fade-in">
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">Pénzügyi Runway szimuláció</h2>
-                <p className="text-sm text-slate-400">Állítsd be a becsült bevételeidet és kiadásaidat a cash runway és az optimális tartalék kiszámításához.</p>
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Pénzügyi Runway szimuláció</h2>
+                <p className="text-sm text-text-muted">Állítsd be a becsült bevételeidet és kiadásaidat a cash runway és az optimális tartalék kiszámításához.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 <div className="space-y-4">
                   <div>
-                    <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Kezdő Készpénzállomány</span>
-                      <span className="text-white font-bold">{formatHuf(formData.cashBalance)}</span>
+                      <span className="text-text-bright font-bold">{formatHuf(formData.cashBalance)}</span>
                     </div>
                     <input
                       type="range"
@@ -456,12 +455,12 @@ export default function Onboarding() {
                       step="500000"
                       value={formData.cashBalance}
                       onChange={e => setFormData({ ...formData, cashBalance: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
                     />
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Becsült Havi Bevétel</span>
                       <span className="text-[#00F872] font-bold">{formatHuf(formData.monthlyRevenue)}</span>
                     </div>
@@ -472,12 +471,12 @@ export default function Onboarding() {
                       step="100000"
                       value={formData.monthlyRevenue}
                       onChange={e => setFormData({ ...formData, monthlyRevenue: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
                     />
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Becsült Havi Kiadás</span>
                       <span className="text-red-500 font-bold">{formatHuf(formData.monthlyExpense)}</span>
                     </div>
@@ -488,16 +487,16 @@ export default function Onboarding() {
                       step="100000"
                       value={formData.monthlyExpense}
                       onChange={e => setFormData({ ...formData, monthlyExpense: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
                     />
                   </div>
                 </div>
 
                 {/* Live SVG Burn Chart & Stats */}
-                <div className="bg-slate-950/80 rounded-xl border border-slate-850 p-5 space-y-4 flex flex-col justify-center">
+                <div className="bg-input-bg border border-card-border rounded-xl p-5 space-y-4 flex flex-col justify-center">
                   <div className="text-center">
-                    <span className="block text-xs font-medium text-slate-500 uppercase">Cash Runway</span>
-                    <span className="block text-4xl font-extrabold text-white mt-1">
+                    <span className="block text-xs font-medium text-text-muted uppercase">Cash Runway</span>
+                    <span className="block text-4xl font-extrabold text-text-bright mt-1">
                       {runwayStats.runwayMonths === Infinity ? '∞' : `${runwayStats.runwayMonths} hó`}
                     </span>
                     <span className={`inline-block mt-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
@@ -519,13 +518,13 @@ export default function Onboarding() {
                       const isNegative = balanceAtMonth < 0;
                       return (
                         <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                          <div className="w-full bg-slate-800 rounded-sm relative h-10 overflow-hidden flex items-end">
+                          <div className="w-full bg-card-border rounded-sm relative h-10 overflow-hidden flex items-end">
                             <div
                               className={`w-full transition-all duration-300 ${isNegative ? 'bg-red-600' : 'bg-[#00F872]'}`}
                               style={{ height: `${heightPercent}%` }}
                             />
                           </div>
-                          <span className="text-[8px] text-slate-600">{idx + 1}M</span>
+                          <span className="text-[8px] text-text-muted">{idx + 1}M</span>
                         </div>
                       );
                     })}
@@ -539,49 +538,49 @@ export default function Onboarding() {
           {currentStep === 4 && (
             <div className="space-y-6 animate-fade-in">
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-white">Minden készen áll!</h2>
-                <p className="text-sm text-slate-400">Kérlek ellenőrizd az adataidat az indítás előtt.</p>
+                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Minden készen áll!</h2>
+                <p className="text-sm text-text-muted">Kérlek ellenőrizd az adataidat az indítás előtt.</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-950/80 p-5 rounded-xl border border-slate-850">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-input-bg/85 p-5 rounded-xl border border-card-border">
                 <div className="space-y-2 text-sm">
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Tulajdonos:</span>
-                    <span className="font-semibold text-white">{formData.fullName}</span>
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Tulajdonos:</span>
+                    <span className="font-semibold text-text-bright">{formData.fullName}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Cég neve:</span>
-                    <span className="font-semibold text-white">{formData.companyName}</span>
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Cég neve:</span>
+                    <span className="font-semibold text-text-bright">{formData.companyName}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Vállalkozási forma:</span>
-                    <span className="font-semibold text-white">{formData.companyType}</span>
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Vállalkozási forma:</span>
+                    <span className="font-semibold text-text-bright">{formData.companyType}</span>
                   </div>
                   <div className="flex justify-between pb-1">
-                    <span className="text-slate-500">Iparág:</span>
-                    <span className="font-semibold text-white">{formData.industry}</span>
+                    <span className="text-text-muted">Iparág:</span>
+                    <span className="font-semibold text-text-bright">{formData.industry}</span>
                   </div>
                 </div>
 
-                <div className="space-y-2 text-sm sm:border-l sm:border-slate-850 sm:pl-4">
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Cash Balance:</span>
+                <div className="space-y-2 text-sm sm:border-l sm:border-card-border sm:pl-4">
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Cash Balance:</span>
                     <span className="font-semibold text-[#00F872]">{formatHuf(formData.cashBalance)}</span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Havi Cashflow:</span>
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Havi Cashflow:</span>
                     <span className={`font-semibold ${formData.monthlyRevenue >= formData.monthlyExpense ? 'text-[#00F872]' : 'text-red-500'}`}>
                       {formData.monthlyRevenue >= formData.monthlyExpense ? '+' : ''}
                       {formatHuf(formData.monthlyRevenue - formData.monthlyExpense)}
                     </span>
                   </div>
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-500">Connected Feeds:</span>
-                    <span className="font-semibold text-white">{formData.connected.length} db</span>
+                  <div className="flex justify-between border-b border-card-border/40 pb-2">
+                    <span className="text-text-muted">Connected Feeds:</span>
+                    <span className="font-semibold text-text-bright">{formData.connected.length} db</span>
                   </div>
                   <div className="flex justify-between pb-1">
-                    <span className="text-slate-500">Célkitűzés:</span>
-                    <span className="font-semibold text-white">
+                    <span className="text-text-muted">Célkitűzés:</span>
+                    <span className="font-semibold text-text-bright">
                       {INTENTS.find(i => i.id === formData.intent)?.label}
                     </span>
                   </div>
@@ -591,11 +590,11 @@ export default function Onboarding() {
           )}
 
           {/* ── Action Buttons ── */}
-          <div className="mt-8 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+          <div className="mt-8 pt-4 border-t border-card-border flex items-center justify-between">
             {currentStep > 0 ? (
               <button
                 onClick={back}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-white transition-colors px-4 py-2.5 rounded-xl border border-slate-800 bg-slate-950/20 cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-text-muted hover:text-text-bright transition-colors px-4 py-2.5 rounded-xl border border-card-border bg-input-bg/20 cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Vissza
@@ -629,8 +628,8 @@ export default function Onboarding() {
 
       {/* ── Connection Modal ── */}
       {activeConnection && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-card-bg rounded-2xl border border-card-border p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
             <div className="flex items-center justify-center">
               {connectionState === 1 ? (
                 <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/30">
@@ -644,10 +643,10 @@ export default function Onboarding() {
             </div>
 
             <div className="space-y-1">
-              <h4 className="font-bold text-base text-white">
+              <h4 className="font-bold text-base text-text-bright">
                 {connectionState === 1 ? 'Kapcsolat felépítése...' : 'Kapcsolódás sikeres!'}
               </h4>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-text-muted">
                 {connectionState === 1
                   ? `Biztonságos kapcsolat létrehozása a(z) ${activeConnection.name} szerverével...`
                   : `A(z) ${activeConnection.name} adatkapcsolat sikeresen szinkronizálva.`}
@@ -659,11 +658,11 @@ export default function Onboarding() {
 
       {/* ── Submitting Overlay ── */}
       {isSubmitting && (
-        <div className="fixed inset-0 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-4 z-50 animate-fade-in">
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 z-50 animate-fade-in">
           <div className="space-y-4 text-center max-w-sm">
             <Loader2 className="w-10 h-10 text-[#00F872] animate-spin mx-auto" />
-            <h3 className="text-lg font-bold text-white">Személyre szabott pénzügyi modell felépítése...</h3>
-            <p className="text-xs text-slate-500 leading-relaxed">
+            <h3 className="text-lg font-bold text-text-bright">Személyre szabott pénzügyi modell felépítése...</h3>
+            <p className="text-xs text-text-muted leading-relaxed">
               Tranzakciók kategorizálása, 6 hónapos cashflow szimuláció betöltése és a 2026-os legfrissebb adószabályok kalibrálása a cégprofilodhoz.
             </p>
           </div>

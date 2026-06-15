@@ -82,16 +82,16 @@ export default function TaxCalendarWidget({ activeRegime }) {
   const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
   return (
-    <div className="space-y-6 text-white">
+    <div className="space-y-6 text-text-main">
       {/* SECTION 1: Compliance Progress Bars (Thresholds) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* ÁFA Limit Card */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 space-y-4 transition-colors duration-200">
           <div className="flex justify-between items-start">
             <div>
-              <h4 className="font-bold text-sm text-white">ÁFA Alanyi Adómentesség</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">Éves alanyi adómentes keret (12M Ft)</p>
+              <h4 className="font-bold text-sm text-text-bright">ÁFA Alanyi Adómentesség</h4>
+              <p className="text-[11px] text-text-muted mt-0.5">Éves alanyi adómentes keret (12M Ft)</p>
             </div>
             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
               annualRevenue >= AFA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-[#00F872]/10 text-[#00F872]'
@@ -101,7 +101,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
           </div>
 
           <div className="space-y-2">
-            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-input-bg border border-card-border rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   annualRevenue >= AFA_LIMIT ? 'bg-red-500' : 'bg-[#00F872]'
@@ -109,7 +109,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                 style={{ width: `${afaProgress}%` }}
               />
             </div>
-            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
+            <div className="flex justify-between text-[11px] text-text-muted font-medium">
               <span>{formatHuf(annualRevenue)}</span>
               <span>Keret: {formatHuf(AFA_LIMIT)}</span>
             </div>
@@ -126,11 +126,11 @@ export default function TaxCalendarWidget({ activeRegime }) {
         </div>
 
         {/* KATA Limit Card */}
-        <div className="bg-slate-900/40 border border-slate-850 rounded-2xl p-5 space-y-4">
+        <div className="bg-card-bg border border-card-border rounded-2xl p-5 space-y-4 transition-colors duration-200">
           <div className="flex justify-between items-start">
             <div>
-              <h4 className="font-bold text-sm text-white">KATA Éves Értékhatár</h4>
-              <p className="text-[11px] text-slate-500 mt-0.5">Éves fix adózási értékhatár (18M Ft)</p>
+              <h4 className="font-bold text-sm text-text-bright">KATA Éves Értékhatár</h4>
+              <p className="text-[11px] text-text-muted mt-0.5">Éves fix adózási értékhatár (18M Ft)</p>
             </div>
             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
               annualRevenue >= KATA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-[#00F872]/10 text-[#00F872]'
@@ -140,7 +140,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
           </div>
 
           <div className="space-y-2">
-            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-input-bg border border-card-border rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   annualRevenue >= KATA_LIMIT ? 'bg-red-500' : 'bg-[#00F872]'
@@ -148,7 +148,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                 style={{ width: `${kataProgress}%` }}
               />
             </div>
-            <div className="flex justify-between text-[11px] text-slate-400 font-medium">
+            <div className="flex justify-between text-[11px] text-text-muted font-medium">
               <span>{formatHuf(annualRevenue)}</span>
               <span>Keret: {formatHuf(KATA_LIMIT)}</span>
             </div>
@@ -166,13 +166,13 @@ export default function TaxCalendarWidget({ activeRegime }) {
       </div>
 
       {/* SECTION 2: Vertical Compliance Deadlines Timeline */}
-      <div className="bg-slate-900/30 border border-slate-850 rounded-2xl p-6">
+      <div className="bg-card-bg/70 border border-card-border rounded-2xl p-6 transition-colors duration-200">
         <div className="flex items-center gap-2 mb-6">
           <Calendar className="w-5 h-5 text-[#00F872]" />
-          <h3 className="font-bold text-sm text-slate-400 uppercase tracking-widest">Compliance Határidő Napló ({activeRegime})</h3>
+          <h3 className="font-bold text-sm text-text-muted uppercase tracking-widest">Compliance Határidő Napló ({activeRegime})</h3>
         </div>
 
-        <div className="space-y-6 relative border-l border-slate-800 ml-4 pl-6">
+        <div className="space-y-6 relative border-l border-card-border ml-4 pl-6">
           {filteredDeadlines.map((item, idx) => {
             const isCompleted = item.status === 'completed';
             const isWarning = item.severity === 'warning';
@@ -183,41 +183,41 @@ export default function TaxCalendarWidget({ activeRegime }) {
                 {/* Timeline node */}
                 <span className={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 ${
                   isCompleted 
-                    ? 'bg-slate-900 border-[#00F872]' 
+                    ? 'bg-bg-main border-[#00F872]' 
                     : isCritical
                     ? 'bg-red-950 border-red-500 animate-pulse'
                     : isWarning
                     ? 'bg-amber-950 border-amber-500'
-                    : 'bg-slate-900 border-slate-700'
+                    : 'bg-bg-main border-card-border'
                 }`}>
                   {isCompleted ? (
                     <CheckCircle className="w-2.5 h-2.5 text-[#00F872]" />
                   ) : (
-                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-text-muted" />
                   )}
                 </span>
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-400 bg-slate-950 border border-slate-850 px-2 py-0.5 rounded-md">
+                    <span className="text-xs font-bold text-text-muted bg-input-bg border border-card-border px-2 py-0.5 rounded-md">
                       {item.date}
                     </span>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                      isCompleted ? 'text-[#00F872]' : 'text-slate-500'
+                      isCompleted ? 'text-[#00F872]' : 'text-text-muted'
                     }`}>
                       {isCompleted ? 'Teljesítve' : 'Teendő'}
                     </span>
                   </div>
                   
-                  <h4 className="font-bold text-sm text-white pt-1">{item.title}</h4>
-                  <p className="text-xs text-slate-400 leading-relaxed max-w-xl">{item.desc}</p>
+                  <h4 className="font-bold text-sm text-text-bright pt-1">{item.title}</h4>
+                  <p className="text-xs text-text-muted leading-relaxed max-w-xl">{item.desc}</p>
                 </div>
               </div>
             );
           })}
 
           {filteredDeadlines.length === 0 && (
-            <p className="text-xs text-slate-500 italic">Nincs rögzített határidő ehhez az adózási formához.</p>
+            <p className="text-xs text-text-muted italic">Nincs rögzített határidő ehhez az adózási formához.</p>
           )}
         </div>
       </div>

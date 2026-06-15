@@ -1,6 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@100..900&display=swap');
 @import "tailwindcss";
 
+:root {
+  /* Dark theme variables (default) */
+  --bg-main: #101112;
+  --text-main: #cbd5e1; /* slate-300 */
+  --text-muted: #64748b; /* slate-500 */
+  --text-bright: #ffffff;
+  --card-bg: rgba(30, 41, 59, 0.4); /* slate-800/40 */
+  --card-border: rgba(255, 255, 255, 0.08);
+  --input-bg: #090a0b;
+  --input-border: #1e293b;
+  --sidebar-bg: #101112;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --active-nav-bg: rgba(255, 255, 255, 0.06);
+  --glow-opacity: 0.15;
+  --pulse-bg: rgba(0, 248, 114, 0.02);
+}
+
+html.light {
+  /* Light theme variables */
+  --bg-main: #f8fafc; /* slate-50 */
+  --text-main: #334155; /* slate-700 */
+  --text-muted: #64748b; /* slate-500 */
+  --text-bright: #0f172a; /* slate-900 */
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0; /* slate-200 */
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1; /* slate-300 */
+  --sidebar-bg: #f1f5f9; /* slate-100 */
+  --sidebar-border: #e2e8f0;
+  --active-nav-bg: rgba(30, 41, 59, 0.06);
+  --glow-opacity: 0.05;
+  --pulse-bg: rgba(0, 248, 114, 0.01);
+}
+
 @theme {
   --color-primary: #1F5FAD;
   --color-primary-dark: #194d8e;
@@ -14,26 +48,39 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-display: 'Outfit', sans-serif;
+
+  /* Theme semantic bindings */
+  --color-bg-main: var(--bg-main);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-text-bright: var(--text-bright);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+  --color-sidebar-bg: var(--sidebar-bg);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-active-nav-bg: var(--active-nav-bg);
 }
 
 @layer base {
   body {
-    @apply bg-[#101112] text-slate-200 antialiased;
+    @apply bg-bg-main text-text-main antialiased transition-colors duration-200;
     font-family: var(--font-sans);
   }
 
   * {
-    @apply border-slate-200;
+    @apply border-card-border;
   }
 }
 
 @layer components {
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6;
+    @apply bg-card-bg rounded-xl shadow-sm border border-card-border p-6;
   }
 
   .card-hover {
-    @apply bg-white rounded-xl shadow-sm border border-slate-100 p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
+    @apply bg-card-bg rounded-xl shadow-sm border border-card-border p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5;
   }
 
   .btn-primary {
@@ -43,19 +90,19 @@
   }
 
   .btn-secondary {
-    @apply bg-white text-[#1F5FAD] border-2 border-[#1F5FAD] px-6 py-3 rounded-lg font-semibold
+    @apply bg-card-bg text-[#1F5FAD] border-2 border-[#1F5FAD] px-6 py-3 rounded-lg font-semibold
            transition-all duration-200 hover:bg-[#1F5FAD] hover:text-white
            active:scale-[0.98] cursor-pointer;
   }
 
   .btn-ghost {
-    @apply text-slate-600 px-4 py-2 rounded-lg font-medium
-           transition-all duration-200 hover:bg-slate-100 cursor-pointer;
+    @apply text-text-muted px-4 py-2 rounded-lg font-medium
+           transition-all duration-200 hover:bg-card-bg hover:text-text-bright cursor-pointer;
   }
 
   .input-field {
-    @apply w-full rounded-lg border border-slate-200 px-4 py-3 text-slate-800
-           placeholder:text-slate-400 outline-none
+    @apply w-full rounded-lg border border-input-border bg-input-bg px-4 py-3 text-text-bright
+           placeholder:text-text-muted outline-none
            focus:ring-2 focus:ring-[#1F5FAD]/30 focus:border-[#1F5FAD]
            transition-all duration-200;
   }
