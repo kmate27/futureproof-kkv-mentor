@@ -119,7 +119,7 @@ export default function Cashflow() {
         <p className="font-bold text-text-bright mb-1">{label}</p>
         <p className="flex justify-between gap-6 text-text-muted">
           <span>Bevétel:</span>
-          <span className="font-bold text-[#00F872]">{formatHuf(d.bevétel)}</span>
+          <span className="font-bold text-neon-mint-text">{formatHuf(d.bevétel)}</span>
         </p>
         <p className="flex justify-between gap-6 text-text-muted">
           <span>Kiadás:</span>
@@ -127,7 +127,7 @@ export default function Cashflow() {
         </p>
         <p className="flex justify-between gap-6 text-text-muted border-t border-card-border pt-1.5">
           <span>Nettó:</span>
-          <span className={`font-bold ${d.nettó >= 0 ? 'text-[#00F872]' : 'text-red-400'}`}>
+          <span className={`font-bold ${d.nettó >= 0 ? 'text-neon-mint-text' : 'text-red-400'}`}>
             {formatHuf(d.nettó)}
           </span>
         </p>
@@ -157,11 +157,11 @@ export default function Cashflow() {
         {/* Havi Bevétel */}
         <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex items-center gap-4 transition-colors duration-200">
           <div className="w-11 h-11 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-            <TrendingUp className="w-5 h-5 text-[#00F872]" />
+            <TrendingUp className="w-5 h-5 text-neon-mint-text" />
           </div>
           <div>
             <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Havi Bevétel</p>
-            <p className="text-xl font-extrabold text-[#00F872] tabular-nums whitespace-nowrap">
+            <p className="text-xl font-extrabold text-neon-mint-text tabular-nums whitespace-nowrap">
               {formatHuf(monthlyIncome)}
             </p>
           </div>
@@ -185,12 +185,12 @@ export default function Cashflow() {
           <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
             monthlyBalance >= 0 ? 'bg-emerald-500/10' : 'bg-red-500/10'
           }`}>
-            <Scale className={`w-5 h-5 ${monthlyBalance >= 0 ? 'text-[#00F872]' : 'text-red-400'}`} />
+            <Scale className={`w-5 h-5 ${monthlyBalance >= 0 ? 'text-neon-mint-text' : 'text-red-400'}`} />
           </div>
           <div>
             <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Havi Egyenleg</p>
             <p className={`text-xl font-extrabold tabular-nums whitespace-nowrap ${
-              monthlyBalance >= 0 ? 'text-[#00F872]' : 'text-red-400'
+              monthlyBalance >= 0 ? 'text-neon-mint-text' : 'text-red-400'
             }`}>
               {monthlyBalance >= 0 ? '+' : ''}{formatHuf(monthlyBalance)}
             </p>
@@ -208,8 +208,8 @@ export default function Cashflow() {
             <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#00F872" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="#00F872" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--neon-mint)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="var(--neon-mint)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradRed" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#ef4444" stopOpacity={0.2} />
@@ -237,7 +237,7 @@ export default function Cashflow() {
               <Area
                 type="monotone"
                 dataKey="bevétel"
-                stroke="#00F872"
+                stroke="var(--neon-mint)"
                 strokeWidth={2}
                 fill="url(#gradGreen)"
                 name="Bevétel"
@@ -268,7 +268,7 @@ export default function Cashflow() {
 
         {/* ── Bevételek ──────────────────────────────────── */}
         <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex flex-col transition-colors duration-200">
-          <h2 className="text-sm font-bold text-[#00F872] uppercase tracking-widest mb-4 flex items-center gap-2">
+          <h2 className="text-sm font-bold text-neon-mint-text uppercase tracking-widest mb-4 flex items-center gap-2">
             <TrendingUp className="w-4 h-4" /> Bevételek
           </h2>
 
@@ -289,7 +289,7 @@ export default function Cashflow() {
                     {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
                   </span>
                 </div>
-                <span className="text-sm font-bold text-[#00F872] tabular-nums whitespace-nowrap">
+                <span className="text-sm font-bold text-neon-mint-text tabular-nums whitespace-nowrap">
                   {formatHuf(item.amount)}
                 </span>
                 <button
@@ -313,19 +313,19 @@ export default function Cashflow() {
               placeholder="Megnevezés"
               value={newIncome.name}
               onChange={(e) => setNewIncome(p => ({ ...p, name: e.target.value }))}
-              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-[#00F872]/50"
+              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50"
             />
             <input
               type="number"
               placeholder="Összeg"
               value={newIncome.amount}
               onChange={(e) => setNewIncome(p => ({ ...p, amount: e.target.value }))}
-              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-[#00F872]/50"
+              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50"
             />
             <select
               value={newIncome.frequency}
               onChange={(e) => setNewIncome(p => ({ ...p, frequency: e.target.value }))}
-              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-[#00F872]/50"
+              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50"
             >
               <option value="Havi">Havi</option>
               <option value="Egyszeri">Egyszeri</option>
@@ -334,7 +334,7 @@ export default function Cashflow() {
               <select
                 value={newIncome.month}
                 onChange={(e) => setNewIncome(p => ({ ...p, month: e.target.value }))}
-                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-[#00F872]/50"
+                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50"
               >
                 {MONTHS.map(m => (
                   <option key={m.full} value={m.full}>{m.short}</option>
@@ -343,7 +343,7 @@ export default function Cashflow() {
             )}
             <button
               onClick={() => addItem('income')}
-              className="bg-[#00F872] text-[#101112] font-bold rounded-xl p-2.5 hover:bg-[#00d762] transition-colors cursor-pointer shrink-0"
+              className="bg-neon-mint text-[#101112] font-bold rounded-xl p-2.5 hover:bg-neon-mint-hover transition-colors cursor-pointer shrink-0"
               aria-label="Bevétel hozzáadása"
             >
               <Plus className="w-4 h-4" />
@@ -460,7 +460,7 @@ export default function Cashflow() {
           </div>
           <button
             onClick={triggerAiChat}
-            className="bg-[#00F872] text-[#101112] text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-[#00d762] transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="bg-neon-mint text-[#101112] text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-neon-mint-hover transition-colors cursor-pointer whitespace-nowrap shrink-0"
           >
             AI Tanácsadó
           </button>

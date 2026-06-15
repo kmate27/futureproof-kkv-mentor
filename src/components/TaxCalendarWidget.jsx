@@ -94,7 +94,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
               <p className="text-[11px] text-text-muted mt-0.5">Éves alanyi adómentes keret (12M Ft)</p>
             </div>
             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-              annualRevenue >= AFA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-[#00F872]/10 text-[#00F872]'
+              annualRevenue >= AFA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-neon-mint/10 text-neon-mint-text'
             }`}>
               {annualRevenue >= AFA_LIMIT ? 'ÁFA köteles' : 'Adómentes'}
             </span>
@@ -104,7 +104,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
             <div className="w-full h-2 bg-input-bg border border-card-border rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
-                  annualRevenue >= AFA_LIMIT ? 'bg-red-500' : 'bg-[#00F872]'
+                  annualRevenue >= AFA_LIMIT ? 'bg-red-500' : 'bg-neon-mint'
                 }`}
                 style={{ width: `${afaProgress}%` }}
               />
@@ -133,7 +133,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
               <p className="text-[11px] text-text-muted mt-0.5">Éves fix adózási értékhatár (18M Ft)</p>
             </div>
             <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-              annualRevenue >= KATA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-[#00F872]/10 text-[#00F872]'
+              annualRevenue >= KATA_LIMIT ? 'bg-red-500/10 text-red-500' : 'bg-neon-mint/10 text-neon-mint-text'
             }`}>
               {annualRevenue >= KATA_LIMIT ? '40% adóteher' : 'KATA alatt'}
             </span>
@@ -143,7 +143,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
             <div className="w-full h-2 bg-input-bg border border-card-border rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
-                  annualRevenue >= KATA_LIMIT ? 'bg-red-500' : 'bg-[#00F872]'
+                  annualRevenue >= KATA_LIMIT ? 'bg-red-500' : 'bg-neon-mint'
                 }`}
                 style={{ width: `${kataProgress}%` }}
               />
@@ -168,7 +168,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
       {/* SECTION 2: Vertical Compliance Deadlines Timeline */}
       <div className="bg-card-bg/70 border border-card-border rounded-2xl p-6 transition-colors duration-200">
         <div className="flex items-center gap-2 mb-6">
-          <Calendar className="w-5 h-5 text-[#00F872]" />
+          <Calendar className="w-5 h-5 text-neon-mint-text" />
           <h3 className="font-bold text-sm text-text-muted uppercase tracking-widest">Compliance Határidő Napló ({activeRegime})</h3>
         </div>
 
@@ -183,7 +183,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                 {/* Timeline node */}
                 <span className={`absolute -left-[31px] top-1.5 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all group-hover:scale-110 ${
                   isCompleted 
-                    ? 'bg-bg-main border-[#00F872]' 
+                    ? 'bg-bg-main border-neon-mint' 
                     : isCritical
                     ? 'bg-red-950 border-red-500 animate-pulse'
                     : isWarning
@@ -191,7 +191,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                     : 'bg-bg-main border-card-border'
                 }`}>
                   {isCompleted ? (
-                    <CheckCircle className="w-2.5 h-2.5 text-[#00F872]" />
+                    <CheckCircle className="w-2.5 h-2.5 text-neon-mint-text" />
                   ) : (
                     <span className="w-1.5 h-1.5 rounded-full bg-text-muted" />
                   )}
@@ -203,7 +203,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                       {item.date}
                     </span>
                     <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                      isCompleted ? 'text-[#00F872]' : 'text-text-muted'
+                      isCompleted ? 'text-neon-mint-text' : 'text-text-muted'
                     }`}>
                       {isCompleted ? 'Teljesítve' : 'Teendő'}
                     </span>

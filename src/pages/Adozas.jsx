@@ -119,9 +119,9 @@ export default function Adozas() {
                       const v = Number(e.target.value);
                       if (!isNaN(v)) setRevenue(Math.min(60000000, Math.max(1000000, v)));
                     }}
-                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-[#00F872] font-bold tabular-nums w-40 text-right focus:outline-none focus:border-[#00F872]"
+                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-neon-mint-text font-bold tabular-nums w-40 text-right focus:outline-none focus:border-neon-mint"
                   />
-                  <span className="text-[#00F872] font-bold text-sm">Ft</span>
+                  <span className="text-neon-mint-text font-bold text-sm">Ft</span>
                 </span>
               </div>
               <input 
@@ -131,7 +131,7 @@ export default function Adozas() {
                 step="10000"
                 value={revenue}
                 onChange={(e) => setRevenue(Number(e.target.value))}
-                className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
               />
               <div className="flex justify-between text-[10px] text-text-muted mt-1">
                 <span>1M Ft</span>
@@ -153,7 +153,7 @@ export default function Adozas() {
                       const v = Number(e.target.value);
                       if (!isNaN(v)) setEmployees(Math.min(10, Math.max(0, v)));
                     }}
-                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-text-bright font-bold tabular-nums w-20 text-right focus:outline-none focus:border-[#00F872]"
+                    className="bg-input-bg border border-input-border rounded-lg px-3 py-1 text-sm text-text-bright font-bold tabular-nums w-20 text-right focus:outline-none focus:border-neon-mint"
                   />
                   <span className="text-text-bright font-bold text-sm">fő</span>
                 </span>
@@ -203,7 +203,7 @@ export default function Adozas() {
           <div className="bg-card-bg border border-card-border rounded-2xl overflow-hidden shadow-2xl transition-colors duration-200">
             <div className="p-5 border-b border-card-border bg-input-bg/20 flex justify-between items-center">
               <span className="text-xs font-bold text-text-muted uppercase tracking-widest flex items-center gap-2">
-                <TrendingDown className="w-4 h-4 text-[#00F872]" /> Adóterhek Összehasonlító Mátrixa (2026)
+                <TrendingDown className="w-4 h-4 text-neon-mint-text" /> Adóterhek Összehasonlító Mátrixa (2026)
               </span>
             </div>
 
@@ -216,16 +216,16 @@ export default function Adozas() {
                       const isBest = regime === bestRegime;
                       const isCurrent = regime === currentRegime;
                       return (
-                        <th key={regime} className={`px-4 py-4 text-center ${isBest ? 'bg-[#00F872]/[0.02]' : ''}`}>
+                        <th key={regime} className={`px-4 py-4 text-center ${isBest ? 'bg-neon-mint/[0.02]' : ''}`}>
                           <div className="flex flex-col items-center">
-                            <span className={`text-sm sm:text-base font-bold whitespace-nowrap ${isBest ? 'text-[#00F872]' : 'text-text-bright'}`}>
+                            <span className={`text-sm sm:text-base font-bold whitespace-nowrap ${isBest ? 'text-neon-mint-text' : 'text-text-bright'}`}>
                               {regime}
                             </span>
                             {isCurrent && (
                               <span className="mt-1 text-[9px] uppercase font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded-full">Jelenlegi</span>
                             )}
                             {isBest && (
-                              <span className="mt-1 text-[9px] uppercase font-bold text-[#101112] bg-[#00F872] px-2 py-0.5 rounded-full">Legjobb</span>
+                              <span className="mt-1 text-[9px] uppercase font-bold text-[#101112] bg-neon-mint px-2 py-0.5 rounded-full">Legjobb</span>
                             )}
                           </div>
                         </th>
@@ -240,7 +240,7 @@ export default function Adozas() {
                     {REGIMES.map((regime) => {
                       const isBest = regime === bestRegime;
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm sm:text-base tabular-nums whitespace-nowrap ${isBest ? 'text-[#00F872] bg-[#00F872]/[0.02]' : 'text-text-bright'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm sm:text-base tabular-nums whitespace-nowrap ${isBest ? 'text-neon-mint-text bg-neon-mint/[0.02]' : 'text-text-bright'}`}>
                           {formatMoney(taxes[regime])}
                         </td>
                       );
@@ -256,7 +256,7 @@ export default function Adozas() {
                       const isPositive = diff > 0;
                       
                       return (
-                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm tabular-nums whitespace-nowrap ${isBest ? 'bg-[#00F872]/[0.02]' : ''} ${isPositive ? 'text-[#00F872]' : diff === 0 ? 'text-text-muted' : 'text-red-500'}`}>
+                        <td key={regime} className={`px-4 py-4 text-center font-bold text-sm tabular-nums whitespace-nowrap ${isBest ? 'bg-neon-mint/[0.02]' : ''} ${isPositive ? 'text-neon-mint-text' : diff === 0 ? 'text-text-muted' : 'text-red-500'}`}>
                           {diff === 0 ? (
                             <span>Alapértelmezett</span>
                           ) : (
@@ -270,10 +270,10 @@ export default function Adozas() {
                   {/* Adminisztráció */}
                   <tr className="hover:bg-card-bg/30">
                     <td className="px-6 py-4 text-text-muted font-medium">Adminisztrációs teher</td>
-                    <td className={`px-4 py-4 text-center text-xs font-semibold text-[#00F872] ${bestRegime === 'KATA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Alacsony</td>
-                    <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-500 ${bestRegime === 'Átalányadó' ? 'bg-[#00F872]/[0.02]' : ''}`}>Közepes</td>
-                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'KIVA' ? 'bg-[#00F872]/[0.02]' : ''}`}>Magas</td>
-                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'TAO Kft.' ? 'bg-[#00F872]/[0.02]' : ''}`}>Magas</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-neon-mint-text ${bestRegime === 'KATA' ? 'bg-neon-mint/[0.02]' : ''}`}>Alacsony</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-500 ${bestRegime === 'Átalányadó' ? 'bg-neon-mint/[0.02]' : ''}`}>Közepes</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'KIVA' ? 'bg-neon-mint/[0.02]' : ''}`}>Magas</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'TAO Kft.' ? 'bg-neon-mint/[0.02]' : ''}`}>Magas</td>
                   </tr>
                 </tbody>
               </table>
@@ -282,12 +282,12 @@ export default function Adozas() {
 
           {/* AI Advisor Panel */}
           <div className="bg-gradient-to-r from-blue-950/10 to-card-bg rounded-2xl border border-card-border p-6 relative overflow-hidden transition-colors duration-200">
-            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-[#00F872] opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-neon-mint opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
             
             <div className="relative z-10 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center border border-blue-500/20">
-                  <Sparkles className="w-5 h-5 text-[#00F872]" />
+                  <Sparkles className="w-5 h-5 text-neon-mint-text" />
                 </div>
                 <div>
                   <h3 className="font-bold text-base text-text-bright">AI Szakértői Vélemény</h3>
@@ -302,7 +302,7 @@ export default function Adozas() {
                   </p>
                   <button 
                     onClick={handleAiAdvice}
-                    className="bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold py-2.5 px-6 rounded-xl transition-all shadow-md shadow-[#00F872]/5 flex items-center gap-2 cursor-pointer text-xs"
+                    className="bg-neon-mint hover:bg-neon-mint-hover text-[#101112] font-bold py-2.5 px-6 rounded-xl transition-all shadow-md shadow-neon-mint/5 flex items-center gap-2 cursor-pointer text-xs"
                   >
                     <Sparkles className="w-4 h-4" />
                     Adóbevallás-elemzés generálása
@@ -310,7 +310,7 @@ export default function Adozas() {
                 </div>
               ) : isAiLoading ? (
                 <div className="flex items-center gap-3 text-text-muted py-4 text-xs font-semibold uppercase tracking-wider">
-                  <Loader2 className="w-5 h-5 text-[#00F872] animate-spin" />
+                  <Loader2 className="w-5 h-5 text-neon-mint-text animate-spin" />
                   <span>Szakértői vélemény kiszámítása...</span>
                 </div>
               ) : (
@@ -321,7 +321,7 @@ export default function Adozas() {
                     <span className="text-text-muted font-medium">Kalkulált értékhatárok: 2026. évi adótörvények</span>
                     <button
                       onClick={() => openAiChat(`A(z) ${annualRevenue.toLocaleString()} Ft éves bevételi szintemen részletesen beszéld át velem az AI adótanácsadást, amit generáltál. Megéri KATA-ról váltani?`)}
-                      className="text-[#00F872] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                      className="text-neon-mint-text font-semibold hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       AI Megbeszélés indítása <ArrowUpRight className="w-3.5 h-3.5" />
                     </button>

@@ -242,7 +242,7 @@ export default function Chat() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Tedd fel a pénzügyi vagy adózási kérdésed..."
-                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-850 bg-slate-950 text-[15px] text-white focus:outline-none focus:ring-0 focus:border-[#00F872] transition-all placeholder:text-slate-500 resize-none h-12 min-h-[48px] max-h-28"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-850 bg-slate-950 text-[15px] text-white focus:outline-none focus:ring-0 focus:border-neon-mint transition-all placeholder:text-slate-500 resize-none h-12 min-h-[48px] max-h-28"
                   rows={1}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {

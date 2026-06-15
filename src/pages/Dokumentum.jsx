@@ -242,7 +242,7 @@ export default function Dokumentum() {
             <button
               onClick={() => setActiveTab('details')}
               className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-                activeTab === 'details' ? 'border-[#00F872] text-[#00F872]' : 'border-transparent text-text-muted hover:text-text-bright'
+                activeTab === 'details' ? 'border-neon-mint text-neon-mint-text' : 'border-transparent text-text-muted hover:text-text-bright'
               }`}
             >
               Alapadatok
@@ -250,7 +250,7 @@ export default function Dokumentum() {
             <button
               onClick={() => setActiveTab('items')}
               className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-                activeTab === 'items' ? 'border-[#00F872] text-[#00F872]' : 'border-transparent text-text-muted hover:text-text-bright'
+                activeTab === 'items' ? 'border-neon-mint text-neon-mint-text' : 'border-transparent text-text-muted hover:text-text-bright'
               }`}
             >
               Tételek Rácsa
@@ -258,7 +258,7 @@ export default function Dokumentum() {
             <button
               onClick={() => setActiveTab('ai')}
               className={`pb-3 px-4 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 cursor-pointer ${
-                activeTab === 'ai' ? 'border-[#00F872] text-[#00F872]' : 'border-transparent text-text-muted hover:text-text-bright'
+                activeTab === 'ai' ? 'border-neon-mint text-neon-mint-text' : 'border-transparent text-text-muted hover:text-text-bright'
               }`}
             >
               AI Levelelemző
@@ -304,7 +304,7 @@ export default function Dokumentum() {
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, partnerName: e.target.value })}
                     onFocus={() => setActiveField('partnerName')}
                     className={`w-full bg-input-bg border rounded-xl px-4 py-3 text-xs text-text-bright focus:outline-none transition-colors ${
-                      activeField === 'partnerName' ? 'border-[#00F872]' : 'border-input-border'
+                      activeField === 'partnerName' ? 'border-neon-mint' : 'border-input-border'
                     }`}
                   />
                 </div>
@@ -317,7 +317,7 @@ export default function Dokumentum() {
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, invoiceNumber: e.target.value })}
                     onFocus={() => setActiveField('invoiceNumber')}
                     className={`w-full bg-input-bg border rounded-xl px-4 py-3 text-xs text-text-bright focus:outline-none transition-colors ${
-                      activeField === 'invoiceNumber' ? 'border-[#00F872]' : 'border-input-border'
+                      activeField === 'invoiceNumber' ? 'border-neon-mint' : 'border-input-border'
                     }`}
                   />
                 </div>
@@ -331,7 +331,7 @@ export default function Dokumentum() {
                   onChange={(e) => setInvoiceForm({ ...invoiceForm, iban: e.target.value })}
                   onFocus={() => setActiveField('iban')}
                   className={`w-full bg-input-bg border rounded-xl px-4 py-3 text-xs text-text-bright focus:outline-none transition-colors ${
-                    activeField === 'iban' ? 'border-[#00F872]' : 'border-input-border'
+                    activeField === 'iban' ? 'border-neon-mint' : 'border-input-border'
                   }`}
                 />
               </div>
@@ -354,7 +354,7 @@ export default function Dokumentum() {
                     onChange={(e) => setInvoiceForm({ ...invoiceForm, total: parseFloat(e.target.value) || 0 })}
                     onFocus={() => setActiveField('total')}
                     className={`w-full bg-input-bg border rounded-xl px-4 py-3 text-xs text-text-bright focus:outline-none transition-colors ${
-                      activeField === 'total' ? 'border-[#00F872]' : 'border-input-border'
+                      activeField === 'total' ? 'border-neon-mint' : 'border-input-border'
                     }`}
                   />
                 </div>
@@ -404,7 +404,7 @@ export default function Dokumentum() {
                   value={docText}
                   onChange={(e) => setDocText(e.target.value)}
                   placeholder="Tisztelt Adózó! A Nemzeti Adó- és Vámhivatal..."
-                  className="w-full h-32 p-4 bg-input-bg border border-input-border rounded-xl text-xs text-text-bright focus:outline-none focus:border-[#00F872] resize-none"
+                  className="w-full h-32 p-4 bg-input-bg border border-input-border rounded-xl text-xs text-text-bright focus:outline-none focus:border-neon-mint resize-none"
                 />
               </div>
 
@@ -436,7 +436,7 @@ export default function Dokumentum() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#00F872] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-neon-mint-text shrink-0 mt-0.5" />
                     <div>
                       <strong className="text-text-bright">Kötelező Teendő:</strong>
                       <p className="text-text-muted mt-1 leading-relaxed">{result.action}</p>
@@ -471,7 +471,7 @@ export default function Dokumentum() {
                 const event = new CustomEvent('open-ai-chat', { detail: { prompt: `Elemezd ki a frissen rögzített számlámat a(z) ${invoiceForm.partnerName} partnertől, számlaszáma ${invoiceForm.invoiceNumber}. Megfelel a 2026. évi ÁFA elszámolásnak?` } });
                 window.dispatchEvent(event);
               }}
-              className="px-5 py-2.5 text-xs font-bold text-[#101112] bg-[#00F872] hover:bg-[#00d762] rounded-xl transition-all shadow-md shadow-[#00F872]/5 cursor-pointer flex items-center gap-1.5"
+              className="px-5 py-2.5 text-xs font-bold text-[#101112] bg-neon-mint hover:bg-neon-mint-hover rounded-xl transition-all shadow-md shadow-neon-mint/5 cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-4 h-4" /> Elemzés Jóváhagyása
             </button>

@@ -81,8 +81,8 @@ export default function AppLayout({ children }) {
       {/* Mobile Header (top) */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-45 bg-sidebar-bg text-text-bright border-b border-sidebar-border px-4 py-3 shadow-sm flex items-center justify-between transition-colors duration-200">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-[#00F872]/20 flex items-center justify-center border border-[#00F872]/30">
-            <Sparkles className="w-4 h-4 text-[#00F872]" />
+          <div className="w-8 h-8 rounded-lg bg-neon-mint/20 flex items-center justify-center border border-neon-mint/30">
+            <Sparkles className="w-4 h-4 text-neon-mint-text" />
           </div>
           <span className="font-bold text-text-bright font-display">KKV Mentor</span>
         </Link>
@@ -102,7 +102,7 @@ export default function AppLayout({ children }) {
           </button>
           <button className="p-2 rounded-lg hover:bg-card-bg transition-colors text-text-muted hover:text-text-bright relative">
             <Bell className="w-5 h-5" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#00F872] rounded-full"></span>
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-neon-mint rounded-full"></span>
           </button>
         </div>
       </header>
@@ -142,14 +142,14 @@ export default function AppLayout({ children }) {
                   flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
                   transition-all duration-200 group
                   ${isActive
-                    ? 'bg-active-nav-bg text-[#00F872] shadow-sm border-l-2 border-[#00F872]'
+                    ? 'bg-active-nav-bg text-neon-mint-text shadow-sm border-l-2 border-neon-mint'
                     : 'text-text-muted hover:bg-card-bg hover:text-text-bright'
                   }
                 `}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-[#00F872]' : 'text-text-muted group-hover:text-text-bright'}`} />
+                <Icon className={`w-5 h-5 ${isActive ? 'text-neon-mint-text' : 'text-text-muted group-hover:text-text-bright'}`} />
                 <span>{item.label}</span>
-                {isActive && <ChevronRight className="w-4 h-4 ml-auto text-[#00F872]" />}
+                {isActive && <ChevronRight className="w-4 h-4 ml-auto text-neon-mint-text" />}
               </Link>
             )
           })}
@@ -203,11 +203,11 @@ export default function AppLayout({ children }) {
               >
                 <div className={`
                   flex items-center justify-center w-10 h-8 rounded-full transition-colors
-                  ${isActive ? 'bg-active-nav-bg text-[#00F872]' : 'bg-transparent'}
+                  ${isActive ? 'bg-active-nav-bg text-neon-mint-text' : 'bg-transparent'}
                 `}>
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-[#00F872]' : 'text-text-muted'}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-neon-mint-text' : 'text-text-muted'}`} />
                 </div>
-                <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-[#00F872]' : 'text-text-muted'}`}>
+                <span className={`text-[10px] font-medium transition-colors ${isActive ? 'text-neon-mint-text' : 'text-text-muted'}`}>
                   {item.short}
                 </span>
               </Link>

@@ -184,7 +184,7 @@ export default function ChatDrawer({ isOpen, onClose, defaultPrompt }) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Kérdezz a cég adózásáról, cashflow-ról..."
-              className="flex-1 bg-input-bg border border-input-border rounded-xl px-4 py-2.5 text-xs text-text-bright outline-none focus:ring-2 focus:ring-[#00F872]/20 focus:border-[#00F872] transition-all placeholder-text-muted/60"
+              className="flex-1 bg-input-bg border border-input-border rounded-xl px-4 py-2.5 text-xs text-text-bright outline-none focus:ring-2 focus:ring-neon-mint/20 focus:border-neon-mint transition-all placeholder-text-muted/60"
             />
             <button
               type="submit"

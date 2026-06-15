@@ -211,7 +211,7 @@ export default function Onboarding() {
   const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
   return (
-    <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans selection:bg-[#00F872]/30 selection:text-text-bright transition-colors duration-200">
+    <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans selection:bg-neon-mint/30 selection:text-text-bright transition-colors duration-200">
       {/* ── Top Header ── */}
       <div className="bg-sidebar-bg border-b border-sidebar-border sticky top-0 z-40 backdrop-blur-md">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -240,13 +240,13 @@ export default function Onboarding() {
                   <div className="w-full h-1 bg-card-border rounded-full overflow-hidden">
                     <div
                       className={`h-full transition-all duration-500 ${
-                        isPast ? 'bg-[#00F872]' : isActive ? 'bg-[#1F5FAD]' : 'bg-card-border'
+                        isPast ? 'bg-neon-mint' : isActive ? 'bg-[#1F5FAD]' : 'bg-card-border'
                       }`}
                       style={{ width: isPast || isActive ? '100%' : '0%' }}
                     />
                   </div>
                   <div className="hidden md:flex items-center gap-1.5 mt-1 text-[11px] font-medium tracking-tight">
-                    <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-[#00F872]' : isPast ? 'text-text-muted' : 'text-text-muted/60'}`} />
+                    <StepIcon className={`w-3.5 h-3.5 ${isActive ? 'text-neon-mint-text' : isPast ? 'text-text-muted' : 'text-text-muted/60'}`} />
                     <span className={isActive ? 'text-text-bright font-semibold' : 'text-text-muted'}>
                       {step.label}
                     </span>
@@ -315,11 +315,11 @@ export default function Onboarding() {
                         onClick={() => setFormData({ ...formData, intent: intent.id })}
                         className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
                           formData.intent === intent.id
-                            ? 'border-[#00F872] bg-[#00F872]/5'
+                            ? 'border-neon-mint bg-neon-mint/5'
                             : 'border-card-border bg-input-bg/50 hover:border-[#1F5FAD]/40'
                         }`}
                       >
-                        <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-[#00F872]' : 'text-text-bright'}`}>
+                        <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-neon-mint-text' : 'text-text-bright'}`}>
                           {intent.label}
                         </span>
                         <span className="block text-xs text-text-muted mt-1">{intent.desc}</span>
@@ -393,7 +393,7 @@ export default function Onboarding() {
                       key={item.id}
                       className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all ${
                         isConnected
-                          ? 'border-[#00F872]/40 bg-[#00F872]/5'
+                          ? 'border-neon-mint/40 bg-neon-mint/5'
                           : 'border-card-border bg-input-bg/40'
                       }`}
                     >
@@ -406,7 +406,7 @@ export default function Onboarding() {
                       </div>
                       
                       {isConnected ? (
-                        <span className="flex items-center gap-1.5 text-[#00F872] text-xs font-semibold px-3 py-1.5 bg-[#00F872]/10 rounded-full border border-[#00F872]/20">
+                        <span className="flex items-center gap-1.5 text-neon-mint-text text-xs font-semibold px-3 py-1.5 bg-neon-mint/10 rounded-full border border-neon-mint/20">
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
                           Összekapcsolva
                         </span>
@@ -424,7 +424,7 @@ export default function Onboarding() {
                 })}
 
                 <div className="bg-input-bg/60 rounded-xl border border-card-border p-4 text-xs text-text-muted flex items-start gap-2.5">
-                  <AlertCircle className="w-4 h-4 text-[#00F872] shrink-0 mt-0.5" />
+                  <AlertCircle className="w-4 h-4 text-neon-mint-text shrink-0 mt-0.5" />
                   <p>
                     <strong>Tipp a zsűrinek:</strong> Kattints a Kapcsolódás gombokra a csodás összeköttetési animáció megtekintéséhez! Az integrációk teljesen szimulálva vannak.
                   </p>
@@ -455,14 +455,14 @@ export default function Onboarding() {
                       step="500000"
                       value={formData.cashBalance}
                       onChange={e => setFormData({ ...formData, cashBalance: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
                     />
                   </div>
 
                   <div>
                     <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Becsült Havi Bevétel</span>
-                      <span className="text-[#00F872] font-bold">{formatHuf(formData.monthlyRevenue)}</span>
+                      <span className="text-neon-mint-text font-bold">{formatHuf(formData.monthlyRevenue)}</span>
                     </div>
                     <input
                       type="range"
@@ -471,7 +471,7 @@ export default function Onboarding() {
                       step="100000"
                       value={formData.monthlyRevenue}
                       onChange={e => setFormData({ ...formData, monthlyRevenue: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
                     />
                   </div>
 
@@ -487,7 +487,7 @@ export default function Onboarding() {
                       step="100000"
                       value={formData.monthlyExpense}
                       onChange={e => setFormData({ ...formData, monthlyExpense: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
                     />
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function Onboarding() {
                     </span>
                     <span className={`inline-block mt-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                       runwayStats.status === 'safe'
-                        ? 'bg-green-500/10 text-[#00F872]'
+                        ? 'bg-green-500/10 text-neon-mint-text'
                         : runwayStats.status === 'warning'
                         ? 'bg-amber-500/10 text-amber-500'
                         : 'bg-red-500/10 text-red-500'
@@ -520,7 +520,7 @@ export default function Onboarding() {
                         <div key={idx} className="flex-1 flex flex-col items-center gap-1">
                           <div className="w-full bg-card-border rounded-sm relative h-10 overflow-hidden flex items-end">
                             <div
-                              className={`w-full transition-all duration-300 ${isNegative ? 'bg-red-600' : 'bg-[#00F872]'}`}
+                              className={`w-full transition-all duration-300 ${isNegative ? 'bg-red-600' : 'bg-neon-mint'}`}
                               style={{ height: `${heightPercent}%` }}
                             />
                           </div>
@@ -565,11 +565,11 @@ export default function Onboarding() {
                 <div className="space-y-2 text-sm sm:border-l sm:border-card-border sm:pl-4">
                   <div className="flex justify-between border-b border-card-border/40 pb-2">
                     <span className="text-text-muted">Cash Balance:</span>
-                    <span className="font-semibold text-[#00F872]">{formatHuf(formData.cashBalance)}</span>
+                    <span className="font-semibold text-neon-mint-text">{formatHuf(formData.cashBalance)}</span>
                   </div>
                   <div className="flex justify-between border-b border-card-border/40 pb-2">
                     <span className="text-text-muted">Havi Cashflow:</span>
-                    <span className={`font-semibold ${formData.monthlyRevenue >= formData.monthlyExpense ? 'text-[#00F872]' : 'text-red-500'}`}>
+                    <span className={`font-semibold ${formData.monthlyRevenue >= formData.monthlyExpense ? 'text-neon-mint-text' : 'text-red-500'}`}>
                       {formData.monthlyRevenue >= formData.monthlyExpense ? '+' : ''}
                       {formatHuf(formData.monthlyRevenue - formData.monthlyExpense)}
                     </span>
@@ -607,7 +607,7 @@ export default function Onboarding() {
               <button
                 onClick={next}
                 disabled={!isStepValid()}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#101112] bg-[#00F872] hover:bg-[#00d762] disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-[#00F872]/10 cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#101112] bg-neon-mint hover:bg-neon-mint-hover disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-neon-mint/10 cursor-pointer"
               >
                 Tovább
                 <ArrowRight className="w-4 h-4" />
@@ -637,7 +637,7 @@ export default function Onboarding() {
                 </div>
               ) : (
                 <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/30">
-                  <Check className="w-6 h-6 text-[#00F872] stroke-[3]" />
+                  <Check className="w-6 h-6 text-neon-mint-text stroke-[3]" />
                 </div>
               )}
             </div>
@@ -660,7 +660,7 @@ export default function Onboarding() {
       {isSubmitting && (
         <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 z-50 animate-fade-in">
           <div className="space-y-4 text-center max-w-sm">
-            <Loader2 className="w-10 h-10 text-[#00F872] animate-spin mx-auto" />
+            <Loader2 className="w-10 h-10 text-neon-mint-text animate-spin mx-auto" />
             <h3 className="text-lg font-bold text-text-bright">Személyre szabott pénzügyi modell felépítése...</h3>
             <p className="text-xs text-text-muted leading-relaxed">
               Tranzakciók kategorizálása, 6 hónapos cashflow szimuláció betöltése és a 2026-os legfrissebb adószabályok kalibrálása a cégprofilodhoz.

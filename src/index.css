@@ -16,6 +16,10 @@
   --active-nav-bg: rgba(255, 255, 255, 0.06);
   --glow-opacity: 0.15;
   --pulse-bg: rgba(0, 248, 114, 0.02);
+  --neon-mint: #00F872;
+  --neon-mint-hover: #00d762;
+  --neon-mint-text: #00F872;
+  --neon-mint-glow: rgba(0, 248, 114, 0.4);
 }
 
 html.light {
@@ -33,6 +37,10 @@ html.light {
   --active-nav-bg: rgba(30, 41, 59, 0.06);
   --glow-opacity: 0.05;
   --pulse-bg: rgba(0, 248, 114, 0.01);
+  --neon-mint: #16a34a; /* emerald-600 */
+  --neon-mint-hover: #15803d; /* emerald-700 */
+  --neon-mint-text: #166534; /* emerald-800 for high-contrast readability */
+  --neon-mint-glow: rgba(22, 163, 74, 0.2);
 }
 
 @theme {
@@ -44,7 +52,6 @@ html.light {
   --color-warning: #B45309;
   --color-bg: #F8FAFC;
   --color-indigo-navy: #101112;
-  --color-neon-mint: #00F872;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-serif: 'Instrument Serif', Georgia, serif;
   --font-display: 'Outfit', sans-serif;
@@ -61,6 +68,9 @@ html.light {
   --color-sidebar-bg: var(--sidebar-bg);
   --color-sidebar-border: var(--sidebar-border);
   --color-active-nav-bg: var(--active-nav-bg);
+  --color-neon-mint: var(--neon-mint);
+  --color-neon-mint-hover: var(--neon-mint-hover);
+  --color-neon-mint-text: var(--neon-mint-text);
 }
 
 @layer base {

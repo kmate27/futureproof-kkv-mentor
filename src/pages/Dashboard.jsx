@@ -53,7 +53,7 @@ function ScoreRing({ score, size = 160, strokeWidth = 12 }) {
     shadowColor = 'rgba(245, 158, 11, 0.4)';
   }
   if (score >= 70) {
-    color = '#00F872'; // Neon Mint 70-100
+    color = 'var(--neon-mint)'; // Neon Mint 70-100
     shadowColor = 'rgba(0, 248, 114, 0.4)';
   }
 
@@ -179,7 +179,7 @@ export default function Dashboard() {
           </Link>
           <button
             onClick={() => openAiChat(`Kérlek adj egy átfogó értékelést a vállalkozásomról a megadott profil alapján!`)}
-            className="text-xs font-bold text-[#101112] bg-[#00F872] hover:bg-[#00d762] px-4.5 py-2.5 rounded-xl transition-all shadow-md shadow-[#00F872]/5 flex items-center gap-1.5 cursor-pointer"
+            className="text-xs font-bold text-[#101112] bg-neon-mint hover:bg-neon-mint-hover px-4.5 py-2.5 rounded-xl transition-all shadow-md shadow-neon-mint/5 flex items-center gap-1.5 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             AI Tanácsadás
@@ -209,7 +209,7 @@ export default function Dashboard() {
           <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-text-bright font-display tabular-nums tracking-tight truncate" title={formatHuf(annualRevenue)}>
             {formatHuf(annualRevenue)}
           </p>
-          <span className="text-[10px] text-[#00F872] font-semibold mt-1 block">Contextből dinamikusan kalkulálva</span>
+          <span className="text-[10px] text-neon-mint-text font-semibold mt-1 block">Contextből dinamikusan kalkulálva</span>
         </div>
 
         <div className="bg-card-bg border border-card-border rounded-2xl p-5 hover:border-primary/30 transition-colors">
@@ -220,7 +220,7 @@ export default function Dashboard() {
           <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-text-bright font-display tabular-nums tracking-tight truncate" title={formatHuf(4250000)}>
             {formatHuf(4250000)}
           </p>
-          <span className="text-[10px] text-[#00F872] font-semibold mt-1 block flex items-center gap-1">
+          <span className="text-[10px] text-neon-mint-text font-semibold mt-1 block flex items-center gap-1">
             <TrendingUp className="w-3.5 h-3.5" /> +3.5% előző hónaphoz képest
           </span>
         </div>
@@ -243,7 +243,7 @@ export default function Dashboard() {
             <span>Havi Eredmény</span>
             <Wallet className="w-4 h-4 text-text-muted/65" />
           </div>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-[#00F872] font-display tabular-nums tracking-tight truncate" title={formatHuf(1070000)}>
+          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-neon-mint-text font-display tabular-nums tracking-tight truncate" title={formatHuf(1070000)}>
             +{formatHuf(1070000)}
           </p>
           <span className="text-[10px] text-text-muted font-semibold mt-1 block">
@@ -262,7 +262,7 @@ export default function Dashboard() {
             <ScoreRing score={totalScore} />
             <div className="mt-4 flex items-center gap-2">
               <span className={`w-3.5 h-3.5 rounded-full ${
-                totalScore >= 70 ? 'bg-[#00F872]' : totalScore >= 40 ? 'bg-amber-500' : 'bg-red-600'
+                totalScore >= 70 ? 'bg-neon-mint' : totalScore >= 40 ? 'bg-amber-500' : 'bg-red-600'
               }`}></span>
               <span className="font-bold text-text-bright text-sm">
                 {totalScore >= 70 ? 'Kiváló' : totalScore >= 40 ? 'Átlagos / Javítható' : 'Kritikus figyelmet igényel'}
@@ -275,10 +275,10 @@ export default function Dashboard() {
             <div className="bg-input-bg/40 rounded-xl p-5 border border-card-border hover:border-primary/30 transition-colors">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Cashflow</span>
-                <span className="text-sm font-bold text-[#00F872]">{scoreData.cashflow}/40</span>
+                <span className="text-sm font-bold text-neon-mint-text">{scoreData.cashflow}/40</span>
               </div>
               <div className="w-full h-1.5 bg-card-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-blue-500 to-[#00F872]" style={{ width: `${(scoreData.cashflow/40)*100}%` }}></div>
+                <div className="h-full bg-gradient-to-r from-blue-500 to-neon-mint-text" style={{ width: `${(scoreData.cashflow/40)*100}%` }}></div>
               </div>
               <p className="text-[11px] text-text-muted mt-3.5 leading-relaxed">Pozitív havi zárások az utóbbi 3 negyedévben. Likviditás stabil.</p>
             </div>
@@ -286,10 +286,10 @@ export default function Dashboard() {
             <div className="bg-input-bg/40 rounded-xl p-5 border border-card-border hover:border-primary/30 transition-colors">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Adózás</span>
-                <span className="text-sm font-bold text-[#00F872]">{scoreData.ado}/35</span>
+                <span className="text-sm font-bold text-neon-mint-text">{scoreData.ado}/35</span>
               </div>
               <div className="w-full h-1.5 bg-card-border rounded-full overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-blue-500 to-[#00F872]" style={{ width: `${(scoreData.ado/35)*100}%` }}></div>
+                <div className="h-full bg-gradient-to-r from-blue-500 to-neon-mint-text" style={{ width: `${(scoreData.ado/35)*100}%` }}></div>
               </div>
               <p className="text-[11px] text-text-muted mt-3.5 leading-relaxed">Jelenlegi adónem (KATA) nem a legkedvezőbb az éves bevétel mellett.</p>
             </div>
@@ -313,17 +313,17 @@ export default function Dashboard() {
         
         {/* Left Col: AI Pulse (Interactive spark card) */}
         <div className="lg:col-span-8 bg-gradient-to-br from-blue-950/10 to-card-bg rounded-2xl border border-card-border p-6 relative overflow-hidden flex flex-col justify-between">
-          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-[#00F872] opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute top-0 right-0 -mt-16 -mr-16 w-56 h-56 bg-neon-mint opacity-[0.02] rounded-full blur-3xl pointer-events-none"></div>
           
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-5 h-5 text-[#00F872]" />
+              <Sparkles className="w-5 h-5 text-neon-mint-text" />
               <h2 className="text-lg font-bold text-text-bright">Havi Pulzus (AI Mentor Elemzés)</h2>
             </div>
 
             {isPulseLoading ? (
               <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <Loader2 className="w-8 h-8 text-[#00F872] animate-spin" />
+                <Loader2 className="w-8 h-8 text-neon-mint-text animate-spin" />
                 <p className="text-text-muted text-xs font-semibold tracking-wider uppercase">Vállalkozási adatok mély-elemzése...</p>
               </div>
             ) : (
@@ -358,7 +358,7 @@ export default function Dashboard() {
             <span className="text-text-muted font-medium">Vállalkozás: {companyData.industry} szektor</span>
             <button
               onClick={() => openAiChat("Elemezd a cégem havi pulzusát részletesebben!")}
-              className="text-[#00F872] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-neon-mint-text font-semibold hover:underline flex items-center gap-1 cursor-pointer"
             >
               Csevegés indítása <ArrowRight className="w-3.5 h-3.5" />
             </button>
@@ -388,7 +388,7 @@ export default function Dashboard() {
                 </div>
                 <div className="flex justify-between items-center bg-input-bg/50 p-2.5 rounded-lg border border-card-border mt-2">
                   <span className="text-[10px] text-text-muted font-bold uppercase">Becsült megtakarítás</span>
-                  <span className="text-[#00F872] font-bold text-xs">~468.000 Ft / év</span>
+                  <span className="text-neon-mint-text font-bold text-xs">~468.000 Ft / év</span>
                 </div>
               </div>
             </div>
@@ -406,7 +406,7 @@ export default function Dashboard() {
           <div className="bg-card-bg border border-card-border rounded-2xl p-6 flex flex-col justify-between flex-1">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2 text-text-bright">
-                <TrendingUp className="w-5 h-5 text-[#00F872]" />
+                <TrendingUp className="w-5 h-5 text-neon-mint-text" />
                 <h3 className="font-bold text-sm">6 Hónapos Cashflow</h3>
               </div>
               <Link to="/cashflow" className="text-xs font-semibold text-blue-400 hover:underline">
@@ -431,8 +431,8 @@ export default function Dashboard() {
                 >
                   <defs>
                     <linearGradient id="glowBevetel" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00F872" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#00F872" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--neon-mint)" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="var(--neon-mint)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="glowKiadas" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#991B1B" stopOpacity={0.15} />
@@ -441,7 +441,7 @@ export default function Dashboard() {
                   </defs>
                   <XAxis dataKey="name" hide />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="bevétel" stroke="#00F872" fill="url(#glowBevetel)" strokeWidth={2.5} name="bevétel" />
+                  <Area type="monotone" dataKey="bevétel" stroke="var(--neon-mint)" fill="url(#glowBevetel)" strokeWidth={2.5} name="bevétel" />
                   <Area type="monotone" dataKey="kiadás" stroke="#ef4444" fill="url(#glowKiadas)" strokeWidth={2} name="kiadás" />
                 </AreaChart>
               </ResponsiveContainer>

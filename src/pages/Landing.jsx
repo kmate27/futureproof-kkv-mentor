@@ -29,7 +29,7 @@ export default function Landing() {
   const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
 
   return (
-    <div className="min-h-screen bg-[#101112] text-white font-sans overflow-x-hidden selection:bg-[#00F872]/30 selection:text-white">
+    <div className="min-h-screen bg-[#101112] text-white font-sans overflow-x-hidden selection:bg-neon-mint/30 selection:text-white">
       {/* ───────── Fixed Navbar ───────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#101112]/85 backdrop-blur-md border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -48,7 +48,7 @@ export default function Landing() {
             </Link>
             <Link
               to="/onboarding"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#101112] bg-[#00F872] hover:bg-[#00d762] px-4 py-2 rounded-lg transition-all shadow-md shadow-[#00F872]/10 cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#101112] bg-neon-mint hover:bg-neon-mint-hover px-4 py-2 rounded-lg transition-all shadow-md shadow-neon-mint/10 cursor-pointer"
             >
               Indítás ingyen
               <ArrowRight className="w-4 h-4" />
@@ -63,19 +63,19 @@ export default function Landing() {
 
         {/* Decorative Animated Shapes */}
         <div className="absolute top-24 left-10 w-96 h-96 bg-[#1F5FAD] opacity-[0.02] rounded-full blur-3xl animate-pulse-slow"></div>
-        <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-[#00F872] opacity-[0.02] rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-neon-mint opacity-[0.02] rounded-full blur-3xl animate-pulse-slow"></div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Hero Left: Headlines */}
             <div className="lg:col-span-6 space-y-6 text-left">
-              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00F872] bg-[#00F872]/10 border border-[#00F872]/20 px-3.5 py-1.5 rounded-full uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-neon-mint-text bg-neon-mint/10 border border-neon-mint/20 px-3.5 py-1.5 rounded-full uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5 animate-pulse" /> 2026-os Magyar Adó- és Pénzügyi Szabályozásokkal
               </span>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold font-display leading-[1.1] tracking-tight">
                 A KKV-d pénzügyi <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F872] to-blue-400">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-mint to-blue-400">
                   irányítópultja.
                 </span>
               </h1>
@@ -86,7 +86,7 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Link
                   to="/onboarding"
-                  className="inline-flex items-center justify-center gap-2 bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-[#00F872]/10 hover:-translate-y-0.5 cursor-pointer text-base"
+                  className="inline-flex items-center justify-center gap-2 bg-neon-mint hover:bg-neon-mint-hover text-[#101112] font-bold px-8 py-4 rounded-xl transition-all shadow-lg shadow-neon-mint/10 hover:-translate-y-0.5 cursor-pointer text-base"
                 >
                   Regisztráció Onboardingal
                   <ArrowRight className="w-5 h-5" />
@@ -104,7 +104,7 @@ export default function Landing() {
             {/* Hero Right: Interactive Sandbox Mockup */}
             <div className="lg:col-span-6">
               <div className="bg-slate-900/80 rounded-2xl border border-slate-850 p-6 sm:p-8 shadow-2xl relative overflow-hidden backdrop-blur-md">
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00F872]/20 to-transparent"></div>
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-neon-mint/20 to-transparent"></div>
                 
                 <div className="flex justify-between items-center mb-6">
                   <div className="flex items-center gap-2">
@@ -123,7 +123,7 @@ export default function Landing() {
                   <div>
                     <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
                       <span>Tervezett havi bevétel</span>
-                      <span className="text-[#00F872] font-semibold">{formatHuf(revenue)}</span>
+                      <span className="text-neon-mint-text font-semibold">{formatHuf(revenue)}</span>
                     </div>
                     <input
                       type="range"
@@ -132,7 +132,7 @@ export default function Landing() {
                       step="100000"
                       value={revenue}
                       onChange={(e) => setRevenue(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-mint"
                     />
                   </div>
 
@@ -148,14 +148,14 @@ export default function Landing() {
                       step="100000"
                       value={expense}
                       onChange={(e) => setExpense(Number(e.target.value))}
-                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#00F872]"
+                      className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-neon-mint"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 bg-slate-950/70 p-4 rounded-xl border border-slate-900/60 mt-6">
                     <div>
                       <span className="text-[10px] text-slate-500 uppercase block">Havi Egyenleg</span>
-                      <span className={`text-base font-bold block mt-1 ${revenue >= expense ? 'text-[#00F872]' : 'text-red-500'}`}>
+                      <span className={`text-base font-bold block mt-1 ${revenue >= expense ? 'text-neon-mint-text' : 'text-red-500'}`}>
                         {revenue >= expense ? '+' : ''}{formatHuf(revenue - expense)}
                       </span>
                     </div>
@@ -179,7 +179,7 @@ export default function Landing() {
                           <div key={idx} className="flex-1 flex flex-col gap-1 items-center">
                             <div className="w-full bg-slate-800 rounded-sm relative h-12 overflow-hidden flex items-end">
                               <div
-                                className={`w-full transition-all duration-300 ${isNeg ? 'bg-red-500' : 'bg-gradient-to-t from-[#00F872]/80 to-[#00F872]'}`}
+                                className={`w-full transition-all duration-300 ${isNeg ? 'bg-red-500' : 'bg-gradient-to-t from-neon-mint/80 to-neon-mint-text'}`}
                                 style={{ height: `${percent}%` }}
                               />
                             </div>
@@ -228,8 +228,8 @@ export default function Landing() {
             {/* Card 1: Score & Cashflow (Large Column) */}
             <div className="md:col-span-2 bg-slate-900/40 rounded-2xl border border-slate-850 p-8 flex flex-col justify-between gap-6 hover:border-slate-700 transition-colors">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-xl bg-[#00F872]/10 flex items-center justify-center border border-[#00F872]/20">
-                  <HeartPulse className="w-6 h-6 text-[#00F872]" />
+                <div className="w-12 h-12 rounded-xl bg-neon-mint/10 flex items-center justify-center border border-neon-mint/20">
+                  <HeartPulse className="w-6 h-6 text-neon-mint-text" />
                 </div>
                 <h3 className="text-xl font-bold">Pénzügyi Egészségjelentés & KKV Score</h3>
                 <p className="text-sm text-slate-400 leading-relaxed max-w-md">
@@ -238,7 +238,7 @@ export default function Landing() {
               </div>
               <div className="bg-slate-950/80 p-4 rounded-xl border border-slate-900/60 flex items-center justify-between text-sm">
                 <span className="text-slate-400 flex items-center gap-2"><Database className="w-4 h-4 text-blue-400" /> Banki szinkronizáció</span>
-                <span className="text-[#00F872] font-semibold">Aktív és automatikus</span>
+                <span className="text-neon-mint-text font-semibold">Aktív és automatikus</span>
               </div>
             </div>
 
@@ -253,7 +253,7 @@ export default function Landing() {
                   Automatizált összehasonlítás a KATA, átalányadó és a KIVA/TAO között. Az aktuális cashflow adatok alapján azonnal jelzi, ha adómegtakarítási lehetőség nyílik.
                 </p>
               </div>
-              <Link to="/onboarding" className="text-xs font-semibold text-[#00F872] hover:underline flex items-center gap-1">
+              <Link to="/onboarding" className="text-xs font-semibold text-neon-mint-text hover:underline flex items-center gap-1">
                 Kalkuláció indítása <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
@@ -303,7 +303,7 @@ export default function Landing() {
           <div className="pt-4">
             <Link
               to="/onboarding"
-              className="inline-flex items-center gap-2 bg-[#00F872] hover:bg-[#00d762] text-[#101112] font-bold px-10 py-4.5 rounded-xl transition-all shadow-lg shadow-[#00F872]/10 hover:-translate-y-0.5 text-lg"
+              className="inline-flex items-center gap-2 bg-neon-mint hover:bg-neon-mint-hover text-[#101112] font-bold px-10 py-4.5 rounded-xl transition-all shadow-lg shadow-neon-mint/10 hover:-translate-y-0.5 text-lg"
             >
               Regisztrálok ingyenesen
               <ArrowRight className="w-5 h-5" />
