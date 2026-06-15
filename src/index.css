@@ -36,11 +36,11 @@ html.light {
   --sidebar-border: #e2e8f0;
   --active-nav-bg: rgba(30, 41, 59, 0.06);
   --glow-opacity: 0.05;
-  --pulse-bg: rgba(0, 248, 114, 0.01);
-  --neon-mint: #16a34a; /* emerald-600 */
-  --neon-mint-hover: #15803d; /* emerald-700 */
-  --neon-mint-text: #166534; /* emerald-800 for high-contrast readability */
-  --neon-mint-glow: rgba(22, 163, 74, 0.2);
+  --pulse-bg: rgba(13, 115, 119, 0.02);
+  --neon-mint: #0d9488; /* teal-600 — professional, high-contrast accent */
+  --neon-mint-hover: #0f766e; /* teal-700 */
+  --neon-mint-text: #134e4a; /* teal-900 — excellent readability on white */
+  --neon-mint-glow: rgba(13, 148, 136, 0.15);
 }
 
 @theme {

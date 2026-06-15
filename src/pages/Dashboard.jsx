@@ -54,7 +54,7 @@ function ScoreRing({ score, size = 160, strokeWidth = 12 }) {
   }
   if (score >= 70) {
     color = 'var(--neon-mint)'; // Neon Mint 70-100
-    shadowColor = 'rgba(0, 248, 114, 0.4)';
+    shadowColor = 'var(--neon-mint-glow)';
   }
 
   return (
