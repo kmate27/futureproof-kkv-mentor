@@ -260,7 +260,7 @@ export default function Onboarding() {
       </div>
 
       {/* ── Step Body ── */}
-      <div className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col justify-center">
+      <div className="flex-1 max-w-2xl w-full mx-auto px-4 py-8 sm:py-12 flex flex-col justify-start md:justify-center">
         <div className="bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-800/80 p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-48 h-48 bg-[#1F5FAD] opacity-[0.03] rounded-full blur-3xl pointer-events-none"></div>
 

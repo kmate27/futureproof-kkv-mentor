@@ -277,7 +277,7 @@ export default function Dashboard() {
           <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="bg-slate-950/40 rounded-xl p-5 border border-slate-850/80 hover:border-slate-800 transition-colors">
               <div className="flex justify-between items-start mb-2.5">
-                <span className="text-xs font-bold text-slate-400 uppercase">Cashflow stabilitás</span>
+                <span className="text-xs font-bold text-slate-400 uppercase whitespace-nowrap">Cashflow</span>
                 <span className="text-sm font-bold text-[#00F872]">{scoreData.cashflow}/40</span>
               </div>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -288,7 +288,7 @@ export default function Dashboard() {
 
             <div className="bg-slate-950/40 rounded-xl p-5 border border-slate-850/80 hover:border-slate-800 transition-colors">
               <div className="flex justify-between items-start mb-2.5">
-                <span className="text-xs font-bold text-slate-400 uppercase">Adóoptimalizálás</span>
+                <span className="text-xs font-bold text-slate-400 uppercase whitespace-nowrap">Adózás</span>
                 <span className="text-sm font-bold text-[#00F872]">{scoreData.ado}/35</span>
               </div>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -299,7 +299,7 @@ export default function Dashboard() {
 
             <div className="bg-slate-950/40 rounded-xl p-5 border border-slate-850/80 hover:border-slate-800 transition-colors">
               <div className="flex justify-between items-start mb-2.5">
-                <span className="text-xs font-bold text-slate-400 uppercase">Kintlévőség-arány</span>
+                <span className="text-xs font-bold text-slate-400 uppercase whitespace-nowrap">Kintlévőség</span>
                 <span className="text-sm font-bold text-amber-500">{scoreData.kintlevoseg}/25</span>
               </div>
               <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
@@ -442,6 +442,7 @@ export default function Dashboard() {
                       <stop offset="95%" stopColor="#991B1B" stopOpacity={0} />
                     </linearGradient>
                   </defs>
+                  <XAxis dataKey="name" hide />
                   <Tooltip content={<CustomTooltip />} />
                   <Area type="monotone" dataKey="bevétel" stroke="#00F872" fill="url(#glowBevetel)" strokeWidth={2.5} name="bevétel" />
                   <Area type="monotone" dataKey="kiadás" stroke="#ef4444" fill="url(#glowKiadas)" strokeWidth={2} name="kiadás" />

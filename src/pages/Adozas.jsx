@@ -52,10 +52,10 @@ export default function Adozas() {
     const tao = (profit * 0.09) + (employees * 373200 * 12 * 0.13);
 
     return {
-      'KATA': kata,
-      'Átalányadó': atalany,
-      'KIVA': kiva,
-      'TAO Kft.': tao
+      'KATA': Math.round(kata),
+      'Átalányadó': Math.round(atalany),
+      'KIVA': Math.round(kiva),
+      'TAO Kft.': Math.round(tao)
     };
   }, [revenue, employees]);
 
@@ -84,7 +84,7 @@ export default function Adozas() {
     window.dispatchEvent(event);
   };
 
-  const formatMoney = (val) => val.toLocaleString('hu-HU').replace(/\s/g, '.') + ' Ft';
+  const formatMoney = (val) => Math.round(val).toLocaleString('hu-HU').replace(/\s/g, '.') + ' Ft';
 
   return (
     <div className="space-y-6 pb-12 animate-fade-in text-white">

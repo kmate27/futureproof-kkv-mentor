@@ -11,7 +11,7 @@ import {
   Scale
 } from 'lucide-react';
 import {
-  AreaChart,
+  ComposedChart,
   Area,
   Line,
   XAxis,
@@ -205,7 +205,7 @@ export default function Cashflow() {
         </h2>
         <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="#00F872" stopOpacity={0.25} />
@@ -258,7 +258,7 @@ export default function Cashflow() {
                 dot={{ r: 3, fill: '#818cf8', strokeWidth: 0 }}
                 name="Nettó"
               />
-            </AreaChart>
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -281,14 +281,14 @@ export default function Cashflow() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                  <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
+                    item.frequency === 'Havi'
+                      ? 'text-emerald-400'
+                      : 'text-amber-400'
+                  }`}>
+                    {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
+                  </span>
                 </div>
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md shrink-0 ${
-                  item.frequency === 'Havi'
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'bg-amber-500/10 text-amber-400'
-                }`}>
-                  {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
-                </span>
                 <span className="text-sm font-bold text-[#00F872] tabular-nums whitespace-nowrap">
                   {formatHuf(item.amount)}
                 </span>
@@ -366,14 +366,14 @@ export default function Cashflow() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-white truncate">{item.name}</p>
+                  <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
+                    item.frequency === 'Havi'
+                      ? 'text-emerald-400'
+                      : 'text-amber-400'
+                  }`}>
+                    {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
+                  </span>
                 </div>
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-md shrink-0 ${
-                  item.frequency === 'Havi'
-                    ? 'bg-emerald-500/10 text-emerald-400'
-                    : 'bg-amber-500/10 text-amber-400'
-                }`}>
-                  {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
-                </span>
                 <span className="text-sm font-bold text-red-400 tabular-nums whitespace-nowrap">
                   {formatHuf(item.amount)}
                 </span>
