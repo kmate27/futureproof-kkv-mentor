@@ -30,7 +30,7 @@ const formatHufShort = (value) => {
   return value.toString();
 };
 
-const formatHuf = (value) => value.toLocaleString('hu-HU').replace(/\s/g, '.') + ' Ft';
+const formatHuf = (value) => value.toLocaleString('hu-HU').replace(/\s/g, '\u00A0') + ' Ft';
 
 const mockCashflowHistory = [
   { name: 'Jan', bevétel: 3800000, kiadás: 3200000 },
@@ -45,12 +45,13 @@ function ScoreRing({ score, size = 160, strokeWidth = 12 }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const progress = (score / 100) * circumference;
+  const isLight = document.documentElement.classList.contains('light');
 
   let color = '#991B1B'; // Red 0-39
   let shadowColor = 'rgba(153, 27, 27, 0.4)';
   if (score >= 40 && score <= 69) {
-    color = '#F59E0B'; // Yellow 40-69
-    shadowColor = 'rgba(245, 158, 11, 0.4)';
+    color = '#D97706'; // Darker amber-600 for contrast
+    shadowColor = 'rgba(217, 119, 6, 0.4)';
   }
   if (score >= 70) {
     color = 'var(--neon-mint)'; // Neon Mint 70-100
@@ -79,16 +80,16 @@ function ScoreRing({ score, size = 160, strokeWidth = 12 }) {
           strokeDashoffset={circumference - progress}
           strokeLinecap="round"
           style={{
-            filter: `drop-shadow(0px 0px 6px ${shadowColor})`
+            filter: isLight ? 'none' : `drop-shadow(0px 0px 6px ${shadowColor})`
           }}
           className="transition-all duration-1000 ease-out"
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-extrabold text-text-bright font-display tracking-tight transition-transform group-hover:scale-105 duration-250">
+        <span className="text-4xl font-extrabold text-text-bright font-sans tracking-tight transition-transform group-hover:scale-105 duration-250">
           {score}
         </span>
-        <span className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">Pont</span>
+        <span className="text-xs font-bold text-text-muted uppercase tracking-widest mt-1">Pont</span>
       </div>
     </div>
   );
@@ -122,8 +123,8 @@ const DEFAULT_COMPANY = {
 
 export default function Dashboard() {
   const location = useLocation();
-  const { incomes, expenses, annualRevenue } = useFinance();
-  const companyData = location.state?.companyData || DEFAULT_COMPANY;
+  const { incomes, expenses, annualRevenue, companyData } = useFinance();
+  const activeCompany = companyData || DEFAULT_COMPANY;
 
   const [pulse, setPulse] = useState(null);
   const [isPulseLoading, setIsPulseLoading] = useState(true);
@@ -138,7 +139,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     let cancelled = false;
-    const fullCompanyData = { ...companyData, incomes, expenses, annualRevenue };
+    setIsPulseLoading(true);
+    const fullCompanyData = { ...activeCompany, incomes, expenses, annualRevenue };
     
     generateMonthlyPulse(fullCompanyData).then((res) => {
       if (!cancelled) {
@@ -148,7 +150,7 @@ export default function Dashboard() {
     });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [incomes, expenses, annualRevenue]);
+  }, [incomes, expenses, annualRevenue, companyData]);
 
   const openAiChat = (prompt) => {
     const event = new CustomEvent('open-ai-chat', { detail: { prompt } });
@@ -165,7 +167,7 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-text-bright font-display tracking-tight flex items-center gap-2">
-            Üdvözölünk, {companyData?.name || 'Kovács János'}!
+            Üdvözölünk, {activeCompany?.name || 'Kovács János'}!
           </h1>
           <p className="text-text-muted text-sm mt-1">Pénzügyi Vezérlőpult • {today}</p>
         </div>
@@ -179,7 +181,7 @@ export default function Dashboard() {
           </Link>
           <button
             onClick={() => openAiChat(`Kérlek adj egy átfogó értékelést a vállalkozásomról a megadott profil alapján!`)}
-            className="text-xs font-bold text-[#101112] bg-neon-mint hover:bg-neon-mint-hover px-4.5 py-2.5 rounded-xl transition-all shadow-md shadow-neon-mint/5 flex items-center gap-1.5 cursor-pointer"
+            className="text-xs font-bold text-neon-mint-btn-text bg-neon-mint hover:bg-neon-mint-hover px-4.5 py-2.5 rounded-xl transition-all shadow-md shadow-neon-mint/5 flex items-center gap-1.5 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
             AI Tanácsadás
@@ -187,68 +189,81 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {!location.state?.companyData && (
-        <div className="bg-blue-500/5 border border-blue-500/10 rounded-2xl p-4 flex items-start gap-3.5">
-          <Info className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+      {!companyData && (
+        <div className="bg-blue-500/5 dark:bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 flex items-start gap-3.5">
+          <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h3 className="text-sm font-bold text-text-bright">Demo Mód — Kovács Kft. mintaadatokkal</h3>
             <p className="text-xs text-text-muted">
-              Jelenleg előre beállított adatokkal látod a felületet. A valódi, 5 lépéses testreszabott modellezéshez menj végig az <Link to="/onboarding" className="text-blue-400 underline font-semibold">onboarding varázslón</Link>.
+              Jelenleg előre beállított adatokkal látod a felületet. A valódi, 5 lépéses testreszabott modellezéshez menj végig az <Link to="/onboarding" className="text-blue-600 dark:text-blue-400 underline font-semibold">onboarding varázslón</Link>.
             </p>
           </div>
         </div>
       )}
 
       {/* KPI Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-card-bg border border-card-border rounded-2xl p-5 hover:border-primary/30 transition-colors">
-          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Éves Becsült Bevétel */}
+        <div className="bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30">
+          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-3">
             <span>Éves Becsült Bevétel</span>
             <Calendar className="w-4 h-4 text-text-muted/65" />
           </div>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-text-bright font-display tabular-nums tracking-tight truncate" title={formatHuf(annualRevenue)}>
+          <p className="text-xl sm:text-2xl font-bold text-text-bright font-sans tabular-nums tracking-tight truncate" title={formatHuf(annualRevenue)}>
             {formatHuf(annualRevenue)}
           </p>
-          <span className="text-[10px] text-neon-mint-text font-semibold mt-1 block">Contextből dinamikusan kalkulálva</span>
+          <span className="text-xs text-text-muted mt-3 block font-medium">Onboarding profil alapján kalkulálva</span>
         </div>
 
-        <div className="bg-card-bg border border-card-border rounded-2xl p-5 hover:border-primary/30 transition-colors">
-          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-2">
+        {/* Havi Bevétel */}
+        <div className="bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30">
+          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-3">
             <span>Havi Bevétel</span>
             <TrendingUp className="w-4 h-4 text-text-muted/65" />
           </div>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-text-bright font-display tabular-nums tracking-tight truncate" title={formatHuf(4250000)}>
+          <p className="text-xl sm:text-2xl font-bold text-text-bright font-sans tabular-nums tracking-tight truncate" title={formatHuf(4250000)}>
             {formatHuf(4250000)}
           </p>
-          <span className="text-[10px] text-neon-mint-text font-semibold mt-1 block flex items-center gap-1">
-            <TrendingUp className="w-3.5 h-3.5" /> +3.5% előző hónaphoz képest
-          </span>
+          <div className="mt-3 flex items-center">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              <TrendingUp className="w-3 h-3" /> +3.5%
+            </span>
+            <span className="text-xs text-text-muted ml-2 font-medium">előző hónaphoz</span>
+          </div>
         </div>
 
-        <div className="bg-card-bg border border-card-border rounded-2xl p-5 hover:border-primary/30 transition-colors">
-          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-2">
+        {/* Havi Kiadás */}
+        <div className="bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30">
+          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-3">
             <span>Havi Kiadás</span>
             <TrendingDown className="w-4 h-4 text-text-muted/65" />
           </div>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-text-bright font-display tabular-nums tracking-tight truncate" title={formatHuf(3180000)}>
+          <p className="text-xl sm:text-2xl font-bold text-text-bright font-sans tabular-nums tracking-tight truncate" title={formatHuf(3180000)}>
             {formatHuf(3180000)}
           </p>
-          <span className="text-[10px] text-red-500 font-semibold mt-1 block flex items-center gap-1">
-            <TrendingDown className="w-3.5 h-3.5" /> -1.2% költségcsökkentés
-          </span>
+          <div className="mt-3 flex items-center">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400">
+              <TrendingDown className="w-3 h-3" /> -1.2%
+            </span>
+            <span className="text-xs text-text-muted ml-2 font-medium">költségcsökkentés</span>
+          </div>
         </div>
 
-        <div className="bg-card-bg border border-card-border rounded-2xl p-5 hover:border-primary/30 transition-colors">
-          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-2">
+        {/* Havi Eredmény */}
+        <div className="bg-card-bg border border-card-border rounded-2xl p-6 transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30">
+          <div className="flex justify-between items-center text-text-muted text-xs font-semibold uppercase tracking-wider mb-3">
             <span>Havi Eredmény</span>
             <Wallet className="w-4 h-4 text-text-muted/65" />
           </div>
-          <p className="text-lg sm:text-xl xl:text-2xl font-extrabold text-neon-mint-text font-display tabular-nums tracking-tight truncate" title={formatHuf(1070000)}>
+          <p className="text-xl sm:text-2xl font-bold text-neon-mint-text font-sans tabular-nums tracking-tight truncate" title={formatHuf(1070000)}>
             +{formatHuf(1070000)}
           </p>
-          <span className="text-[10px] text-text-muted font-semibold mt-1 block">
-            Nettó havi profitmarzs: 25.1%
-          </span>
+          <div className="mt-3 flex items-center">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+              25.1%
+            </span>
+            <span className="text-xs text-text-muted ml-2 font-medium">nettó profitmarzs</span>
+          </div>
         </div>
       </div>
 
@@ -272,44 +287,47 @@ export default function Dashboard() {
 
           {/* Breakdown right */}
           <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-input-bg/40 rounded-xl p-5 border border-card-border hover:border-primary/30 transition-colors">
+            {/* Cashflow */}
+            <div className="bg-input-bg/40 rounded-xl p-6 border border-card-border transition-all duration-200 hover:shadow-sm hover:border-primary/30">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Cashflow</span>
                 <span className="text-sm font-bold text-neon-mint-text">{scoreData.cashflow}/40</span>
               </div>
-              <div className="w-full h-1.5 bg-card-border rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-card-border/60 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-blue-500 to-neon-mint-text" style={{ width: `${(scoreData.cashflow/40)*100}%` }}></div>
               </div>
-              <p className="text-[11px] text-text-muted mt-3.5 leading-relaxed">Pozitív havi zárások az utóbbi 3 negyedévben. Likviditás stabil.</p>
+              <p className="text-xs text-text-muted mt-3.5 leading-relaxed">Pozitív havi zárások az utóbbi 3 negyedévben. Likviditás stabil.</p>
             </div>
 
-            <div className="bg-input-bg/40 rounded-xl p-5 border border-card-border hover:border-primary/30 transition-colors">
+            {/* Adózás */}
+            <div className="bg-input-bg/40 rounded-xl p-6 border border-card-border transition-all duration-200 hover:shadow-sm hover:border-primary/30">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Adózás</span>
                 <span className="text-sm font-bold text-neon-mint-text">{scoreData.ado}/35</span>
               </div>
-              <div className="w-full h-1.5 bg-card-border rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-card-border/60 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-blue-500 to-neon-mint-text" style={{ width: `${(scoreData.ado/35)*100}%` }}></div>
               </div>
-              <p className="text-[11px] text-text-muted mt-3.5 leading-relaxed">Jelenlegi adónem (KATA) nem a legkedvezőbb az éves bevétel mellett.</p>
+              <p className="text-xs text-text-muted mt-3.5 leading-relaxed">Jelenlegi adónem (KATA) nem a legkedvezőbb az éves bevétel mellett.</p>
             </div>
 
-            <div className="bg-input-bg/40 rounded-xl p-5 border border-card-border hover:border-primary/30 transition-colors">
+            {/* Kintlévőség */}
+            <div className="bg-input-bg/40 rounded-xl p-6 border border-card-border transition-all duration-200 hover:shadow-sm hover:border-primary/30">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Kintlévőség</span>
                 <span className="text-sm font-bold text-amber-500">{scoreData.kintlevoseg}/25</span>
               </div>
-              <div className="w-full h-1.5 bg-card-border rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-card-border/60 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500" style={{ width: `${(scoreData.kintlevoseg/25)*100}%` }}></div>
               </div>
-              <p className="text-[11px] text-text-muted mt-3.5 leading-relaxed">Partner számlák átlagos fizetési csúszása meghaladja a 18 napot.</p>
+              <p className="text-xs text-text-muted mt-3.5 leading-relaxed">Partner számlák átlagos fizetési csúszása meghaladja a 18 napot.</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Grid: AI Pulse & Interactive charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Left Col: AI Pulse (Interactive spark card) */}
         <div className="lg:col-span-8 bg-gradient-to-br from-blue-950/10 to-card-bg rounded-2xl border border-card-border p-6 relative overflow-hidden flex flex-col justify-between">
@@ -322,9 +340,17 @@ export default function Dashboard() {
             </div>
 
             {isPulseLoading ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <Loader2 className="w-8 h-8 text-neon-mint-text animate-spin" />
-                <p className="text-text-muted text-xs font-semibold tracking-wider uppercase">Vállalkozási adatok mély-elemzése...</p>
+              <div className="animate-pulse space-y-4 py-6">
+                <div className="h-4 bg-card-border/60 rounded w-3/4"></div>
+                <div className="h-4 bg-card-border/60 rounded w-5/6"></div>
+                <div className="h-4 bg-card-border/60 rounded w-2/3"></div>
+                <div className="pt-4 space-y-2">
+                  <div className="h-3 bg-card-border/60 rounded w-1/4"></div>
+                  <div className="flex gap-2">
+                    <div className="h-8 bg-card-border/60 rounded-xl w-32"></div>
+                    <div className="h-8 bg-card-border/60 rounded-xl w-32"></div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
@@ -337,7 +363,7 @@ export default function Dashboard() {
                   <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-3">AI javasolt kérdések erről:</p>
                   <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => openAiChat(`A havi pulzus elemzésedben említetted az adóoptimalizálást. Milyen konkrét lépéseket javasolsz a(z) ${companyData.name} cégem számára?`)}
+                      onClick={() => openAiChat(`A havi pulzus elemzésedben említetted az adóoptimalizálást. Milyen konkrét lépéseket javasolsz a(z) ${activeCompany.name} cégem számára?`)}
                       className="text-xs bg-input-bg border border-input-border hover:border-primary/40 hover:bg-input-bg text-text-main hover:text-text-bright px-3.5 py-2 rounded-xl transition-all cursor-pointer"
                     >
                       💡 Adótanácsok részletesen
@@ -355,7 +381,7 @@ export default function Dashboard() {
           </div>
 
           <div className="pt-6 border-t border-card-border mt-6 flex justify-between items-center text-xs">
-            <span className="text-text-muted font-medium">Vállalkozás: {companyData.industry} szektor</span>
+            <span className="text-text-muted font-medium">Vállalkozás: {activeCompany.industry} szektor</span>
             <button
               onClick={() => openAiChat("Elemezd a cégem havi pulzusát részletesebben!")}
               className="text-neon-mint-text font-semibold hover:underline flex items-center gap-1 cursor-pointer"
@@ -366,7 +392,7 @@ export default function Dashboard() {
         </div>
 
         {/* Right Col: Tax Alerts & Mini-Chart */}
-        <div className="lg:col-span-4 space-y-6 flex flex-col">
+        <div className="lg:col-span-4 flex flex-col gap-6">
           
           {/* Tax Status Card */}
           <div className="bg-card-bg border border-card-border rounded-2xl p-6 flex flex-col justify-between flex-1">
@@ -376,19 +402,19 @@ export default function Dashboard() {
                 <h3 className="font-bold text-sm">Adózási Optimalizáció</h3>
               </div>
 
-              <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-4 space-y-2">
+              <div className="bg-amber-500/5 dark:bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 space-y-2">
                 <div className="flex gap-2">
-                  <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-amber-700 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold text-text-bright text-xs block">Váltás javasolt</span>
-                    <p className="text-[11px] text-text-muted mt-1">
-                      A jelenlegi KATA adózás nem optimális az éves {formatHufShort(annualRevenue)} bevétel mellett.
+                    <span className="font-bold text-amber-700 dark:text-amber-400 text-xs block">Váltás javasolt</span>
+                    <p className="text-xs text-text-muted mt-1 leading-relaxed">
+                      A jelenlegi KATA adózás nem optimális az éves {formatHuf(annualRevenue)} bevétel mellett.
                     </p>
                   </div>
                 </div>
                 <div className="flex justify-between items-center bg-input-bg/50 p-2.5 rounded-lg border border-card-border mt-2">
-                  <span className="text-[10px] text-text-muted font-bold uppercase">Becsült megtakarítás</span>
-                  <span className="text-neon-mint-text font-bold text-xs">~468.000 Ft / év</span>
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Becsült megtakarítás</span>
+                  <span className="text-neon-mint-text font-bold text-xs">~468&nbsp;000&nbsp;Ft / év</span>
                 </div>
               </div>
             </div>
@@ -420,6 +446,7 @@ export default function Dashboard() {
                 <AreaChart
                   data={mockCashflowHistory}
                   margin={{ top: 5, right: 0, left: 0, bottom: 0 }}
+                  className="cursor-pointer"
                   onClick={(data) => {
                     if (data && data.activeLabel) {
                       const activeItem = mockCashflowHistory.find(h => h.name === data.activeLabel);
@@ -435,8 +462,8 @@ export default function Dashboard() {
                       <stop offset="95%" stopColor="var(--neon-mint)" stopOpacity={0} />
                     </linearGradient>
                     <linearGradient id="glowKiadas" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#991B1B" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="#991B1B" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.15} />
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="name" hide />

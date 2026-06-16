@@ -33,13 +33,20 @@ const MONTHS = [
 
 /* ── Helpers ───────────────────────────────────────────── */
 const formatHuf = (val) =>
-  new Intl.NumberFormat('hu-HU').format(Math.round(val)) + ' Ft';
+  new Intl.NumberFormat('hu-HU').format(Math.round(val)).replace(/\s/g, '\u00A0') + '\u00A0Ft';
 
 let nextId = Date.now();
 
 /* ── Component ─────────────────────────────────────────── */
 export default function Cashflow() {
   const { incomes, setIncomes, expenses, setExpenses } = useFinance();
+
+  // Interactive HTML Legend state
+  const [visibleSeries, setVisibleSeries] = useState({
+    bevétel: true,
+    kiadás: true,
+    nettó: true
+  });
 
   // Inline add-form state
   const [newIncome, setNewIncome] = useState({ name: '', amount: '', frequency: 'Havi', month: 'Július' });
@@ -117,20 +124,26 @@ export default function Cashflow() {
     return (
       <div className="bg-card-bg border border-card-border rounded-xl p-4 shadow-2xl text-xs space-y-1.5 backdrop-blur-md">
         <p className="font-bold text-text-bright mb-1">{label}</p>
-        <p className="flex justify-between gap-6 text-text-muted">
-          <span>Bevétel:</span>
-          <span className="font-bold text-neon-mint-text">{formatHuf(d.bevétel)}</span>
-        </p>
-        <p className="flex justify-between gap-6 text-text-muted">
-          <span>Kiadás:</span>
-          <span className="font-bold text-red-400">{formatHuf(d.kiadás)}</span>
-        </p>
-        <p className="flex justify-between gap-6 text-text-muted border-t border-card-border pt-1.5">
-          <span>Nettó:</span>
-          <span className={`font-bold ${d.nettó >= 0 ? 'text-neon-mint-text' : 'text-red-400'}`}>
-            {formatHuf(d.nettó)}
-          </span>
-        </p>
+        {visibleSeries.bevétel && (
+          <p className="flex justify-between gap-6 text-text-muted">
+            <span>Bevétel:</span>
+            <span className="font-bold text-neon-mint-text">{formatHuf(d.bevétel)}</span>
+          </p>
+        )}
+        {visibleSeries.kiadás && (
+          <p className="flex justify-between gap-6 text-text-muted">
+            <span>Kiadás:</span>
+            <span className="font-bold text-red-500 dark:text-red-400">{formatHuf(d.kiadás)}</span>
+          </p>
+        )}
+        {visibleSeries.nettó && (
+          <p className="flex justify-between gap-6 text-text-muted border-t border-card-border pt-1.5">
+            <span>Nettó:</span>
+            <span className={`font-bold ${d.nettó >= 0 ? 'text-neon-mint-text' : 'text-red-500 dark:text-red-400'}`}>
+              {formatHuf(d.nettó)}
+            </span>
+          </p>
+        )}
       </div>
     );
   };
@@ -200,63 +213,109 @@ export default function Cashflow() {
 
       {/* ─── 3. 6-Month Area Chart ─────────────────────── */}
       <div className="bg-card-bg border border-card-border rounded-2xl p-5 transition-colors duration-200">
-        <h2 className="text-sm font-bold text-text-muted uppercase tracking-widest mb-5">
-          6 Hónapos Cash Flow Előrejelzés
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+          <h2 className="text-sm font-bold text-text-muted uppercase tracking-widest">
+            6 Hónapos Cash Flow Előrejelzés
+          </h2>
+          {/* HTML Interactive Legend */}
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            <button
+              onClick={() => setVisibleSeries(p => ({ ...p, bevétel: !p.bevétel }))}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer font-semibold ${
+                visibleSeries.bevétel
+                  ? 'bg-neon-mint/10 border-neon-mint text-neon-mint-text'
+                  : 'bg-transparent border-card-border text-text-muted hover:border-text-muted'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--chart-revenue)' }} />
+              <span>Bevétel</span>
+            </button>
+            <button
+              onClick={() => setVisibleSeries(p => ({ ...p, kiadás: !p.kiadás }))}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer font-semibold ${
+                visibleSeries.kiadás
+                  ? 'bg-red-500/10 border-red-500 text-red-500 dark:text-red-400'
+                  : 'bg-transparent border-card-border text-text-muted hover:border-text-muted'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--chart-expense)' }} />
+              <span>Kiadás</span>
+            </button>
+            <button
+              onClick={() => setVisibleSeries(p => ({ ...p, nettó: !p.nettó }))}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] cursor-pointer font-semibold ${
+                visibleSeries.nettó
+                  ? 'bg-indigo-500/10 border-indigo-500 text-indigo-500 dark:text-indigo-400'
+                  : 'bg-transparent border-card-border text-text-muted hover:border-text-muted'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: 'var(--chart-net)' }} />
+              <span>Nettó</span>
+            </button>
+          </div>
+        </div>
+
         <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <ComposedChart data={chartData} margin={{ top: 15, right: 15, left: 15, bottom: 10 }}>
               <defs>
                 <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--neon-mint)" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="var(--neon-mint)" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-revenue)" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="var(--chart-revenue)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradRed" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.2} />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-expense)" stopOpacity={0.2} />
+                  <stop offset="100%" stopColor="var(--chart-expense)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--card-border)" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--chart-grid)" />
               <XAxis
                 dataKey="name"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                tick={{ fill: 'var(--chart-tick)', fontSize: 11 }}
               />
               <YAxis
                 axisLine={false}
                 tickLine={false}
-                tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+                tick={{ fill: 'var(--chart-tick)', fontSize: 11 }}
                 tickFormatter={(v) => {
                   if (Math.abs(v) >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
                   if (Math.abs(v) >= 1_000) return `${(v / 1_000).toFixed(0)}e`;
                   return v;
                 }}
               />
-              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} content={<ChartTooltip />} />
+              <Tooltip
+                cursor={{ stroke: 'var(--chart-grid)', strokeDasharray: '3 3', strokeWidth: 1.5 }}
+                content={<ChartTooltip />}
+              />
               <Area
                 type="monotone"
                 dataKey="bevétel"
-                stroke="var(--neon-mint)"
+                stroke="var(--chart-revenue)"
                 strokeWidth={2}
                 fill="url(#gradGreen)"
                 name="Bevétel"
+                hide={!visibleSeries.bevétel}
               />
               <Area
                 type="monotone"
                 dataKey="kiadás"
-                stroke="#ef4444"
+                stroke="var(--chart-expense)"
                 strokeWidth={2}
                 fill="url(#gradRed)"
                 name="Kiadás"
+                hide={!visibleSeries.kiadás}
               />
               <Line
                 type="monotone"
                 dataKey="nettó"
-                stroke="#818cf8"
+                stroke="var(--chart-net)"
                 strokeWidth={2.5}
-                dot={{ r: 3, fill: '#818cf8', strokeWidth: 0 }}
+                dot={{ r: 3, fill: 'var(--chart-net)', strokeWidth: 0 }}
+                activeDot={{ r: 6, stroke: 'var(--chart-net)', strokeWidth: 4, strokeOpacity: 0.3, fill: 'var(--chart-net)' }}
                 name="Nettó"
+                hide={!visibleSeries.nettó}
               />
             </ComposedChart>
           </ResponsiveContainer>
@@ -281,10 +340,10 @@ export default function Cashflow() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-bright truncate">{item.name}</p>
-                  <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
+                  <span className={`text-[10px] font-semibold uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
-                      ? 'text-emerald-400'
-                      : 'text-amber-400'
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : 'text-amber-500 dark:text-amber-400'
                   }`}>
                     {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
                   </span>
@@ -294,7 +353,7 @@ export default function Cashflow() {
                 </span>
                 <button
                   onClick={() => deleteIncome(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-400 transition-all cursor-pointer p-1"
+                  className="opacity-40 hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-text-muted hover:text-red-500 transition-all cursor-pointer p-1"
                   aria-label="Törlés"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -313,19 +372,19 @@ export default function Cashflow() {
               placeholder="Megnevezés"
               value={newIncome.name}
               onChange={(e) => setNewIncome(p => ({ ...p, name: e.target.value }))}
-              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50"
+              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50 focus:ring-1 focus:ring-neon-mint/30 transition-all duration-200"
             />
             <input
               type="number"
               placeholder="Összeg"
               value={newIncome.amount}
               onChange={(e) => setNewIncome(p => ({ ...p, amount: e.target.value }))}
-              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50"
+              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-neon-mint/50 focus:ring-1 focus:ring-neon-mint/30 transition-all duration-200"
             />
             <select
               value={newIncome.frequency}
               onChange={(e) => setNewIncome(p => ({ ...p, frequency: e.target.value }))}
-              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50"
+              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50 cursor-pointer"
             >
               <option value="Havi">Havi</option>
               <option value="Egyszeri">Egyszeri</option>
@@ -334,7 +393,7 @@ export default function Cashflow() {
               <select
                 value={newIncome.month}
                 onChange={(e) => setNewIncome(p => ({ ...p, month: e.target.value }))}
-                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50"
+                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-neon-mint/50 cursor-pointer"
               >
                 {MONTHS.map(m => (
                   <option key={m.full} value={m.full}>{m.short}</option>
@@ -343,7 +402,7 @@ export default function Cashflow() {
             )}
             <button
               onClick={() => addItem('income')}
-              className="bg-neon-mint text-[#101112] font-bold rounded-xl p-2.5 hover:bg-neon-mint-hover transition-colors cursor-pointer shrink-0"
+              className="bg-neon-mint text-neon-mint-btn-text font-bold rounded-xl p-2.5 hover:bg-neon-mint-hover transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 shadow-sm"
               aria-label="Bevétel hozzáadása"
             >
               <Plus className="w-4 h-4" />
@@ -353,7 +412,7 @@ export default function Cashflow() {
 
         {/* ── Kiadások ──────────────────────────────────── */}
         <div className="bg-card-bg border border-card-border rounded-2xl p-5 flex flex-col transition-colors duration-200">
-          <h2 className="text-sm font-bold text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+          <h2 className="text-sm font-bold text-red-500 dark:text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
             <TrendingDown className="w-4 h-4" /> Kiadások
           </h2>
 
@@ -366,20 +425,20 @@ export default function Cashflow() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-text-bright truncate">{item.name}</p>
-                  <span className={`text-[10px] font-medium uppercase mt-0.5 block ${
+                  <span className={`text-[10px] font-semibold uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
-                      ? 'text-emerald-400'
-                      : 'text-amber-400'
+                      ? 'text-emerald-500 dark:text-emerald-400'
+                      : 'text-amber-500 dark:text-amber-400'
                   }`}>
                     {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
                   </span>
                 </div>
-                <span className="text-sm font-bold text-red-400 tabular-nums whitespace-nowrap">
+                <span className="text-sm font-bold text-red-500 dark:text-red-400 tabular-nums whitespace-nowrap">
                   {formatHuf(item.amount)}
                 </span>
                 <button
                   onClick={() => deleteExpense(item.id)}
-                  className="opacity-0 group-hover:opacity-100 text-text-muted hover:text-red-400 transition-all cursor-pointer p-1"
+                  className="opacity-40 hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 text-text-muted hover:text-red-500 transition-all cursor-pointer p-1"
                   aria-label="Törlés"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -398,19 +457,19 @@ export default function Cashflow() {
               placeholder="Megnevezés"
               value={newExpense.name}
               onChange={(e) => setNewExpense(p => ({ ...p, name: e.target.value }))}
-              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50"
+              className="flex-1 min-w-[120px] bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50 focus:ring-1 focus:ring-red-400/30 transition-all duration-200"
             />
             <input
               type="number"
               placeholder="Összeg"
               value={newExpense.amount}
               onChange={(e) => setNewExpense(p => ({ ...p, amount: e.target.value }))}
-              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50"
+              className="w-28 bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright placeholder:text-text-muted focus:outline-none focus:border-red-400/50 focus:ring-1 focus:ring-red-400/30 transition-all duration-200"
             />
             <select
               value={newExpense.frequency}
               onChange={(e) => setNewExpense(p => ({ ...p, frequency: e.target.value }))}
-              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50"
+              className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50 cursor-pointer"
             >
               <option value="Havi">Havi</option>
               <option value="Egyszeri">Egyszeri</option>
@@ -419,7 +478,7 @@ export default function Cashflow() {
               <select
                 value={newExpense.month}
                 onChange={(e) => setNewExpense(p => ({ ...p, month: e.target.value }))}
-                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50"
+                className="bg-input-bg border border-input-border rounded-xl px-3 py-2.5 text-sm text-text-bright focus:outline-none focus:border-red-400/50 cursor-pointer"
               >
                 {MONTHS.map(m => (
                   <option key={m.full} value={m.full}>{m.short}</option>
@@ -428,7 +487,7 @@ export default function Cashflow() {
             )}
             <button
               onClick={() => addItem('expense')}
-              className="bg-red-500 text-white font-bold rounded-xl p-2.5 hover:bg-red-600 transition-colors cursor-pointer shrink-0"
+              className="bg-red-500 text-white font-bold rounded-xl p-2.5 hover:bg-red-600 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shrink-0 shadow-sm"
               aria-label="Kiadás hozzáadása"
             >
               <Plus className="w-4 h-4" />
@@ -439,18 +498,18 @@ export default function Cashflow() {
 
       {/* ─── 5. AI Warning Card ────────────────────────── */}
       {negativeMonths.length > 0 && (
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start gap-4">
+        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start gap-4 transition-all duration-200">
           <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-5 h-5 text-amber-400" />
+            <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-amber-300 mb-1">AI Figyelmeztetés – Negatív Cashflow</h3>
+            <h3 className="text-sm font-bold text-amber-600 dark:text-amber-300 mb-1">AI Figyelmeztetés – Negatív Cashflow</h3>
             <p className="text-sm text-text-muted leading-relaxed">
               {negativeMonths.length === 1
                 ? `A(z) ${negativeMonths[0].name} hónapban negatív az egyenleged: `
                 : `${negativeMonths.map(m => m.name).join(', ')} hónapokban negatív az egyenleged: `}
               {negativeMonths.map(m => (
-                <span key={m.name} className="font-bold text-red-400 tabular-nums whitespace-nowrap">
+                <span key={m.name} className="font-bold text-red-500 dark:text-red-400 tabular-nums whitespace-nowrap">
                   {m.name} {formatHuf(m.nettó)}
                   {m !== negativeMonths[negativeMonths.length - 1] ? ', ' : ''}
                 </span>
@@ -460,7 +519,7 @@ export default function Cashflow() {
           </div>
           <button
             onClick={triggerAiChat}
-            className="bg-neon-mint text-[#101112] text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-neon-mint-hover transition-colors cursor-pointer whitespace-nowrap shrink-0"
+            className="bg-neon-mint text-neon-mint-btn-text text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-neon-mint-hover transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer whitespace-nowrap shrink-0 shadow-sm"
           >
             AI Tanácsadó
           </button>

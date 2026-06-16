@@ -79,7 +79,7 @@ export default function AppLayout({ children }) {
   return (
     <div className="min-h-screen bg-bg-main text-text-main transition-colors duration-200">
       {/* Mobile Header (top) */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-45 bg-sidebar-bg text-text-bright border-b border-sidebar-border px-4 py-3 shadow-sm flex items-center justify-between transition-colors duration-200">
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-[45] bg-sidebar-bg text-text-bright border-b border-sidebar-border px-4 py-3 shadow-sm flex items-center justify-between transition-colors duration-200">
         <Link to="/dashboard" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-neon-mint/20 flex items-center justify-center border border-neon-mint/30">
             <Sparkles className="w-4 h-4 text-neon-mint-text" />
@@ -108,7 +108,7 @@ export default function AppLayout({ children }) {
       </header>
 
       {/* Desktop Sidebar (Indigo Navy Theme) */}
-      <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-full w-72 bg-sidebar-bg border-r border-sidebar-border flex-col transition-colors duration-200">
+      <aside className="hidden lg:flex fixed top-0 left-0 z-40 h-full w-64 bg-sidebar-bg border-r border-sidebar-border flex-col transition-colors duration-200">
         {/* Sidebar Header */}
         <div className="p-6 border-b border-sidebar-border flex justify-between items-center">
           <Link to="/dashboard" className="flex items-center gap-3 min-w-0">
@@ -130,7 +130,7 @@ export default function AppLayout({ children }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 p-4 pl-0 space-y-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path
             const Icon = item.icon
@@ -139,10 +139,10 @@ export default function AppLayout({ children }) {
                 key={item.path}
                 to={item.path}
                 className={`
-                  flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium
+                  flex items-center gap-3 px-4 py-3 rounded-r-xl rounded-l-none text-sm font-medium
                   transition-all duration-200 group
                   ${isActive
-                    ? 'bg-active-nav-bg text-neon-mint-text shadow-sm border-l-2 border-neon-mint'
+                    ? 'bg-active-nav-bg text-neon-mint-text shadow-sm border-l-2 border-neon-mint pl-3.5'
                     : 'text-text-muted hover:bg-card-bg hover:text-text-bright'
                   }
                 `}
@@ -157,16 +157,16 @@ export default function AppLayout({ children }) {
           {/* AI Copilot Drawer Trigger */}
           <button
             onClick={() => setIsChatOpen(true)}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 group text-text-muted hover:bg-card-bg hover:text-text-bright text-left cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-r-xl rounded-l-none text-sm font-medium transition-all duration-200 group text-text-muted hover:bg-card-bg hover:text-text-bright text-left cursor-pointer"
           >
             <MessageSquare className="w-5 h-5 text-text-muted group-hover:text-text-bright" />
             <span>AI Mentor Chat</span>
-            <span className="ml-auto text-[9px] bg-input-bg text-text-muted px-1 py-0.5 rounded border border-card-border">⌘ K</span>
+            <span className="ml-auto text-[10px] bg-input-bg text-text-muted px-1.5 py-0.5 rounded border border-card-border">⌘ K</span>
           </button>
         </nav>
 
         {/* User Profile */}
-        <div className="p-4 border-t border-card-border bg-card-bg transition-colors duration-200">
+        <div className="p-4 border-t border-sidebar-border bg-card-bg transition-colors duration-200">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-input-bg flex items-center justify-center border border-card-border">
               <User className="w-5 h-5 text-text-muted" />
@@ -183,14 +183,14 @@ export default function AppLayout({ children }) {
       </aside>
 
       {/* Main Content */}
-      <main className="lg:ml-72 pt-16 lg:pt-0 pb-20 lg:pb-0 min-h-screen">
+      <main className="lg:ml-64 pt-14 lg:pt-0 pb-20 lg:pb-0 min-h-screen">
         <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
           {children}
         </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-45 bg-sidebar-bg border-t border-sidebar-border pb-safe shadow-lg transition-colors duration-200">
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-[45] bg-sidebar-bg border-t border-sidebar-border pb-[env(safe-area-inset-bottom)] shadow-lg transition-colors duration-200">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path
@@ -199,7 +199,7 @@ export default function AppLayout({ children }) {
               <Link
                 key={item.path}
                 to={item.path}
-                className="flex flex-col items-center justify-center w-full py-1 gap-1 relative group"
+                className="flex flex-col items-center justify-center w-full py-1 gap-1 relative group active:scale-95 transition-transform"
               >
                 <div className={`
                   flex items-center justify-center w-10 h-8 rounded-full transition-colors
@@ -215,7 +215,7 @@ export default function AppLayout({ children }) {
           })}
           <button
             onClick={() => setIsChatOpen(true)}
-            className="flex flex-col items-center justify-center w-full py-1 gap-1 relative group cursor-pointer"
+            className="flex flex-col items-center justify-center w-full py-1 gap-1 relative group cursor-pointer active:scale-95 transition-transform"
           >
             <div className="flex items-center justify-center w-10 h-8 rounded-full transition-colors bg-transparent">
               <MessageSquare className="w-5 h-5 text-text-muted" />

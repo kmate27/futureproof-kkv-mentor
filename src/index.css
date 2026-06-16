@@ -5,7 +5,7 @@
   /* Dark theme variables (default) */
   --bg-main: #101112;
   --text-main: #cbd5e1; /* slate-300 */
-  --text-muted: #64748b; /* slate-500 */
+  --text-muted: #94a3b8; /* slate-400 (5.48:1 contrast - WCAG AA pass) */
   --text-bright: #ffffff;
   --card-bg: rgba(30, 41, 59, 0.4); /* slate-800/40 */
   --card-border: rgba(255, 255, 255, 0.08);
@@ -20,13 +20,21 @@
   --neon-mint-hover: #00d762;
   --neon-mint-text: #00F872;
   --neon-mint-glow: rgba(0, 248, 114, 0.4);
+
+  /* Chart & Interaction tokens */
+  --chart-revenue: #00F872;
+  --chart-expense: #ef4444;
+  --chart-net: #818cf8;
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-tick: #94a3b8;
+  --neon-mint-btn-text: #101112;
 }
 
 html.light {
   /* Light theme variables */
   --bg-main: #f8fafc; /* slate-50 */
   --text-main: #334155; /* slate-700 */
-  --text-muted: #64748b; /* slate-500 */
+  --text-muted: #475569; /* slate-600 (6.06:1 contrast - WCAG AA pass) */
   --text-bright: #0f172a; /* slate-900 */
   --card-bg: #ffffff;
   --card-border: #e2e8f0; /* slate-200 */
@@ -37,10 +45,18 @@ html.light {
   --active-nav-bg: rgba(30, 41, 59, 0.06);
   --glow-opacity: 0.05;
   --pulse-bg: rgba(13, 115, 119, 0.02);
-  --neon-mint: #0d9488; /* teal-600 — professional, high-contrast accent */
+  --neon-mint: #0d9488; /* teal-600 */
   --neon-mint-hover: #0f766e; /* teal-700 */
-  --neon-mint-text: #134e4a; /* teal-900 — excellent readability on white */
+  --neon-mint-text: #134e4a; /* teal-900 */
   --neon-mint-glow: rgba(13, 148, 136, 0.15);
+
+  /* Chart & Interaction tokens */
+  --chart-revenue: #0d9488;
+  --chart-expense: #dc2626;
+  --chart-net: #4f46e5;
+  --chart-grid: #e2e8f0;
+  --chart-tick: #475569;
+  --neon-mint-btn-text: #ffffff;
 }
 
 @theme {
@@ -71,6 +87,14 @@ html.light {
   --color-neon-mint: var(--neon-mint);
   --color-neon-mint-hover: var(--neon-mint-hover);
   --color-neon-mint-text: var(--neon-mint-text);
+
+  /* Chart Bindings */
+  --color-chart-revenue: var(--chart-revenue);
+  --color-chart-expense: var(--chart-expense);
+  --color-chart-net: var(--chart-net);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-tick: var(--chart-tick);
+  --color-neon-mint-btn-text: var(--neon-mint-btn-text);
 }
 
 @layer base {
@@ -81,6 +105,35 @@ html.light {
 
   * {
     @apply border-card-border;
+  }
+
+  /* Enforcing typography scales globally */
+  h1 {
+    @apply text-2xl sm:text-3xl font-extrabold font-display text-text-bright tracking-tight leading-tight;
+  }
+
+  h2 {
+    @apply text-xl sm:text-2xl font-bold font-display text-text-bright tracking-tight leading-snug;
+  }
+
+  h3 {
+    @apply text-base font-semibold text-text-bright font-sans leading-normal;
+  }
+
+  h4 {
+    @apply text-sm font-semibold text-text-bright font-sans leading-normal;
+  }
+
+  label {
+    @apply block text-xs font-bold text-text-muted font-sans uppercase tracking-wider mb-2;
+  }
+
+  input, select, textarea {
+    color-scheme: dark;
+  }
+  
+  html.light input, html.light select, html.light textarea {
+    color-scheme: light;
   }
 }
 

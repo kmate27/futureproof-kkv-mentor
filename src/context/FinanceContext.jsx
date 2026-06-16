@@ -22,6 +22,19 @@ const INITIAL_EXPENSES = [
 export function FinanceProvider({ children }) {
   const [incomes, setIncomes] = useState(INITIAL_INCOMES);
   const [expenses, setExpenses] = useState(INITIAL_EXPENSES);
+  const [companyData, setCompanyData] = useState(() => {
+    const saved = localStorage.getItem('companyData');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const saveCompanyData = (data) => {
+    setCompanyData(data);
+    if (data) {
+      localStorage.setItem('companyData', JSON.stringify(data));
+    } else {
+      localStorage.removeItem('companyData');
+    }
+  };
 
   // Éves becsült bevétel kiszámolása a bevételek alapján
   const annualRevenue = useMemo(() => {
@@ -34,7 +47,7 @@ export function FinanceProvider({ children }) {
   }, [incomes]);
 
   return (
-    <FinanceContext.Provider value={{ incomes, setIncomes, expenses, setExpenses, annualRevenue }}>
+    <FinanceContext.Provider value={{ incomes, setIncomes, expenses, setExpenses, annualRevenue, companyData, saveCompanyData }}>
       {children}
     </FinanceContext.Provider>
   );

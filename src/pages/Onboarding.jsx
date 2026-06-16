@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useFinance } from '../context/FinanceContext';
@@ -14,8 +14,36 @@ import {
   Sparkles,
   Link2,
   Check,
-  AlertCircle
+  AlertCircle,
+  ChevronDown
 } from 'lucide-react';
+
+/* ── HeightTransitionWrapper ─────────────────────────────────── */
+function HeightTransitionWrapper({ children }) {
+  const ref = useRef(null);
+  const [height, setHeight] = useState('auto');
+
+  useEffect(() => {
+    if (ref.current) {
+      const observer = new ResizeObserver((entries) => {
+        for (let entry of entries) {
+          setHeight(entry.contentRect.height);
+        }
+      });
+      observer.observe(ref.current);
+      return () => observer.disconnect();
+    }
+  }, []);
+
+  return (
+    <div 
+      className="transition-[height] duration-300 ease-in-out overflow-hidden relative"
+      style={{ height: height !== 'auto' ? `${height}px` : 'auto' }}
+    >
+      <div ref={ref}>{children}</div>
+    </div>
+  );
+}
 
 const STEP_META = [
   { icon: User, label: 'Profil & Célok' },
@@ -36,7 +64,7 @@ const INTENTS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
-  const { setIncomes, setExpenses } = useFinance();
+  const { setIncomes, setExpenses, saveCompanyData } = useFinance();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     fullName: '',
@@ -141,6 +169,18 @@ export default function Onboarding() {
     }
   }, [formData.monthlyRevenue, formData.monthlyExpense, formData.cashBalance]);
 
+  // Dynamic max balance to scale SVG forecast bars beautifully
+  const maxProjectedBalance = useMemo(() => {
+    let maxVal = formData.cashBalance;
+    for (let i = 1; i <= 6; i++) {
+      const balanceAtMonth = formData.cashBalance + (formData.monthlyRevenue - formData.monthlyExpense) * i;
+      if (balanceAtMonth > maxVal) {
+        maxVal = balanceAtMonth;
+      }
+    }
+    return Math.max(1000000, maxVal);
+  }, [formData.cashBalance, formData.monthlyRevenue, formData.monthlyExpense]);
+
   // Generate mock transaction data on success based on onboarding values
   const setupMockData = () => {
     const rev = formData.monthlyRevenue;
@@ -196,10 +236,20 @@ export default function Onboarding() {
       };
       localStorage.setItem('kkv_onboarding_data', JSON.stringify(onboardingData));
 
+      // Save structured company data contextually
+      saveCompanyData({
+        name: formData.companyName,
+        industry: formData.industry,
+        taxRegime: formData.companyType === 'Egyéni vállalkozó' ? 'KATA' : 'TAO Kft.',
+        revenue: (formData.monthlyRevenue * 12).toLocaleString() + ' Ft',
+        employees: '1-2',
+        onboarding: onboardingData
+      });
+
       // Quick timeout for visual effect
       setTimeout(() => {
         setIsSubmitting(false);
-        navigate('/dashboard', { state: { companyData: { name: formData.companyName, industry: formData.industry, taxRegime: formData.companyType === 'Egyéni vállalkozó' ? 'KATA' : 'TAO Kft.', revenue: (formData.monthlyRevenue * 12).toLocaleString() + ' Ft' } } });
+        navigate('/dashboard');
       }, 2000);
     } catch (e) {
       console.error(e);
@@ -208,7 +258,7 @@ export default function Onboarding() {
     }
   };
 
-  const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(val) + ' Ft';
+  const formatHuf = (val) => new Intl.NumberFormat('hu-HU').format(Math.round(val)).replace(/\s/g, '\u00A0') + '\u00A0Ft';
 
   return (
     <div className="min-h-screen bg-bg-main text-text-main flex flex-col font-sans selection:bg-neon-mint/30 selection:text-text-bright transition-colors duration-200">
@@ -263,165 +313,193 @@ export default function Onboarding() {
         <div className="bg-card-bg/60 backdrop-blur-xl rounded-2xl border border-card-border p-6 sm:p-8 shadow-2xl relative overflow-hidden transition-all duration-300">
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-48 h-48 bg-[#1F5FAD] opacity-[0.03] rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Step 0: Profile & Intent */}
-          {currentStep === 0 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Üdvözlünk a KKV Mentorban!</h2>
-                <p className="text-sm text-text-muted">Kérlek add meg a személyes elérhetőségeidet a fiókod létrehozásához.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Teljes Név</label>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={e => setFormData({ ...formData, fullName: e.target.value })}
-                    placeholder="Minta János"
-                    className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
-                  />
+          <HeightTransitionWrapper>
+            {/* Step 0: Profile & Intent */}
+            {currentStep === 0 && (
+              <div className="space-y-6 animate-fade-in">
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Üdvözlünk a KKV Mentorban!</h2>
+                  <p className="text-sm text-text-muted">Kérlek add meg a személyes elérhetőségeidet a fiókod létrehozásához.</p>
                 </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">E-mail Cím</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Teljes Név</label>
                     <input
-                      type="email"
-                      value={formData.email}
-                      onChange={e => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="janos@cegnev.hu"
+                      type="text"
+                      value={formData.fullName}
+                      onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                      placeholder="Minta János"
                       className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                     />
                   </div>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">E-mail Cím</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={e => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="janos@cegnev.hu"
+                        className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Telefonszám (opcionális)</label>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="+36 30 123 4567"
+                        className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Mi a legfőbb célod az alkalmazással?</label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {INTENTS.map(intent => (
+                        <button
+                          key={intent.id}
+                          onClick={() => setFormData({ ...formData, intent: intent.id })}
+                          className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
+                            formData.intent === intent.id
+                              ? 'border-neon-mint bg-neon-mint/5'
+                              : 'border-card-border bg-input-bg/50 hover:border-[#1F5FAD]/40'
+                          }`}
+                        >
+                          <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-neon-mint-text' : 'text-text-bright'}`}>
+                            {intent.label}
+                          </span>
+                          <span className="block text-xs text-text-muted mt-1">{intent.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 1: Company Details */}
+            {currentStep === 1 && (
+              <div className="space-y-6 animate-fade-in">
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Vállalkozásod adatai</h2>
+                  <p className="text-sm text-text-muted">Ez alapján fogjuk kiszámítani a rád vonatkozó adószabályokat és lehetőségeket.</p>
+                </div>
+
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Telefonszám (opcionális)</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Cégnév</label>
                     <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                      placeholder="+36 30 123 4567"
+                      type="text"
+                      value={formData.companyName}
+                      onChange={e => setFormData({ ...formData, companyName: e.target.value })}
+                      placeholder="Példa Kft."
                       className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
                     />
                   </div>
-                </div>
 
-                <div className="pt-2">
-                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Mi a legfőbb célod az alkalmazással?</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {INTENTS.map(intent => (
-                      <button
-                        key={intent.id}
-                        onClick={() => setFormData({ ...formData, intent: intent.id })}
-                        className={`p-4 rounded-xl border-2 text-left transition-all cursor-pointer ${
-                          formData.intent === intent.id
-                            ? 'border-neon-mint bg-neon-mint/5'
-                            : 'border-card-border bg-input-bg/50 hover:border-[#1F5FAD]/40'
-                        }`}
-                      >
-                        <span className={`block font-bold text-sm ${formData.intent === intent.id ? 'text-neon-mint-text' : 'text-text-bright'}`}>
-                          {intent.label}
-                        </span>
-                        <span className="block text-xs text-text-muted mt-1">{intent.desc}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 1: Company Details */}
-          {currentStep === 1 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Vállalkozásod adatai</h2>
-                <p className="text-sm text-text-muted">Eze alapján fogjuk kiszámítani a rád vonatkozó adószabályokat és lehetőségeket.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Cégnév</label>
-                  <input
-                    type="text"
-                    value={formData.companyName}
-                    onChange={e => setFormData({ ...formData, companyName: e.target.value })}
-                    placeholder="Példa Kft."
-                    className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright placeholder-text-muted/50 focus:outline-none focus:border-[#1F5FAD] transition-colors"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Vállalkozási forma</label>
-                    <select
-                      value={formData.companyType}
-                      onChange={e => setFormData({ ...formData, companyType: e.target.value })}
-                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
-                    >
-                      {COMPANY_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Iparág</label>
-                    <select
-                      value={formData.industry}
-                      onChange={e => setFormData({ ...formData, industry: e.target.value })}
-                      className="w-full bg-input-bg border border-input-border rounded-xl px-4 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none"
-                    >
-                      {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 2: Integrations */}
-          {currentStep === 2 && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Adatkapcsolatok (Integrációk)</h2>
-                <p className="text-sm text-text-muted">Kapcsold be a kívánt adatforrásokat, hogy az AI automatikusan elemezhesse a számláid és bankszámla kivonatod.</p>
-              </div>
-
-              <div className="space-y-4">
-                {integrations.map(item => {
-                  const isConnected = formData.connected.includes(item.id);
-                  return (
-                    <div
-                      key={item.id}
-                      className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all ${
-                        isConnected
-                          ? 'border-neon-mint/40 bg-neon-mint/5'
-                          : 'border-card-border bg-input-bg/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl p-2 bg-bg-main rounded-lg border border-card-border">{item.icon}</span>
-                        <div>
-                          <h4 className="font-bold text-sm text-text-bright">{item.name}</h4>
-                          <p className="text-xs text-text-muted mt-0.5">{item.desc}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Vállalkozási forma</label>
+                      <div className="relative">
+                        <select
+                          value={formData.companyType}
+                          onChange={e => setFormData({ ...formData, companyType: e.target.value })}
+                          className="w-full bg-input-bg border border-input-border rounded-xl pl-4 pr-10 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none cursor-pointer"
+                        >
+                          {COMPANY_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                          <ChevronDown className="w-4 h-4" />
                         </div>
                       </div>
-                      
-                      {isConnected ? (
-                        <span className="flex items-center gap-1.5 text-neon-mint-text text-xs font-semibold px-3 py-1.5 bg-neon-mint/10 rounded-full border border-neon-mint/20">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          Összekapcsolva
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => handleConnect(item)}
-                          className="flex items-center gap-1.5 text-xs font-semibold bg-[#1F5FAD] hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <Link2 className="w-3.5 h-3.5" />
-                          Kapcsolódás
-                        </button>
-                      )}
                     </div>
-                  );
-                })}
+                    <div>
+                      <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Iparág</label>
+                      <div className="relative">
+                        <select
+                          value={formData.industry}
+                          onChange={e => setFormData({ ...formData, industry: e.target.value })}
+                          className="w-full bg-input-bg border border-input-border rounded-xl pl-4 pr-10 py-3 text-sm text-text-bright focus:outline-none focus:border-[#1F5FAD] transition-colors appearance-none cursor-pointer"
+                        >
+                          {INDUSTRIES.map(ind => <option key={ind} value={ind}>{ind}</option>)}
+                        </select>
+                        <div className="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted">
+                          <ChevronDown className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Integrations */}
+            {currentStep === 2 && (
+              <div className="space-y-6 animate-fade-in">
+                <div className="space-y-2">
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-text-bright">Adatkapcsolatok (Integrációk)</h2>
+                  <p className="text-sm text-text-muted">Kapcsold be a kívánt adatforrásokat, hogy az AI automatikusan elemezhesse a számláid és bankszámla kivonatod.</p>
+                </div>
+
+                <div className="space-y-4">
+                  {integrations.map(item => {
+                    const isConnected = formData.connected.includes(item.id);
+                    const isConnectingNow = activeConnection?.id === item.id && connectionState === 1;
+                    const isSuccessNow = activeConnection?.id === item.id && connectionState === 2;
+                    
+                    return (
+                      <div
+                        key={item.id}
+                        className={`p-4 rounded-xl border flex items-center justify-between gap-4 transition-all duration-300 ${
+                          isConnected || isSuccessNow
+                            ? 'border-neon-mint/40 bg-neon-mint/5'
+                            : isConnectingNow
+                            ? 'border-blue-500/40 bg-blue-500/5'
+                            : 'border-card-border bg-input-bg/40'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl p-2 bg-bg-main rounded-lg border border-card-border">{item.icon}</span>
+                          <div>
+                            <h4 className="font-bold text-sm text-text-bright">{item.name}</h4>
+                            <p className="text-xs text-text-muted mt-0.5">{item.desc}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="shrink-0">
+                          {isConnected ? (
+                            <span className="flex items-center gap-1.5 text-neon-mint-text text-xs font-semibold px-3 py-1.5 bg-neon-mint/10 rounded-xl border border-neon-mint/20">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              Összekapcsolva
+                            </span>
+                          ) : isConnectingNow ? (
+                            <span className="flex items-center gap-1.5 text-[#1F5FAD] text-xs font-semibold px-3 py-1.5 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              Szinkronizálás...
+                            </span>
+                          ) : isSuccessNow ? (
+                            <span className="flex items-center gap-1.5 text-neon-mint-text text-xs font-semibold px-3 py-1.5 bg-neon-mint/10 rounded-xl border border-neon-mint/20 animate-bounce">
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              Sikeres!
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handleConnect(item)}
+                              className="flex items-center gap-1.5 text-xs font-semibold bg-[#1F5FAD] hover:bg-blue-600 text-white px-4 py-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer shadow-sm shadow-blue-500/10"
+                            >
+                              <Link2 className="w-3.5 h-3.5" />
+                              Kapcsolódás
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
 
                 <div className="bg-input-bg/60 rounded-xl border border-card-border p-4 text-xs text-text-muted flex items-start gap-2.5">
                   <AlertCircle className="w-4 h-4 text-neon-mint-text shrink-0 mt-0.5" />
@@ -443,84 +521,124 @@ export default function Onboarding() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 <div className="space-y-4">
+                  {/* Kezdő Készpénzállomány */}
                   <div>
                     <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Kezdő Készpénzállomány</span>
-                      <span className="text-text-bright font-bold">{formatHuf(formData.cashBalance)}</span>
+                      <span className="text-text-bright font-bold font-mono">{formatHuf(formData.cashBalance)}</span>
                     </div>
-                    <input
-                      type="range"
-                      min="1000000"
-                      max="20000000"
-                      step="500000"
-                      value={formData.cashBalance}
-                      onChange={e => setFormData({ ...formData, cashBalance: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
-                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="1000000"
+                        max="20000000"
+                        step="500000"
+                        value={formData.cashBalance}
+                        onChange={e => setFormData({ ...formData, cashBalance: Number(e.target.value) })}
+                        className="flex-1 h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
+                      />
+                      <div className="relative shrink-0 w-32">
+                        <input
+                          type="number"
+                          min="0"
+                          value={formData.cashBalance}
+                          onChange={e => setFormData({ ...formData, cashBalance: Number(e.target.value) })}
+                          className="w-full bg-input-bg border border-input-border rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold text-text-bright focus:outline-none focus:border-[#1F5FAD] text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-text-muted font-bold">Ft</span>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Becsült Havi Bevétel */}
                   <div>
                     <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Becsült Havi Bevétel</span>
-                      <span className="text-neon-mint-text font-bold">{formatHuf(formData.monthlyRevenue)}</span>
+                      <span className="text-neon-mint-text font-bold font-mono">{formatHuf(formData.monthlyRevenue)}</span>
                     </div>
-                    <input
-                      type="range"
-                      min="500000"
-                      max="15000000"
-                      step="100000"
-                      value={formData.monthlyRevenue}
-                      onChange={e => setFormData({ ...formData, monthlyRevenue: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
-                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="500000"
+                        max="15000000"
+                        step="100000"
+                        value={formData.monthlyRevenue}
+                        onChange={e => setFormData({ ...formData, monthlyRevenue: Number(e.target.value) })}
+                        className="flex-1 h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
+                      />
+                      <div className="relative shrink-0 w-32">
+                        <input
+                          type="number"
+                          min="0"
+                          value={formData.monthlyRevenue}
+                          onChange={e => setFormData({ ...formData, monthlyRevenue: Number(e.target.value) })}
+                          className="w-full bg-input-bg border border-input-border rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold text-text-bright focus:outline-none focus:border-[#1F5FAD] text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-text-muted font-bold">Ft</span>
+                      </div>
+                    </div>
                   </div>
 
+                  {/* Becsült Havi Kiadás */}
                   <div>
                     <div className="flex justify-between items-center text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">
                       <span>Becsült Havi Kiadás</span>
-                      <span className="text-red-500 font-bold">{formatHuf(formData.monthlyExpense)}</span>
+                      <span className="text-red-500 font-bold font-mono">{formatHuf(formData.monthlyExpense)}</span>
                     </div>
-                    <input
-                      type="range"
-                      min="500000"
-                      max="10000000"
-                      step="100000"
-                      value={formData.monthlyExpense}
-                      onChange={e => setFormData({ ...formData, monthlyExpense: Number(e.target.value) })}
-                      className="w-full h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
-                    />
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="range"
+                        min="500000"
+                        max="10000000"
+                        step="100000"
+                        value={formData.monthlyExpense}
+                        onChange={e => setFormData({ ...formData, monthlyExpense: Number(e.target.value) })}
+                        className="flex-1 h-1.5 bg-card-border rounded-lg appearance-none cursor-pointer accent-neon-mint"
+                      />
+                      <div className="relative shrink-0 w-32">
+                        <input
+                          type="number"
+                          min="0"
+                          value={formData.monthlyExpense}
+                          onChange={e => setFormData({ ...formData, monthlyExpense: Number(e.target.value) })}
+                          className="w-full bg-input-bg border border-input-border rounded-lg pl-3 pr-8 py-1.5 text-xs font-bold text-text-bright focus:outline-none focus:border-[#1F5FAD] text-right [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-text-muted font-bold">Ft</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Live SVG Burn Chart & Stats */}
                 <div className="bg-input-bg border border-card-border rounded-xl p-5 space-y-4 flex flex-col justify-center">
-                  <div className="text-center">
+                  <div className="text-center animate-fade-in">
                     <span className="block text-xs font-medium text-text-muted uppercase">Cash Runway</span>
-                    <span className="block text-4xl font-extrabold text-text-bright mt-1">
+                    <span className="block text-4xl font-extrabold text-text-bright mt-1 font-mono">
                       {runwayStats.runwayMonths === Infinity ? '∞' : `${runwayStats.runwayMonths} hó`}
                     </span>
-                    <span className={`inline-block mt-2 text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                    <span className={`inline-block mt-2 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
                       runwayStats.status === 'safe'
-                        ? 'bg-green-500/10 text-neon-mint-text'
+                        ? 'bg-green-500/10 text-neon-mint-text border border-green-500/20'
                         : runwayStats.status === 'warning'
-                        ? 'bg-amber-500/10 text-amber-500'
-                        : 'bg-red-500/10 text-red-500'
+                        ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
                     }`}>
                       {runwayStats.statusText}
                     </span>
                   </div>
 
-                  {/* SVG forecast bar representation */}
+                  {/* SVG forecast bar representation scaled by dynamic max balance */}
                   <div className="h-16 flex items-end justify-between gap-1.5 px-4 pt-2">
                     {Array.from({ length: 6 }).map((_, idx) => {
                       const balanceAtMonth = formData.cashBalance + (formData.monthlyRevenue - formData.monthlyExpense) * (idx + 1);
-                      const heightPercent = Math.max(10, Math.min(100, (balanceAtMonth / 15000000) * 100));
+                      const absBalance = Math.abs(balanceAtMonth);
+                      const heightPercent = Math.max(10, Math.min(100, (absBalance / maxProjectedBalance) * 100));
                       const isNegative = balanceAtMonth < 0;
                       return (
                         <div key={idx} className="flex-1 flex flex-col items-center gap-1">
-                          <div className="w-full bg-card-border rounded-sm relative h-10 overflow-hidden flex items-end">
+                          <div className="w-full bg-card-border/60 rounded-sm relative h-10 overflow-hidden flex items-end">
                             <div
-                              className={`w-full transition-all duration-300 ${isNegative ? 'bg-red-600' : 'bg-neon-mint'}`}
+                              className={`w-full transition-all duration-300 ${isNegative ? 'bg-red-500' : 'bg-neon-mint'}`}
                               style={{ height: `${heightPercent}%` }}
                             />
                           </div>
@@ -564,18 +682,18 @@ export default function Onboarding() {
 
                 <div className="space-y-2 text-sm sm:border-l sm:border-card-border sm:pl-4">
                   <div className="flex justify-between border-b border-card-border/40 pb-2">
-                    <span className="text-text-muted">Cash Balance:</span>
-                    <span className="font-semibold text-neon-mint-text">{formatHuf(formData.cashBalance)}</span>
+                    <span className="text-text-muted">Kezdő készpénz:</span>
+                    <span className="font-semibold text-neon-mint-text font-mono">{formatHuf(formData.cashBalance)}</span>
                   </div>
                   <div className="flex justify-between border-b border-card-border/40 pb-2">
                     <span className="text-text-muted">Havi Cashflow:</span>
-                    <span className={`font-semibold ${formData.monthlyRevenue >= formData.monthlyExpense ? 'text-neon-mint-text' : 'text-red-500'}`}>
+                    <span className={`font-semibold font-mono ${formData.monthlyRevenue >= formData.monthlyExpense ? 'text-neon-mint-text' : 'text-red-500'}`}>
                       {formData.monthlyRevenue >= formData.monthlyExpense ? '+' : ''}
                       {formatHuf(formData.monthlyRevenue - formData.monthlyExpense)}
                     </span>
                   </div>
                   <div className="flex justify-between border-b border-card-border/40 pb-2">
-                    <span className="text-text-muted">Connected Feeds:</span>
+                    <span className="text-text-muted">Integrált adatkapcsolat:</span>
                     <span className="font-semibold text-text-bright">{formData.connected.length} db</span>
                   </div>
                   <div className="flex justify-between pb-1">
@@ -588,6 +706,7 @@ export default function Onboarding() {
               </div>
             </div>
           )}
+          </HeightTransitionWrapper>
 
           {/* ── Action Buttons ── */}
           <div className="mt-8 pt-4 border-t border-card-border flex items-center justify-between">
@@ -625,36 +744,6 @@ export default function Onboarding() {
           </div>
         </div>
       </div>
-
-      {/* ── Connection Modal ── */}
-      {activeConnection && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-card-bg rounded-2xl border border-card-border p-6 max-w-sm w-full text-center space-y-4 shadow-2xl">
-            <div className="flex items-center justify-center">
-              {connectionState === 1 ? (
-                <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/30">
-                  <Loader2 className="w-6 h-6 text-[#1F5FAD] animate-spin" />
-                </div>
-              ) : (
-                <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/30">
-                  <Check className="w-6 h-6 text-neon-mint-text stroke-[3]" />
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <h4 className="font-bold text-base text-text-bright">
-                {connectionState === 1 ? 'Kapcsolat felépítése...' : 'Kapcsolódás sikeres!'}
-              </h4>
-              <p className="text-xs text-text-muted">
-                {connectionState === 1
-                  ? `Biztonságos kapcsolat létrehozása a(z) ${activeConnection.name} szerverével...`
-                  : `A(z) ${activeConnection.name} adatkapcsolat sikeresen szinkronizálva.`}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Submitting Overlay ── */}
       {isSubmitting && (
