@@ -343,7 +343,7 @@ export default function Cashflow() {
                   <span className={`text-[10px] font-semibold uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
                       ? 'text-emerald-500 dark:text-emerald-400'
-                      : 'text-amber-500 dark:text-amber-400'
+                      : 'text-amber-600 dark:text-amber-400'
                   }`}>
                     {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
                   </span>
@@ -428,7 +428,7 @@ export default function Cashflow() {
                   <span className={`text-[10px] font-semibold uppercase mt-0.5 block ${
                     item.frequency === 'Havi'
                       ? 'text-emerald-500 dark:text-emerald-400'
-                      : 'text-amber-500 dark:text-amber-400'
+                      : 'text-amber-600 dark:text-amber-400'
                   }`}>
                     {item.frequency}{item.frequency === 'Egyszeri' && item.month ? ` · ${item.month}` : ''}
                   </span>
@@ -498,12 +498,12 @@ export default function Cashflow() {
 
       {/* ─── 5. AI Warning Card ────────────────────────── */}
       {negativeMonths.length > 0 && (
-        <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start gap-4 transition-all duration-200">
-          <div className="w-11 h-11 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-            <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400" />
+        <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/25 dark:border-amber-500/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start gap-4 transition-all duration-200">
+          <div className="w-11 h-11 rounded-xl bg-amber-500/15 dark:bg-amber-500/10 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-bold text-amber-600 dark:text-amber-300 mb-1">AI Figyelmeztetés – Negatív Cashflow</h3>
+            <h3 className="text-sm font-bold text-amber-700 dark:text-amber-300 mb-1">AI Figyelmeztetés – Negatív Cashflow</h3>
             <p className="text-sm text-text-muted leading-relaxed">
               {negativeMonths.length === 1
                 ? `A(z) ${negativeMonths[0].name} hónapban negatív az egyenleged: `

@@ -268,11 +268,11 @@ export default function Dokumentum() {
           {/* Validation alerts */}
           <div className="space-y-3">
             {isIbanSuspicious && (
-              <div className="bg-red-950/60 border border-red-500/30 rounded-xl p-4 flex gap-3 text-red-400">
-                <ShieldAlert className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="bg-red-500/10 dark:bg-red-950/60 border border-red-500/20 dark:border-red-500/30 rounded-xl p-4 flex gap-3 text-red-800 dark:text-red-400">
+                <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs">⚠️ LEHETSÉGES IBAN CSALÁS ÉSZLELVE</h4>
-                  <p className="text-[11px] text-red-300">
+                  <h4 className="font-bold text-xs text-red-800 dark:text-red-200">⚠️ LEHETSÉGES IBAN CSALÁS ÉSZLELVE</h4>
+                  <p className="text-[11px] text-red-700 dark:text-red-300">
                     A partner korábban OTP számlát használt. A számlán most egy CIB Bankos IBAN ({invoiceForm.iban}) szerepel. Kérjük, erősítsd meg telefonon is!
                   </p>
                 </div>
@@ -280,11 +280,11 @@ export default function Dokumentum() {
             )}
 
             {!isTotalValid && (
-              <div className="bg-amber-950/60 border border-amber-500/30 rounded-xl p-4 flex gap-3 text-amber-500">
-                <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="bg-amber-500/10 dark:bg-amber-950/60 border border-amber-500/20 dark:border-amber-500/30 rounded-xl p-4 flex gap-3 text-amber-800 dark:text-amber-400">
+                <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <h4 className="font-bold text-xs">⚠️ SZÁMLA ÖSSZEG ELTÉRÉS</h4>
-                  <p className="text-[11px] text-amber-300">
+                  <h4 className="font-bold text-xs text-amber-800 dark:text-amber-200">⚠️ SZÁMLA ÖSSZEG ELTÉRÉS</h4>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300">
                     A számlán szereplő végösszeg ({formatHuf(invoiceForm.total)}) eltér a line-item tételek összegétől ({formatHuf(parsedTotal)}).
                   </p>
                 </div>

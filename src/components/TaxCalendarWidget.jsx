@@ -116,8 +116,8 @@ export default function TaxCalendarWidget({ activeRegime }) {
           </div>
 
           {annualRevenue >= AFA_LIMIT * 0.8 && (
-            <div className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-3 flex gap-2 text-[11px] text-amber-500">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="bg-amber-500/10 dark:bg-amber-500/5 border border-amber-500/20 dark:border-amber-500/10 rounded-xl p-3 flex gap-2 text-[11px] text-amber-700 dark:text-amber-400">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600 dark:text-amber-400" />
               <p>
                 <strong>AI Figyelmeztetés:</strong> Közeledik az ÁFA határ! Javasoljuk a kimenő számlák ütemezését vagy a cégforma felülvizsgálatát.
               </p>
@@ -187,7 +187,7 @@ export default function TaxCalendarWidget({ activeRegime }) {
                     : isCritical
                     ? 'bg-red-950 border-red-500 animate-pulse'
                     : isWarning
-                    ? 'bg-amber-950 border-amber-500'
+                    ? 'bg-amber-100 dark:bg-amber-950 border-amber-500'
                     : 'bg-bg-main border-card-border'
                 }`}>
                   {isCompleted ? (

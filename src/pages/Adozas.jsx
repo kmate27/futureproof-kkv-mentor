@@ -271,7 +271,7 @@ export default function Adozas() {
                   <tr className="hover:bg-card-bg/30">
                     <td className="px-6 py-4 text-text-muted font-medium">Adminisztrációs teher</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-neon-mint-text ${bestRegime === 'KATA' ? 'bg-neon-mint/[0.02]' : ''}`}>Alacsony</td>
-                    <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-500 ${bestRegime === 'Átalányadó' ? 'bg-neon-mint/[0.02]' : ''}`}>Közepes</td>
+                    <td className={`px-4 py-4 text-center text-xs font-semibold text-amber-600 dark:text-amber-400 ${bestRegime === 'Átalányadó' ? 'bg-neon-mint/[0.02]' : ''}`}>Közepes</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'KIVA' ? 'bg-neon-mint/[0.02]' : ''}`}>Magas</td>
                     <td className={`px-4 py-4 text-center text-xs font-semibold text-red-500 ${bestRegime === 'TAO Kft.' ? 'bg-neon-mint/[0.02]' : ''}`}>Magas</td>
                   </tr>

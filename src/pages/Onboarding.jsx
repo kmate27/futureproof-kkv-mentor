@@ -620,8 +620,8 @@ export default function Onboarding() {
                       runwayStats.status === 'safe'
                         ? 'bg-green-500/10 text-neon-mint-text border border-green-500/20'
                         : runwayStats.status === 'warning'
-                        ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
-                        : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                        ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20'
+                        : 'bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/20'
                     }`}>
                       {runwayStats.statusText}
                     </span>

@@ -315,7 +315,7 @@ export default function Dashboard() {
             <div className="bg-input-bg/40 rounded-xl p-6 border border-card-border transition-all duration-200 hover:shadow-sm hover:border-primary/30">
               <div className="flex justify-between items-start mb-2.5">
                 <span className="text-xs font-bold text-text-muted uppercase whitespace-nowrap">Kintlévőség</span>
-                <span className="text-sm font-bold text-amber-500">{scoreData.kintlevoseg}/25</span>
+                <span className="text-sm font-bold text-amber-700 dark:text-amber-400">{scoreData.kintlevoseg}/25</span>
               </div>
               <div className="w-full h-1.5 bg-card-border/60 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500" style={{ width: `${(scoreData.kintlevoseg/25)*100}%` }}></div>
